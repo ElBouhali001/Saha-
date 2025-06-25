@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, FileText, Pill, Video, Download, Clock, Phone, MessageSquare } from 'lucide-react';
+import { Calendar, FileText, Pill, Video, Download, Clock, Phone, MessageSquare, User, Activity } from 'lucide-react';
 import TeleconsultationModule from './TeleconsultationModule';
 import PrescriptionHistory from './PrescriptionHistory';
 import MedicalRecordsView from './MedicalRecordsView';
@@ -49,6 +49,25 @@ const PatientInterface = () => {
     }
   ];
 
+  const healthSummary = {
+    lastConsultation: {
+      date: '2024-01-20',
+      doctor: 'Dr. Kouamé Adjoua',
+      diagnosis: 'Hypertension artérielle',
+      nextAppointment: '2024-01-25'
+    },
+    vitals: {
+      bloodPressure: '140/90',
+      weight: '75kg',
+      temperature: '36.5°C',
+      heartRate: '78 bpm'
+    },
+    alerts: [
+      'Prise de médicament: Lisinopril à 8h00',
+      'Prochain RDV dans 3 jours'
+    ]
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-6">
@@ -59,28 +78,77 @@ const PatientInterface = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-5 lg:w-fit">
           <TabsTrigger value="dashboard" className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4" />
+            <Activity className="w-4 h-4" />
             <span>Tableau de bord</span>
+          </TabsTrigger>
+          <TabsTrigger value="appointments" className="flex items-center space-x-2">
+            <Calendar className="w-4 h-4" />
+            <span>Rendez-vous</span>
           </TabsTrigger>
           <TabsTrigger value="teleconsultation" className="flex items-center space-x-2">
             <Video className="w-4 h-4" />
             <span>Téléconsultation</span>
           </TabsTrigger>
-          <TabsTrigger value="appointments" className="flex items-center space-x-2">
-            <Clock className="w-4 h-4" />
-            <span>Rendez-vous</span>
-          </TabsTrigger>
           <TabsTrigger value="prescriptions" className="flex items-center space-x-2">
             <Pill className="w-4 h-4" />
-            <span>Ordonnances</span>
+            <span>Mes Ordonnances</span>
           </TabsTrigger>
           <TabsTrigger value="medical-records" className="flex items-center space-x-2">
             <FileText className="w-4 h-4" />
-            <span>Dossier médical</span>
+            <span>Mon Dossier</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
+          {/* Résumé de santé */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="w-5 h-5 text-blue-500" />
+                  <span>Mon État de Santé</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-blue-900">Dernière Consultation</h4>
+                    <p className="text-sm text-blue-700 mt-1">
+                      {new Date(healthSummary.lastConsultation.date).toLocaleDateString('fr-FR')}
+                    </p>
+                    <p className="text-sm text-blue-600">{healthSummary.lastConsultation.doctor}</p>
+                    <p className="text-xs text-blue-500 mt-2">{healthSummary.lastConsultation.diagnosis}</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-green-900">Constantes Vitales</h4>
+                    <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                      <div className="text-green-700">Tension: {healthSummary.vitals.bloodPressure}</div>
+                      <div className="text-green-700">Poids: {healthSummary.vitals.weight}</div>
+                      <div className="text-green-700">T°: {healthSummary.vitals.temperature}</div>
+                      <div className="text-green-700">Pouls: {healthSummary.vitals.heartRate}</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-orange-600">Alertes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {healthSummary.alerts.map((alert, index) => (
+                    <div key={index} className="flex items-start space-x-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                      <p className="text-sm text-gray-700">{alert}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Prochains rendez-vous */}
           <Card>
             <CardHeader>
@@ -117,7 +185,12 @@ const PatientInterface = () => {
                       </div>
                       <div className="flex space-x-2">
                         {appointment.type === 'Téléconsultation' && (
-                          <Button size="sm" variant="outline" className="text-green-600">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-green-600"
+                            onClick={() => setActiveTab('teleconsultation')}
+                          >
                             <Video className="w-4 h-4 mr-2" />
                             Rejoindre
                           </Button>
@@ -175,7 +248,7 @@ const PatientInterface = () => {
               <CardTitle>Actions Rapides</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Button 
                   className="h-20 flex-col space-y-2" 
                   variant="outline"
@@ -200,17 +273,25 @@ const PatientInterface = () => {
                   <Pill className="w-6 h-6" />
                   <span>Mes Ordonnances</span>
                 </Button>
+                <Button 
+                  className="h-20 flex-col space-y-2" 
+                  variant="outline"
+                  onClick={() => setActiveTab('medical-records')}
+                >
+                  <FileText className="w-6 h-6" />
+                  <span>Mon Dossier</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="teleconsultation">
-          <TeleconsultationModule />
-        </TabsContent>
-
         <TabsContent value="appointments">
           <AppointmentBooking />
+        </TabsContent>
+
+        <TabsContent value="teleconsultation">
+          <TeleconsultationModule />
         </TabsContent>
 
         <TabsContent value="prescriptions">
