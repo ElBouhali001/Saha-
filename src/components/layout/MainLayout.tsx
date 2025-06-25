@@ -36,6 +36,8 @@ const MainLayout = () => {
         return <AppointmentScheduling />;
       case 'consultations':
         return <MedicalConsultation />;
+      case 'ai-assistant':
+        return <AIModule />;
       default:
         return (
           <div className="p-6">

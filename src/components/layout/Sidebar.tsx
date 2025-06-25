@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,8 @@ import {
   Home,
   Users,
   MessageSquare,
-  LogOut
+  LogOut,
+  Brain
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -51,6 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'schedule', label: 'Mon Planning', icon: Calendar },
           { id: 'patients', label: 'Mes Patients', icon: Users },
           { id: 'consultations', label: 'Consultations', icon: FileText },
+          { id: 'ai-assistant', label: 'Assistant IA', icon: Brain },
           { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
           { id: 'transfers', label: 'Transmissions', icon: MessageSquare },
         ];
