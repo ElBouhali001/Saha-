@@ -6,6 +6,9 @@ import AdminDashboard from '../dashboard/AdminDashboard';
 import DoctorDashboard from '../dashboard/DoctorDashboard';
 import AgentDashboard from '../dashboard/AgentDashboard';
 import PatientDashboard from '../dashboard/PatientDashboard';
+import PatientManagement from '../patients/PatientManagement';
+import AppointmentScheduling from '../appointments/AppointmentScheduling';
+import MedicalConsultation from '../consultation/MedicalConsultation';
 
 const MainLayout = () => {
   const { user } = useAuth();
@@ -26,6 +29,13 @@ const MainLayout = () => {
           default:
             return <div className="p-6">Page non trouvée</div>;
         }
+      case 'patients':
+        return <PatientManagement />;
+      case 'appointments':
+      case 'schedule':
+        return <AppointmentScheduling />;
+      case 'consultations':
+        return <MedicalConsultation />;
       default:
         return (
           <div className="p-6">
