@@ -1,12 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import LoginForm from '@/components/auth/LoginForm';
+import MainLayout from '@/components/layout/MainLayout';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-xl">M+</span>
+          </div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div>
+      {!isAuthenticated ? (
+        <LoginForm />
+      ) : (
+        <MainLayout />
+      )}
     </div>
   );
 };
