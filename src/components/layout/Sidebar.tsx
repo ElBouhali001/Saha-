@@ -16,7 +16,9 @@ import {
   Users,
   MessageSquare,
   LogOut,
-  Brain
+  Brain,
+  Video,
+  Monitor
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -53,6 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'consultations', label: 'Consultations', icon: FileText },
           { id: 'ai-assistant', label: 'Assistant IA', icon: Brain },
           { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
+          { id: 'inventory', label: 'Stock', icon: Package },
           { id: 'transfers', label: 'Transmissions', icon: MessageSquare },
         ];
       
@@ -62,16 +65,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'appointments', label: 'Rendez-vous', icon: Calendar },
           { id: 'patients', label: 'Patients', icon: Users },
           { id: 'billing', label: 'Facturation', icon: DollarSign },
+          { id: 'inventory', label: 'Stock', icon: Package },
           { id: 'reception', label: 'Accueil', icon: Clock },
         ];
       
       case 'patient':
         return [
-          ...commonItems,
+          { id: 'patient-interface', label: 'Mon Espace', icon: Monitor },
           { id: 'appointments', label: 'Mes RDV', icon: Calendar },
           { id: 'medical-history', label: 'Mon Dossier', icon: FileText },
           { id: 'prescriptions', label: 'Ordonnances', icon: Pill },
-          { id: 'teleconsult', label: 'Téléconsultation', icon: MessageSquare },
+          { id: 'teleconsult', label: 'Téléconsultation', icon: Video },
         ];
       
       default:
