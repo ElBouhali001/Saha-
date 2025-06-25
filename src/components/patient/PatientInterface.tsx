@@ -38,14 +38,14 @@ const PatientInterface = () => {
       date: '2024-01-20',
       doctor: 'Dr. Kouamé Adjoua',
       medications: ['Paracétamol 500mg', 'Amoxicilline 250mg'],
-      status: 'active'
+      status: 'active' as const
     },
     {
       id: '2',
       date: '2024-01-15',
       doctor: 'Dr. Traoré Mamadou',
       medications: ['Ibuprofène 400mg'],
-      status: 'completed'
+      status: 'completed' as const
     }
   ];
 

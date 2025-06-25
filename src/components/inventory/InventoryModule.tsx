@@ -27,21 +27,21 @@ const InventoryModule = () => {
       name: 'Paracétamol 500mg',
       currentStock: 2,
       minStock: 50,
-      status: 'critical'
+      status: 'critical' as const
     },
     {
       id: '2',
       name: 'Amoxicilline 250mg',
       currentStock: 0,
       minStock: 30,
-      status: 'out_of_stock'
+      status: 'out_of_stock' as const
     },
     {
       id: '3',
       name: 'Seringues 5ml',
       currentStock: 15,
       minStock: 100,
-      status: 'low'
+      status: 'low' as const
     }
   ];
 
@@ -49,7 +49,7 @@ const InventoryModule = () => {
     {
       id: '1',
       product: 'Paracétamol 500mg',
-      type: 'sortie',
+      type: 'sortie' as const,
       quantity: 20,
       reason: 'Prescription patient',
       date: '2024-01-24T10:30:00',
@@ -58,7 +58,7 @@ const InventoryModule = () => {
     {
       id: '2',
       product: 'Amoxicilline 250mg',
-      type: 'entrée',
+      type: 'entrée' as const,
       quantity: 100,
       reason: 'Livraison fournisseur',
       date: '2024-01-24T09:15:00',
@@ -67,7 +67,7 @@ const InventoryModule = () => {
     {
       id: '3',
       product: 'Seringues 5ml',
-      type: 'sortie',
+      type: 'sortie' as const,
       quantity: 50,
       reason: 'Consultation',
       date: '2024-01-24T08:45:00',
