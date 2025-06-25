@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, AuthState } from '@/types/user';
+import { hashPassword, verifyPassword, secureStorage, generateSecureToken } from '@/utils/security';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
@@ -10,12 +11,12 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for development
-const mockUsers: Array<User & { password: string }> = [
+// Utilisateurs avec mots de passe hachés (simulation base de données)
+const mockUsers: Array<User & { passwordHash: string }> = [
   {
     id: '1',
     email: 'admin@medipatient.com',
-    password: 'admin123',
+    passwordHash: hashPassword('admin123'),
     firstName: 'Admin',
     lastName: 'Structure',
     role: 'admin',
@@ -25,7 +26,7 @@ const mockUsers: Array<User & { password: string }> = [
   {
     id: '2',
     email: 'dr.kouame@medipatient.com', 
-    password: 'doctor123',
+    passwordHash: hashPassword('doctor123'),
     firstName: 'Dr. Kouamé',
     lastName: 'Adjoua',
     role: 'doctor',
@@ -36,7 +37,7 @@ const mockUsers: Array<User & { password: string }> = [
   {
     id: '3',
     email: 'agent@medipatient.com',
-    password: 'agent123', 
+    passwordHash: hashPassword('agent123'), 
     firstName: 'Marie',
     lastName: 'Traoré',
     role: 'agent',
@@ -46,7 +47,7 @@ const mockUsers: Array<User & { password: string }> = [
   {
     id: '4',
     email: 'patient@medipatient.com',
-    password: 'patient123',
+    passwordHash: hashPassword('patient123'),
     firstName: 'Jean',
     lastName: 'Koné',
     role: 'patient',
@@ -63,19 +64,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('medipatient_user');
-    if (storedUser) {
+    // Vérification de session sécurisée
+    const storedUser = secureStorage.getItem('medipatient_user');
+    const storedToken = secureStorage.getItem('medipatient_token');
+    
+    if (storedUser && storedToken) {
       try {
         const user = JSON.parse(storedUser);
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        const tokenData = JSON.parse(storedToken);
+        
+        // Vérifier l'expiration du token
+        const isExpired = Date.now() > tokenData.expiresAt;
+        
+        if (!isExpired) {
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } else {
+          // Token expiré, nettoyer le stockage
+          secureStorage.removeItem('medipatient_user');
+          secureStorage.removeItem('medipatient_token');
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+        }
       } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('medipatient_user');
+        console.error('Erreur lors de la vérification de session:', error);
+        secureStorage.removeItem('medipatient_user');
+        secureStorage.removeItem('medipatient_token');
         setAuthState(prev => ({ ...prev, isLoading: false }));
       }
     } else {
@@ -86,14 +102,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     
-    // Simulate API call delay
+    // Simulation délai API
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    const user = mockUsers.find(u => u.email === email && u.password === password);
+    const user = mockUsers.find(u => u.email === email);
     
-    if (user) {
-      const { password: _, ...userWithoutPassword } = user;
-      localStorage.setItem('medipatient_user', JSON.stringify(userWithoutPassword));
+    if (user && verifyPassword(password, user.passwordHash)) {
+      const { passwordHash: _, ...userWithoutPassword } = user;
+      
+      // Créer un token de session avec expiration
+      const token = {
+        value: generateSecureToken(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24h
+        userId: user.id
+      };
+      
+      // Stockage sécurisé
+      secureStorage.setItem('medipatient_user', JSON.stringify(userWithoutPassword));
+      secureStorage.setItem('medipatient_token', JSON.stringify(token));
+      
+      // Audit log
+      console.log(`[AUDIT] Connexion réussie - User: ${user.email} - Time: ${new Date().toISOString()}`);
+      
       setAuthState({
         user: userWithoutPassword,
         isAuthenticated: true,
@@ -101,13 +131,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       return true;
     } else {
+      // Audit log pour tentative échouée
+      console.log(`[AUDIT] Tentative de connexion échouée - Email: ${email} - Time: ${new Date().toISOString()}`);
+      
       setAuthState(prev => ({ ...prev, isLoading: false }));
       return false;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('medipatient_user');
+    // Audit log
+    console.log(`[AUDIT] Déconnexion - User: ${authState.user?.email} - Time: ${new Date().toISOString()}`);
+    
+    secureStorage.removeItem('medipatient_user');
+    secureStorage.removeItem('medipatient_token');
     setAuthState({
       user: null,
       isAuthenticated: false,
@@ -116,9 +153,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (userData: Partial<User>, password: string): Promise<boolean> => {
-    // This would typically make an API call
-    console.log('Register attempt:', userData);
-    return false; // Not implemented for now
+    // Implémentation future avec validation et hachage
+    console.log('Tentative d\'inscription:', userData);
+    return false;
   };
 
   return (
