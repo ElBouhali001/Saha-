@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from './Sidebar';
@@ -9,6 +10,7 @@ import PatientManagement from '../patients/PatientManagement';
 import AppointmentScheduling from '../appointments/AppointmentScheduling';
 import MedicalConsultation from '../consultation/MedicalConsultation';
 import AIModule from '../ai/AIModule';
+import BillingModule from '../billing/BillingModule';
 
 const MainLayout = () => {
   const { user } = useAuth();
@@ -38,6 +40,8 @@ const MainLayout = () => {
         return <MedicalConsultation />;
       case 'ai-assistant':
         return <AIModule />;
+      case 'billing':
+        return <BillingModule />;
       default:
         return (
           <div className="p-6">
