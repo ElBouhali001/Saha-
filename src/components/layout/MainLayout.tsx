@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from './Sidebar';
@@ -9,6 +8,7 @@ import PatientDashboard from '../dashboard/PatientDashboard';
 import PatientManagement from '../patients/PatientManagement';
 import AppointmentScheduling from '../appointments/AppointmentScheduling';
 import MedicalConsultation from '../consultation/MedicalConsultation';
+import AIModule from '../ai/AIModule';
 
 const MainLayout = () => {
   const { user } = useAuth();
