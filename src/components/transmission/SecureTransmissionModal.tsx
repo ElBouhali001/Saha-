@@ -102,6 +102,12 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
     onClose();
   };
 
+  // Helper function to get primary specialty
+  const getPrimarySpecialty = (doctor: any) => {
+    const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
+    return primarySpecialty?.specialty?.name || doctor.doctor_specialties?.[0]?.specialty?.name || 'Spécialité non définie';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -141,7 +147,7 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
                   <SelectContent>
                     {doctors?.map((doctor) => (
                       <SelectItem key={doctor.id} value={doctor.id}>
-                        Dr. {doctor.profile?.first_name} {doctor.profile?.last_name} - {doctor.specialty?.name}
+                        Dr. {doctor.profile?.first_name} {doctor.profile?.last_name} - {getPrimarySpecialty(doctor)}
                       </SelectItem>
                     ))}
                   </SelectContent>

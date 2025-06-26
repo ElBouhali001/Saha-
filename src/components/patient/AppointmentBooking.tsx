@@ -81,6 +81,12 @@ const AppointmentBooking = () => {
     apt.status === 'confirmed' || apt.status === 'pending'
   );
 
+  // Helper function to get primary specialty
+  const getPrimarySpecialty = (doctor: any) => {
+    const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
+    return primarySpecialty?.specialty?.name || doctor.doctor_specialties?.[0]?.specialty?.name || 'Spécialité non définie';
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -120,7 +126,7 @@ const AppointmentBooking = () => {
                             <h4 className="font-medium">
                               Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
                             </h4>
-                            <p className="text-sm text-gray-600">{doctor.specialty?.name}</p>
+                            <p className="text-sm text-gray-600">{getPrimarySpecialty(doctor)}</p>
                             <p className="text-sm font-medium text-green-600">
                               {doctor.consultation_fee.toLocaleString()} FCFA
                             </p>
