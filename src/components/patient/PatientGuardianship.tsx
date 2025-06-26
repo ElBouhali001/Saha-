@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,8 @@ import { useMyPatients, useCreatePatientGuardian } from '@/hooks/usePatientGuard
 import { useCreatePatient } from '@/hooks/usePatients';
 import { supabase } from '@/integrations/supabase/client';
 
+type RelationshipType = 'parent' | 'tuteur_legal' | 'autre';
+
 const PatientGuardianship = () => {
   const [isAddChildOpen, setIsAddChildOpen] = useState(false);
   const [newChild, setNewChild] = useState({
@@ -20,7 +23,7 @@ const PatientGuardianship = () => {
     date_of_birth: '',
     gender: '',
     birth_certificate_number: '',
-    relationship_type: 'parent' as const,
+    relationship_type: 'parent' as RelationshipType,
   });
 
   const { data: myPatients = [], isLoading } = useMyPatients();
@@ -39,10 +42,14 @@ const PatientGuardianship = () => {
     }
 
     try {
-      // Créer d'abord le profil utilisateur
+      // Générer un UUID pour le nouveau profil
+      const profileId = crypto.randomUUID();
+      
+      // Créer d'abord le profil utilisateur avec un ID généré
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .insert({
+          id: profileId,
           first_name: newChild.first_name,
           last_name: newChild.last_name,
           role: 'patient',
@@ -191,7 +198,7 @@ const PatientGuardianship = () => {
 
                   <div>
                     <Label htmlFor="relationship">Relation</Label>
-                    <Select value={newChild.relationship_type} onValueChange={(value: 'parent' | 'tuteur_legal' | 'autre') => setNewChild({ ...newChild, relationship_type: value })}>
+                    <Select value={newChild.relationship_type} onValueChange={(value: RelationshipType) => setNewChild({ ...newChild, relationship_type: value })}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
