@@ -6,7 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, Phone, CreditCard, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, User, Phone, CreditCard, CheckCircle, Loader2 } from 'lucide-react';
+import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
+import { useAppointments, useCreateAppointment } from '@/hooks/useAppointments';
+import { useToast } from '@/components/ui/use-toast';
 
 const AppointmentBooking = () => {
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -17,29 +20,11 @@ const AppointmentBooking = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const availableDoctors = [
-    {
-      id: '1',
-      name: 'Dr. Kouamé Adjoua',
-      specialty: 'Médecine générale',
-      availability: 'Disponible',
-      price: '15000 FCFA'
-    },
-    {
-      id: '2',
-      name: 'Dr. Traoré Mamadou',
-      specialty: 'Cardiologie',
-      availability: 'Disponible',
-      price: '25000 FCFA'
-    },
-    {
-      id: '3',
-      name: 'Dr. Diallo Fatima',
-      specialty: 'Pédiatrie',
-      availability: 'Occupé',
-      price: '20000 FCFA'
-    }
-  ];
+  const { data: doctors = [], isLoading: loadingDoctors } = useAvailableDoctors(selectedDate);
+  const { data: specialties = [] } = useSpecialties();
+  const { data: appointments = [] } = useAppointments();
+  const createAppointment = useCreateAppointment();
+  const { toast } = useToast();
 
   const availableSlots = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
@@ -47,25 +32,54 @@ const AppointmentBooking = () => {
     '16:00', '16:30', '17:00', '17:30'
   ];
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!selectedDoctor || !selectedDate || !selectedTime || !consultationType) {
-      alert('Veuillez remplir tous les champs obligatoires');
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive",
+      });
       return;
     }
 
-    // Simulation de la réservation
-    console.log('Réservation confirmée:', {
-      doctor: selectedDoctor,
-      date: selectedDate,
-      time: selectedTime,
-      type: consultationType,
-      reason,
-      payment: paymentMethod,
-      phone: phoneNumber
-    });
+    try {
+      await createAppointment.mutateAsync({
+        doctor_id: selectedDoctor,
+        appointment_date: selectedDate,
+        appointment_time: selectedTime,
+        consultation_type: consultationType as any,
+        reason,
+        payment_method: paymentMethod as any,
+        status: 'pending',
+        payment_status: 'pending',
+      });
 
-    alert('Rendez-vous réservé avec succès ! Un SMS de confirmation vous sera envoyé.');
+      toast({
+        title: "Succès",
+        description: "Rendez-vous réservé avec succès ! Un SMS de confirmation vous sera envoyé.",
+      });
+
+      // Reset form
+      setSelectedDoctor('');
+      setSelectedDate('');
+      setSelectedTime('');
+      setConsultationType('');
+      setReason('');
+      setPaymentMethod('');
+      setPhoneNumber('');
+    } catch (error) {
+      console.error('Erreur lors de la réservation:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la réservation. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const upcomingAppointments = appointments.filter(apt => 
+    apt.status === 'confirmed' || apt.status === 'pending'
+  );
 
   return (
     <div className="space-y-6">
@@ -81,37 +95,45 @@ const AppointmentBooking = () => {
             {/* Sélection du médecin */}
             <div className="space-y-4">
               <h3 className="font-medium text-lg">Choisir un médecin</h3>
-              <div className="space-y-3">
-                {availableDoctors.map((doctor) => (
-                  <div
-                    key={doctor.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                      selectedDoctor === doctor.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:bg-gray-50'
-                    } ${doctor.availability === 'Occupé' ? 'opacity-50' : ''}`}
-                    onClick={() => doctor.availability === 'Disponible' && setSelectedDoctor(doctor.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-blue-600" />
+              {loadingDoctors ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {doctors.map((doctor) => (
+                    <div
+                      key={doctor.id}
+                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                        selectedDoctor === doctor.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedDoctor(doctor.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium">
+                              Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
+                            </h4>
+                            <p className="text-sm text-gray-600">{doctor.specialty?.name}</p>
+                            <p className="text-sm font-medium text-green-600">
+                              {doctor.consultation_fee.toLocaleString()} FCFA
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-medium">{doctor.name}</h4>
-                          <p className="text-sm text-gray-600">{doctor.specialty}</p>
-                          <p className="text-sm font-medium text-green-600">{doctor.price}</p>
-                        </div>
+                        <Badge variant="default">
+                          Disponible
+                        </Badge>
                       </div>
-                      <Badge
-                        variant={doctor.availability === 'Disponible' ? 'default' : 'secondary'}
-                      >
-                        {doctor.availability}
-                      </Badge>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Formulaire de réservation */}
@@ -204,9 +226,13 @@ const AppointmentBooking = () => {
                 <Button 
                   onClick={handleBooking}
                   className="w-full bg-blue-600 hover:bg-blue-700"
-                  disabled={!selectedDoctor || !selectedDate || !selectedTime || !consultationType}
+                  disabled={!selectedDoctor || !selectedDate || !selectedTime || !consultationType || createAppointment.isPending}
                 >
-                  <CheckCircle className="w-4 h-4 mr-2" />
+                  {createAppointment.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                  )}
                   Confirmer le rendez-vous
                 </Button>
               </div>
@@ -222,20 +248,30 @@ const AppointmentBooking = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-blue-500" />
-                <div>
-                  <h4 className="font-medium">Dr. Kouamé Adjoua</h4>
-                  <p className="text-sm text-gray-600">Consultation générale</p>
-                  <p className="text-sm text-gray-500">25 janvier 2024 à 14:30</p>
+            {upcomingAppointments.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">Aucun rendez-vous programmé</p>
+            ) : (
+              upcomingAppointments.map((appointment) => (
+                <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="w-5 h-5 text-blue-500" />
+                    <div>
+                      <h4 className="font-medium">
+                        Dr. {appointment.doctor?.profile?.first_name} {appointment.doctor?.profile?.last_name}
+                      </h4>
+                      <p className="text-sm text-gray-600">{appointment.consultation_type}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(appointment.appointment_date).toLocaleDateString('fr-FR')} à {appointment.appointment_time}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button size="sm" variant="outline">Modifier</Button>
+                    <Button size="sm" variant="destructive">Annuler</Button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button size="sm" variant="outline">Modifier</Button>
-                <Button size="sm" variant="destructive">Annuler</Button>
-              </div>
-            </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
