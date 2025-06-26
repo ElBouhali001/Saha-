@@ -32,8 +32,8 @@ const DoctorAgenda = () => {
   const filteredAppointments = useMemo(() => {
     const dateStr = selectedDate.toISOString().split('T')[0];
     return appointments.filter(apt => {
-      const matchesDate = apt.date === dateStr;
-      const matchesDoctor = selectedDoctorId === 'all' || apt.doctorId === selectedDoctorId;
+      const matchesDate = apt.appointment_date === dateStr;
+      const matchesDoctor = selectedDoctorId === 'all' || apt.doctor_id === selectedDoctorId;
       return matchesDate && matchesDoctor;
     });
   }, [appointments, selectedDate, selectedDoctorId]);
@@ -81,6 +81,16 @@ const DoctorAgenda = () => {
     '11:00', '11:30', '14:00', '14:30', '15:00', '15:30',
     '16:00', '16:30', '17:00', '17:30'
   ];
+
+  // Helper function to get patient name
+  const getPatientName = (appointment: any) => {
+    if (appointment.patient?.profile) {
+      const firstName = appointment.patient.profile.first_name || '';
+      const lastName = appointment.patient.profile.last_name || '';
+      return `${firstName} ${lastName}`.trim() || 'Patient';
+    }
+    return 'Patient';
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -168,7 +178,7 @@ const DoctorAgenda = () => {
                   <div className="grid grid-cols-8 gap-2">
                     {timeSlots.map((time) => {
                       const appointment = filteredAppointments.find(apt => 
-                        apt.doctorId === doctor.id && apt.time === time
+                        apt.doctor_id === doctor.id && apt.appointment_time === time + ':00'
                       );
                       
                       return (
@@ -183,7 +193,7 @@ const DoctorAgenda = () => {
                           <div className="font-medium">{time}</div>
                           {appointment && (
                             <div className="mt-1 truncate text-xs">
-                              {appointment.patientName}
+                              {getPatientName(appointment)}
                             </div>
                           )}
                         </div>
@@ -206,7 +216,7 @@ const DoctorAgenda = () => {
             <CardContent>
               <div className="grid grid-cols-4 gap-3">
                 {timeSlots.map((time) => {
-                  const appointment = filteredAppointments.find(apt => apt.time === time);
+                  const appointment = filteredAppointments.find(apt => apt.appointment_time === time + ':00');
                   
                   return (
                     <div
@@ -220,8 +230,8 @@ const DoctorAgenda = () => {
                       <div className="font-medium text-sm">{time}</div>
                       {appointment ? (
                         <div className="mt-2 text-xs">
-                          <div className="font-medium">{appointment.patientName}</div>
-                          <div className="text-gray-600">{appointment.type}</div>
+                          <div className="font-medium">{getPatientName(appointment)}</div>
+                          <div className="text-gray-600">{appointment.consultation_type}</div>
                         </div>
                       ) : (
                         <div className="mt-2 text-xs">Libre</div>
