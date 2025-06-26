@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, FileText, Pill, Video, Download, Clock, Phone, MessageSquare, User, Activity } from 'lucide-react';
+import { Calendar, FileText, Pill, Video, Download, Clock, Phone, MessageSquare, User, Activity, Users } from 'lucide-react';
 import TeleconsultationModule from './TeleconsultationModule';
 import PrescriptionHistory from './PrescriptionHistory';
 import MedicalRecordsView from './MedicalRecordsView';
 import AppointmentBooking from './AppointmentBooking';
+import PatientGuardianship from './PatientGuardianship';
 
 const PatientInterface = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -76,10 +76,14 @@ const PatientInterface = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-fit">
+        <TabsList className="grid w-full grid-cols-6 lg:w-fit">
           <TabsTrigger value="dashboard" className="flex items-center space-x-2">
             <Activity className="w-4 h-4" />
             <span>Tableau de bord</span>
+          </TabsTrigger>
+          <TabsTrigger value="guardianship" className="flex items-center space-x-2">
+            <Users className="w-4 h-4" />
+            <span>Tutelle</span>
           </TabsTrigger>
           <TabsTrigger value="appointments" className="flex items-center space-x-2">
             <Calendar className="w-4 h-4" />
@@ -284,6 +288,10 @@ const PatientInterface = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="guardianship">
+          <PatientGuardianship />
         </TabsContent>
 
         <TabsContent value="appointments">

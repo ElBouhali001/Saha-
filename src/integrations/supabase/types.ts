@@ -319,9 +319,55 @@ export type Database = {
           },
         ]
       }
+      patient_guardians: {
+        Row: {
+          created_at: string | null
+          guardian_id: string | null
+          id: string
+          is_primary: boolean | null
+          patient_id: string | null
+          relationship_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          guardian_id?: string | null
+          id?: string
+          is_primary?: boolean | null
+          patient_id?: string | null
+          relationship_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          guardian_id?: string | null
+          id?: string
+          is_primary?: boolean | null
+          patient_id?: string | null
+          relationship_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_guardians_guardian_id_fkey"
+            columns: ["guardian_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_guardians_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           allergies: string[] | null
+          birth_certificate_number: string | null
           blood_type: string | null
           chronic_conditions: string[] | null
           created_at: string | null
@@ -331,12 +377,15 @@ export type Database = {
           emergency_contact_relationship: string | null
           gender: string | null
           id: string
+          is_minor: boolean | null
+          legal_guardian_consent: boolean | null
           num_secu_sociale: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           allergies?: string[] | null
+          birth_certificate_number?: string | null
           blood_type?: string | null
           chronic_conditions?: string[] | null
           created_at?: string | null
@@ -346,12 +395,15 @@ export type Database = {
           emergency_contact_relationship?: string | null
           gender?: string | null
           id?: string
+          is_minor?: boolean | null
+          legal_guardian_consent?: boolean | null
           num_secu_sociale?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           allergies?: string[] | null
+          birth_certificate_number?: string | null
           blood_type?: string | null
           chronic_conditions?: string[] | null
           created_at?: string | null
@@ -361,6 +413,8 @@ export type Database = {
           emergency_contact_relationship?: string | null
           gender?: string | null
           id?: string
+          is_minor?: boolean | null
+          legal_guardian_consent?: boolean | null
           num_secu_sociale?: string | null
           updated_at?: string | null
           user_id?: string | null
