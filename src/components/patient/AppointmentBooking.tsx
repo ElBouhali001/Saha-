@@ -1,24 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, Phone, CreditCard, CheckCircle, Loader2 } from 'lucide-react';
+import { Calendar, Clock, User, Phone, CreditCard, CheckCircle, Loader2, Filter } from 'lucide-react';
 import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
 import { useAppointments, useCreateAppointment } from '@/hooks/useAppointments';
 import { useToast } from '@/components/ui/use-toast';
 
 const AppointmentBooking = () => {
   const [selectedDoctor, setSelectedDoctor] = useState('');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [consultationType, setConsultationType] = useState('');
   const [reason, setReason] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [filterMode, setFilterMode] = useState<'specialty' | 'doctor'>('specialty');
 
   const { data: doctors = [], isLoading: loadingDoctors } = useAvailableDoctors(selectedDate);
   const { data: specialties = [] } = useSpecialties();
@@ -31,6 +33,37 @@ const AppointmentBooking = () => {
     '11:00', '11:30', '14:00', '14:30', '15:00', '15:30',
     '16:00', '16:30', '17:00', '17:30'
   ];
+
+  // Helper function to get primary specialty
+  const getPrimarySpecialty = (doctor: any) => {
+    const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
+    return primarySpecialty?.specialty?.name || doctor.doctor_specialties?.[0]?.specialty?.name || 'Spécialité non définie';
+  };
+
+  // Filter doctors based on selected specialty
+  const filteredDoctors = useMemo(() => {
+    if (filterMode === 'specialty' && selectedSpecialty) {
+      return doctors.filter(doctor => 
+        doctor.doctor_specialties?.some((ds: any) => ds.specialty_id === selectedSpecialty)
+      );
+    }
+    return doctors;
+  }, [doctors, selectedSpecialty, filterMode]);
+
+  // Get specialties for selected doctor
+  const doctorSpecialties = useMemo(() => {
+    if (filterMode === 'doctor' && selectedDoctor) {
+      const doctor = doctors.find(d => d.id === selectedDoctor);
+      return doctor?.doctor_specialties?.map((ds: any) => ds.specialty) || [];
+    }
+    return [];
+  }, [doctors, selectedDoctor, filterMode]);
+
+  const handleFilterModeChange = (mode: 'specialty' | 'doctor') => {
+    setFilterMode(mode);
+    setSelectedDoctor('');
+    setSelectedSpecialty('');
+  };
 
   const handleBooking = async () => {
     if (!selectedDoctor || !selectedDate || !selectedTime || !consultationType) {
@@ -61,6 +94,7 @@ const AppointmentBooking = () => {
 
       // Reset form
       setSelectedDoctor('');
+      setSelectedSpecialty('');
       setSelectedDate('');
       setSelectedTime('');
       setConsultationType('');
@@ -81,12 +115,6 @@ const AppointmentBooking = () => {
     apt.status === 'confirmed' || apt.status === 'pending'
   );
 
-  // Helper function to get primary specialty
-  const getPrimarySpecialty = (doctor: any) => {
-    const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
-    return primarySpecialty?.specialty?.name || doctor.doctor_specialties?.[0]?.specialty?.name || 'Spécialité non définie';
-  };
-
   return (
     <div className="space-y-6">
       <Card>
@@ -97,52 +125,154 @@ const AppointmentBooking = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Filter Mode Selection */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-2 mb-3">
+              <Filter className="w-4 h-4 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">Mode de recherche :</span>
+            </div>
+            <div className="flex space-x-4">
+              <Button
+                variant={filterMode === 'specialty' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleFilterModeChange('specialty')}
+              >
+                Par spécialité
+              </Button>
+              <Button
+                variant={filterMode === 'doctor' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleFilterModeChange('doctor')}
+              >
+                Par médecin
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Sélection du médecin */}
+            {/* Specialty/Doctor Selection */}
             <div className="space-y-4">
-              <h3 className="font-medium text-lg">Choisir un médecin</h3>
-              {loadingDoctors ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                </div>
+              {filterMode === 'specialty' ? (
+                <>
+                  <h3 className="font-medium text-lg">Choisir une spécialité</h3>
+                  <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner une spécialité" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {specialties.map((specialty) => (
+                        <SelectItem key={specialty.id} value={specialty.id}>
+                          {specialty.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedSpecialty && (
+                    <>
+                      <h4 className="font-medium">Médecins disponibles</h4>
+                      {loadingDoctors ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {filteredDoctors.map((doctor) => (
+                            <div
+                              key={doctor.id}
+                              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                                selectedDoctor === doctor.id
+                                  ? 'border-blue-500 bg-blue-50'
+                                  : 'border-gray-200 hover:bg-gray-50'
+                              }`}
+                              onClick={() => setSelectedDoctor(doctor.id)}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <User className="w-5 h-5 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">
+                                      Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">{getPrimarySpecialty(doctor)}</p>
+                                    <p className="text-sm font-medium text-green-600">
+                                      {doctor.consultation_fee.toLocaleString()} FCFA
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge variant="default">
+                                  Disponible
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
               ) : (
-                <div className="space-y-3">
-                  {doctors.map((doctor) => (
-                    <div
-                      key={doctor.id}
-                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                        selectedDoctor === doctor.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setSelectedDoctor(doctor.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium">
-                              Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
-                            </h4>
-                            <p className="text-sm text-gray-600">{getPrimarySpecialty(doctor)}</p>
-                            <p className="text-sm font-medium text-green-600">
-                              {doctor.consultation_fee.toLocaleString()} FCFA
-                            </p>
+                <>
+                  <h3 className="font-medium text-lg">Choisir un médecin</h3>
+                  {loadingDoctors ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {doctors.map((doctor) => (
+                        <div
+                          key={doctor.id}
+                          className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                            selectedDoctor === doctor.id
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:bg-gray-50'
+                          }`}
+                          onClick={() => setSelectedDoctor(doctor.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <h4 className="font-medium">
+                                  Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
+                                </h4>
+                                <p className="text-sm text-gray-600">{getPrimarySpecialty(doctor)}</p>
+                                <p className="text-sm font-medium text-green-600">
+                                  {doctor.consultation_fee.toLocaleString()} FCFA
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant="default">
+                              Disponible
+                            </Badge>
                           </div>
                         </div>
-                        <Badge variant="default">
-                          Disponible
-                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedDoctor && doctorSpecialties.length > 0 && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <h4 className="font-medium text-sm mb-2">Spécialités du médecin :</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {doctorSpecialties.map((specialty: any) => (
+                          <Badge key={specialty.id} variant="secondary">
+                            {specialty.name}
+                          </Badge>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </div>
 
-            {/* Formulaire de réservation */}
+            {/* Appointment Details Form */}
             <div className="space-y-4">
               <h3 className="font-medium text-lg">Détails du rendez-vous</h3>
               
