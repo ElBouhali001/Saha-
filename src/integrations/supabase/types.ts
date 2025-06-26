@@ -331,6 +331,7 @@ export type Database = {
           emergency_contact_relationship: string | null
           gender: string | null
           id: string
+          num_secu_sociale: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -345,6 +346,7 @@ export type Database = {
           emergency_contact_relationship?: string | null
           gender?: string | null
           id?: string
+          num_secu_sociale?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -359,6 +361,7 @@ export type Database = {
           emergency_contact_relationship?: string | null
           gender?: string | null
           id?: string
+          num_secu_sociale?: string | null
           updated_at?: string | null
           user_id?: string | null
         }

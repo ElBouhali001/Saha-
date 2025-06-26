@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -7,12 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Appointment, Doctor } from '@/types/patient';
-import { Calendar, Clock, Plus, User, Phone } from 'lucide-react';
+import { Calendar, Clock, Plus, User, Phone, Filter } from 'lucide-react';
+import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
+import FilterModeSelector from '@/components/patient/appointment/FilterModeSelector';
 
 const AppointmentScheduling = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [filterMode, setFilterMode] = useState<'specialty' | 'doctor'>('specialty');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [newAppointment, setNewAppointment] = useState({
     patientName: '',
     doctorId: '',
@@ -21,19 +25,39 @@ const AppointmentScheduling = () => {
     type: 'consultation'
   });
 
-  // Mock doctors data
-  const doctors: Doctor[] = [
-    {
-      id: '1',
-      firstName: 'Dr. Kouamé',
-      lastName: 'Adjoua',
-      speciality: 'Médecine Générale',
-      phone: '+225-01-02-03-04',
-      email: 'dr.kouame@medipatient.com',
-      schedule: [],
-      consultationFee: 15000
+  const { data: doctors = [], isLoading: loadingDoctors } = useAvailableDoctors(selectedDate);
+  const { data: specialties = [] } = useSpecialties();
+
+  // Helper function to get primary specialty
+  const getPrimarySpecialty = (doctor: any) => {
+    const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
+    return primarySpecialty?.specialty?.name || doctor.doctor_specialties?.[0]?.specialty?.name || 'Spécialité non définie';
+  };
+
+  // Filter doctors based on selected specialty
+  const filteredDoctors = useMemo(() => {
+    if (filterMode === 'specialty' && selectedSpecialty) {
+      return doctors.filter(doctor => 
+        doctor.doctor_specialties?.some((ds: any) => ds.specialty_id === selectedSpecialty)
+      );
     }
-  ];
+    return doctors;
+  }, [doctors, selectedSpecialty, filterMode]);
+
+  // Get specialties for selected doctor
+  const doctorSpecialties = useMemo(() => {
+    if (filterMode === 'doctor' && newAppointment.doctorId) {
+      const doctor = doctors.find(d => d.id === newAppointment.doctorId);
+      return doctor?.doctor_specialties?.map((ds: any) => ds.specialty) || [];
+    }
+    return [];
+  }, [doctors, newAppointment.doctorId, filterMode]);
+
+  const handleFilterModeChange = (mode: 'specialty' | 'doctor') => {
+    setFilterMode(mode);
+    setNewAppointment({...newAppointment, doctorId: ''});
+    setSelectedSpecialty('');
+  };
 
   const timeSlots = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
@@ -62,8 +86,8 @@ const AppointmentScheduling = () => {
       patientId: Date.now().toString(),
       patientName: newAppointment.patientName,
       doctorId: newAppointment.doctorId,
-      doctorName: doctors.find(d => d.id === newAppointment.doctorId)?.firstName + ' ' + 
-                  doctors.find(d => d.id === newAppointment.doctorId)?.lastName || '',
+      doctorName: doctors.find(d => d.id === newAppointment.doctorId)?.profile?.first_name + ' ' + 
+                  doctors.find(d => d.id === newAppointment.doctorId)?.profile?.last_name || '',
       date: newAppointment.date,
       time: newAppointment.time,
       duration: 30,
@@ -81,6 +105,7 @@ const AppointmentScheduling = () => {
       time: '',
       type: 'consultation'
     });
+    setSelectedSpecialty('');
     setIsAddDialogOpen(false);
   };
 
@@ -97,7 +122,7 @@ const AppointmentScheduling = () => {
               Nouveau RDV
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Planifier un Rendez-Vous</DialogTitle>
             </DialogHeader>
@@ -111,22 +136,83 @@ const AppointmentScheduling = () => {
                   onChange={(e) => setNewAppointment({...newAppointment, patientName: e.target.value})}
                 />
               </div>
-              <div>
-                <Label htmlFor="doctor">Médecin</Label>
-                <Select value={newAppointment.doctorId} onValueChange={(value) => 
-                  setNewAppointment({...newAppointment, doctorId: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un médecin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {doctors.map((doctor) => (
-                      <SelectItem key={doctor.id} value={doctor.id}>
-                        {doctor.firstName} {doctor.lastName} - {doctor.speciality}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+
+              <FilterModeSelector 
+                filterMode={filterMode}
+                onFilterModeChange={handleFilterModeChange}
+              />
+
+              {filterMode === 'specialty' ? (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="specialty">Spécialité</Label>
+                    <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une spécialité" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {specialties.map((specialty) => (
+                          <SelectItem key={specialty.id} value={specialty.id}>
+                            {specialty.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {selectedSpecialty && (
+                    <div>
+                      <Label htmlFor="doctor">Médecin</Label>
+                      <Select value={newAppointment.doctorId} onValueChange={(value) => 
+                        setNewAppointment({...newAppointment, doctorId: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un médecin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filteredDoctors.map((doctor) => (
+                            <SelectItem key={doctor.id} value={doctor.id}>
+                              Dr. {doctor.profile?.first_name} {doctor.profile?.last_name} - {getPrimarySpecialty(doctor)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="doctor">Médecin</Label>
+                    <Select value={newAppointment.doctorId} onValueChange={(value) => 
+                      setNewAppointment({...newAppointment, doctorId: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un médecin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {doctors.map((doctor) => (
+                          <SelectItem key={doctor.id} value={doctor.id}>
+                            Dr. {doctor.profile?.first_name} {doctor.profile?.last_name} - {getPrimarySpecialty(doctor)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {newAppointment.doctorId && doctorSpecialties.length > 0 && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <h4 className="font-medium text-sm mb-2">Spécialités du médecin :</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {doctorSpecialties.map((specialty: any) => (
+                          <span key={specialty.id} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                            {specialty.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date">Date</Label>
