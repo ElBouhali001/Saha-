@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Minus, Save, FileText, Calculator } from 'lucide-react';
+import PricingTiersDisplay, { calculateTieredPrice, getPricingTier } from './PricingTiers';
 
 interface InvoiceItem {
   id: string;
   description: string;
   quantity: number;
-  unitPrice: number;
+  basePrice: number;
+  finalPrice: number;
   total: number;
 }
 
@@ -22,11 +24,24 @@ const InvoiceCreation = () => {
     name: '',
     phone: '',
     email: '',
-    address: ''
+    address: '',
+    coverage: 'autre' // Type de prise en charge
+  });
+
+  const [consultationTicket, setConsultationTicket] = useState({
+    type: 'consultation-generale',
+    basePrice: 15000
   });
 
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
-    { id: '1', description: '', quantity: 1, unitPrice: 0, total: 0 }
+    { 
+      id: '1', 
+      description: 'Consultation générale', 
+      quantity: 1, 
+      basePrice: 15000,
+      finalPrice: 9000, // Prix calculé selon tranche C par défaut
+      total: 9000 
+    }
   ]);
 
   const [invoiceDetails, setInvoiceDetails] = useState({
@@ -35,12 +50,45 @@ const InvoiceCreation = () => {
     dueDate: ''
   });
 
+  // Types de consultations avec prix de base
+  const consultationTypes = [
+    { value: 'consultation-generale', label: 'Consultation générale', price: 15000 },
+    { value: 'consultation-specialiste', label: 'Consultation spécialisée', price: 25000 },
+    { value: 'urgence', label: 'Consultation urgence', price: 20000 },
+    { value: 'teleconsultation', label: 'Téléconsultation', price: 12000 },
+    { value: 'suivi', label: 'Consultation de suivi', price: 10000 }
+  ];
+
+  // Recalculer les prix quand la prise en charge change
+  const updatePricingForCoverage = (newCoverage: string) => {
+    const updatedItems = invoiceItems.map(item => {
+      const finalPrice = calculateTieredPrice(item.basePrice, newCoverage);
+      return {
+        ...item,
+        finalPrice,
+        total: finalPrice * item.quantity
+      };
+    });
+    setInvoiceItems(updatedItems);
+    
+    // Mettre à jour le ticket de consultation
+    const consultationFinalPrice = calculateTieredPrice(consultationTicket.basePrice, newCoverage);
+    updatedItems[0] = {
+      ...updatedItems[0],
+      finalPrice: consultationFinalPrice,
+      total: consultationFinalPrice * updatedItems[0].quantity
+    };
+    setInvoiceItems(updatedItems);
+  };
+
   const addInvoiceItem = () => {
+    const finalPrice = calculateTieredPrice(0, patientInfo.coverage);
     const newItem: InvoiceItem = {
       id: Date.now().toString(),
       description: '',
       quantity: 1,
-      unitPrice: 0,
+      basePrice: 0,
+      finalPrice: finalPrice,
       total: 0
     };
     setInvoiceItems([...invoiceItems, newItem]);
@@ -56,13 +104,34 @@ const InvoiceCreation = () => {
     setInvoiceItems(invoiceItems.map(item => {
       if (item.id === id) {
         const updatedItem = { ...item, [field]: value };
-        if (field === 'quantity' || field === 'unitPrice') {
-          updatedItem.total = updatedItem.quantity * updatedItem.unitPrice;
+        
+        if (field === 'basePrice') {
+          updatedItem.finalPrice = calculateTieredPrice(Number(value), patientInfo.coverage);
         }
+        
+        if (field === 'quantity' || field === 'basePrice') {
+          updatedItem.total = updatedItem.quantity * updatedItem.finalPrice;
+        }
+        
         return updatedItem;
       }
       return item;
     }));
+  };
+
+  const updateConsultationType = (newType: string) => {
+    const consultationType = consultationTypes.find(ct => ct.value === newType);
+    if (consultationType) {
+      setConsultationTicket({
+        type: newType,
+        basePrice: consultationType.price
+      });
+      
+      // Mettre à jour le premier élément (consultation)
+      const finalPrice = calculateTieredPrice(consultationType.price, patientInfo.coverage);
+      updateInvoiceItem('1', 'description', consultationType.label);
+      updateInvoiceItem('1', 'basePrice', consultationType.price);
+    }
   };
 
   const calculateSubtotal = () => {
@@ -89,18 +158,22 @@ const InvoiceCreation = () => {
       return;
     }
 
-    if (invoiceItems.some(item => !item.description.trim() || item.unitPrice <= 0)) {
+    if (invoiceItems.some(item => !item.description.trim() || item.basePrice <= 0)) {
       toast({
-        title: "Erreur",
+        title: "Erreur", 
         description: "Veuillez remplir tous les éléments de facturation",
         variant: "destructive"
       });
       return;
     }
 
+    const selectedTier = getPricingTier(patientInfo.coverage);
+    
     // Simuler la création de facture
-    console.log('Création facture:', {
+    console.log('Création facture avec tarification:', {
       patient: patientInfo,
+      consultationTicket,
+      pricingTier: selectedTier,
       items: invoiceItems,
       details: invoiceDetails,
       subtotal: calculateSubtotal(),
@@ -110,12 +183,20 @@ const InvoiceCreation = () => {
 
     toast({
       title: "Facture créée",
-      description: `Facture créée avec succès pour ${patientInfo.name}`,
+      description: `Facture créée avec tarif ${selectedTier.tier} pour ${patientInfo.name}`,
     });
 
     // Réinitialiser le formulaire
-    setPatientInfo({ name: '', phone: '', email: '', address: '' });
-    setInvoiceItems([{ id: '1', description: '', quantity: 1, unitPrice: 0, total: 0 }]);
+    setPatientInfo({ name: '', phone: '', email: '', address: '', coverage: 'autre' });
+    setConsultationTicket({ type: 'consultation-generale', basePrice: 15000 });
+    setInvoiceItems([{ 
+      id: '1', 
+      description: 'Consultation générale', 
+      quantity: 1, 
+      basePrice: 15000,
+      finalPrice: 9000,
+      total: 9000 
+    }]);
     setInvoiceDetails({ paymentMethod: '', notes: '', dueDate: '' });
   };
 
@@ -125,15 +206,15 @@ const InvoiceCreation = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="w-5 h-5" />
-            <span>Nouvelle Facture</span>
+            <span>Nouvelle Facture avec Tarification</span>
           </CardTitle>
           <CardDescription>
-            Créer une facture pour un patient
+            Créer une facture avec application automatique des tarifs par tranches
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Informations Patient */}
+            {/* Informations Patient et Prise en charge */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="patient-name">Nom du Patient *</Label>
@@ -146,22 +227,31 @@ const InvoiceCreation = () => {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="coverage-type">Type de prise en charge *</Label>
+                <Select 
+                  value={patientInfo.coverage} 
+                  onValueChange={(value) => {
+                    setPatientInfo({...patientInfo, coverage: value});
+                    updatePricingForCoverage(value);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner la prise en charge" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mutuelle">Mutuelle (Tranche A)</SelectItem>
+                    <SelectItem value="tiers-payant">Tiers payant (Tranche B)</SelectItem>
+                    <SelectItem value="autre">Autre (Tranche C)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="patient-phone">Téléphone</Label>
                 <Input
                   id="patient-phone"
                   value={patientInfo.phone}
                   onChange={(e) => setPatientInfo({...patientInfo, phone: e.target.value})}
                   placeholder="+225 XX XX XX XX XX"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="patient-email">Email</Label>
-                <Input
-                  id="patient-email"
-                  type="email"
-                  value={patientInfo.email}
-                  onChange={(e) => setPatientInfo({...patientInfo, email: e.target.value})}
-                  placeholder="patient@email.com"
                 />
               </div>
               <div className="space-y-2">
@@ -174,6 +264,32 @@ const InvoiceCreation = () => {
                 />
               </div>
             </div>
+
+            {/* Type de consultation */}
+            <div className="space-y-2">
+              <Label htmlFor="consultation-type">Type de consultation</Label>
+              <Select 
+                value={consultationTicket.type} 
+                onValueChange={updateConsultationType}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner le type de consultation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {consultationTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label} - {type.price.toLocaleString()} CFA
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Affichage du système de tarification */}
+            <PricingTiersDisplay 
+              selectedCoverage={patientInfo.coverage}
+              basePrice={consultationTicket.basePrice}
+            />
 
             {/* Éléments de facturation */}
             <div className="space-y-4">
@@ -188,7 +304,7 @@ const InvoiceCreation = () => {
               <div className="space-y-3">
                 {invoiceItems.map((item) => (
                   <div key={item.id} className="grid grid-cols-12 gap-3 items-end">
-                    <div className="col-span-5">
+                    <div className="col-span-4">
                       <Label className="text-xs">Description</Label>
                       <Input
                         value={item.description}
@@ -197,8 +313,8 @@ const InvoiceCreation = () => {
                         className="h-9"
                       />
                     </div>
-                    <div className="col-span-2">
-                      <Label className="text-xs">Quantité</Label>
+                    <div className="col-span-1">
+                      <Label className="text-xs">Qté</Label>
                       <Input
                         type="number"
                         min="1"
@@ -208,13 +324,21 @@ const InvoiceCreation = () => {
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label className="text-xs">Prix unitaire</Label>
+                      <Label className="text-xs">Prix de base</Label>
                       <Input
                         type="number"
                         min="0"
-                        value={item.unitPrice}
-                        onChange={(e) => updateInvoiceItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        value={item.basePrice}
+                        onChange={(e) => updateInvoiceItem(item.id, 'basePrice', parseFloat(e.target.value) || 0)}
                         className="h-9"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-xs">Prix appliqué</Label>
+                      <Input
+                        value={item.finalPrice.toLocaleString() + ' CFA'}
+                        readOnly
+                        className="h-9 bg-blue-50 text-blue-800 font-medium"
                       />
                     </div>
                     <div className="col-span-2">
@@ -251,7 +375,7 @@ const InvoiceCreation = () => {
                     <span>{calculateSubtotal().toLocaleString()} CFA</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>TVA (18%):</span>
+                    <span>TVA (18%):</span>  
                     <span>{calculateTax().toLocaleString()} CFA</span>
                   </div>
                   <div className="border-t pt-2">
