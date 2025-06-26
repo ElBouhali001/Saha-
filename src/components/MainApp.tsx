@@ -1,49 +1,29 @@
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
-import AuthComponent from './auth/AuthComponent';
-import PatientInterface from './patient/PatientInterface';
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import LoginForm from './auth/LoginForm';
+import MainLayout from './layout/MainLayout';
 import { Loader2 } from 'lucide-react';
 
 const MainApp = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    // Vérifier si l'utilisateur est connecté
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-
-    getUser();
-
-    // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Chargement...</p>
+        </div>
       </div>
     );
   }
 
-  if (!user) {
-    return <AuthComponent />;
+  if (!isAuthenticated || !user) {
+    return <LoginForm />;
   }
 
-  return <PatientInterface />;
+  return <MainLayout />;
 };
 
 export default MainApp;
