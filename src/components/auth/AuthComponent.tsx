@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AuthComponent = () => {
   const [email, setEmail] = useState('');
@@ -82,7 +82,7 @@ const AuthComponent = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center text-2xl font-bold text-gray-900">
-            Système de Gestion Médicale
+            Système de Gestion Médicale - Supabase
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -170,6 +170,15 @@ const AuthComponent = () => {
               </form>
             </TabsContent>
           </Tabs>
+          
+          <div className="pt-4 border-t mt-4">
+            <Link to="/">
+              <Button variant="outline" className="w-full text-sm">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Version Démo
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

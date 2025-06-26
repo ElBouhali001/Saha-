@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -141,6 +141,15 @@ const LoginForm = () => {
                 Patient
               </Button>
             </div>
+          </div>
+          
+          <div className="pt-4 border-t">
+            <Link to="/supabase">
+              <Button variant="outline" className="w-full text-sm">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Version Supabase
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
