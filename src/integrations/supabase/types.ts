@@ -136,6 +136,45 @@ export type Database = {
           },
         ]
       }
+      doctor_specialties: {
+        Row: {
+          created_at: string | null
+          doctor_id: string | null
+          id: string
+          is_primary: boolean | null
+          specialty_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          doctor_id?: string | null
+          id?: string
+          is_primary?: boolean | null
+          specialty_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          doctor_id?: string | null
+          id?: string
+          is_primary?: boolean | null
+          specialty_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_specialties_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctor_specialties_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doctors: {
         Row: {
           availability_status: string | null

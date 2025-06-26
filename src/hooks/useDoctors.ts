@@ -10,8 +10,12 @@ export const useDoctors = () => {
         .from('doctors')
         .select(`
           *,
-          specialty:specialties(*),
-          profile:profiles(*)
+          profile:profiles(*),
+          doctor_specialties!inner(
+            id,
+            is_primary,
+            specialty:specialties(*)
+          )
         `);
 
       if (error) throw error;
@@ -43,8 +47,12 @@ export const useAvailableDoctors = (date?: string) => {
         .from('doctors')
         .select(`
           *,
-          specialty:specialties(*),
-          profile:profiles(*)
+          profile:profiles(*),
+          doctor_specialties!inner(
+            id,
+            is_primary,
+            specialty:specialties(*)
+          )
         `)
         .eq('availability_status', 'available');
 
@@ -52,5 +60,23 @@ export const useAvailableDoctors = (date?: string) => {
       return data;
     },
     enabled: !!date,
+  });
+};
+
+export const useDoctorSpecialties = () => {
+  return useQuery({
+    queryKey: ['doctor-specialties'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('doctor_specialties')
+        .select(`
+          *,
+          doctor:doctors(*),
+          specialty:specialties(*)
+        `);
+
+      if (error) throw error;
+      return data;
+    },
   });
 };

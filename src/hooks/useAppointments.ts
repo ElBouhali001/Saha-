@@ -12,7 +12,15 @@ export const useAppointments = () => {
         .select(`
           *,
           patient:patients(*),
-          doctor:doctors(*, specialty:specialties(*), profile:profiles(*))
+          doctor:doctors(
+            *, 
+            profile:profiles(*),
+            doctor_specialties!inner(
+              id,
+              is_primary,
+              specialty:specialties(*)
+            )
+          )
         `)
         .order('appointment_date', { ascending: true });
 
