@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Send, QrCode, Copy, Check } from 'lucide-react';
-import { useCreateTransmission, useDoctors } from '@/hooks/useDoctors';
+import { useCreateTransmission } from '@/hooks/useTransmissions';
+import { useDoctors } from '@/hooks/useDoctors';
 import { TransmissionCreate } from '@/types/transmission';
 import { toast } from 'sonner';
 

@@ -427,6 +427,69 @@ export type Database = {
         }
         Relationships: []
       }
+      secure_transmissions: {
+        Row: {
+          access_code: string
+          consultation_id: string | null
+          created_at: string | null
+          expiry_date: string
+          feedback_date: string | null
+          id: string
+          reason: string
+          recipient_id: string | null
+          recipient_type: string
+          specialist_feedback: string | null
+          status: string | null
+          transmitted_elements: string[]
+          updated_at: string | null
+        }
+        Insert: {
+          access_code: string
+          consultation_id?: string | null
+          created_at?: string | null
+          expiry_date: string
+          feedback_date?: string | null
+          id?: string
+          reason: string
+          recipient_id?: string | null
+          recipient_type: string
+          specialist_feedback?: string | null
+          status?: string | null
+          transmitted_elements: string[]
+          updated_at?: string | null
+        }
+        Update: {
+          access_code?: string
+          consultation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string
+          feedback_date?: string | null
+          id?: string
+          reason?: string
+          recipient_id?: string | null
+          recipient_type?: string
+          specialist_feedback?: string | null
+          status?: string | null
+          transmitted_elements?: string[]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secure_transmissions_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "consultations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "secure_transmissions_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       specialties: {
         Row: {
           created_at: string | null
@@ -492,6 +555,38 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transmission_accesses: {
+        Row: {
+          access_date: string | null
+          id: string
+          ip_address: string
+          transmission_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_date?: string | null
+          id?: string
+          ip_address: string
+          transmission_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_date?: string | null
+          id?: string
+          ip_address?: string
+          transmission_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transmission_accesses_transmission_id_fkey"
+            columns: ["transmission_id"]
+            isOneToOne: false
+            referencedRelation: "secure_transmissions"
             referencedColumns: ["id"]
           },
         ]
