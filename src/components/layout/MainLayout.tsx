@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from './Sidebar';
@@ -8,6 +9,7 @@ import PatientDashboard from '../dashboard/PatientDashboard';
 import PatientInterface from '../patient/PatientInterface';
 import PatientManagement from '../patients/PatientManagement';
 import AppointmentScheduling from '../appointments/AppointmentScheduling';
+import DoctorAgenda from '../agenda/DoctorAgenda';
 import MedicalConsultation from '../consultation/MedicalConsultation';
 import AIModule from '../ai/AIModule';
 import BillingModule from '../billing/BillingModule';
@@ -39,6 +41,8 @@ const MainLayout = () => {
       case 'appointments':
       case 'schedule':
         return <AppointmentScheduling />;
+      case 'doctor-agenda':
+        return <DoctorAgenda />;
       case 'consultations':
         return <MedicalConsultation />;
       case 'ai-assistant':

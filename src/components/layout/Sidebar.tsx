@@ -18,7 +18,8 @@ import {
   LogOut,
   Brain,
   Video,
-  Monitor
+  Monitor,
+  CalendarDays
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -63,6 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
         return [
           ...commonItems,
           { id: 'appointments', label: 'Rendez-vous', icon: Calendar },
+          { id: 'doctor-agenda', label: 'Agenda Médecins', icon: CalendarDays },
           { id: 'patients', label: 'Patients', icon: Users },
           { id: 'billing', label: 'Facturation', icon: DollarSign },
           { id: 'inventory', label: 'Stock', icon: Package },
