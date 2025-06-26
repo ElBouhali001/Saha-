@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText } from 'lucide-react';
+import TransmissionButton from './TransmissionButton';
 
 interface ConsultationData {
   symptoms: string;
@@ -15,9 +16,16 @@ interface ConsultationData {
 interface ConsultationFormProps {
   consultation: ConsultationData;
   onConsultationChange: (consultation: ConsultationData) => void;
+  consultationId?: string;
+  patientName?: string;
 }
 
-const ConsultationForm: React.FC<ConsultationFormProps> = ({ consultation, onConsultationChange }) => {
+const ConsultationForm: React.FC<ConsultationFormProps> = ({ 
+  consultation, 
+  onConsultationChange,
+  consultationId,
+  patientName
+}) => {
   const handleFieldChange = (field: keyof ConsultationData, value: string) => {
     onConsultationChange({
       ...consultation,
@@ -28,10 +36,18 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({ consultation, onCon
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <FileText className="w-5 h-5 mr-2" />
-          Consultation Médicale
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center">
+            <FileText className="w-5 h-5 mr-2" />
+            Consultation Médicale
+          </CardTitle>
+          {consultationId && patientName && (
+            <TransmissionButton 
+              consultationId={consultationId}
+              patientName={patientName}
+            />
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
