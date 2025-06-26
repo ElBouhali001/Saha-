@@ -1,7 +1,6 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Doctor, Specialty } from '@/types/database';
 
 export const useDoctors = () => {
   return useQuery({
@@ -16,7 +15,7 @@ export const useDoctors = () => {
         `);
 
       if (error) throw error;
-      return data as Doctor[];
+      return data;
     },
   });
 };
@@ -31,7 +30,7 @@ export const useSpecialties = () => {
         .order('name');
 
       if (error) throw error;
-      return data as Specialty[];
+      return data;
     },
   });
 };
@@ -50,7 +49,7 @@ export const useAvailableDoctors = (date?: string) => {
         .eq('availability_status', 'available');
 
       if (error) throw error;
-      return data as Doctor[];
+      return data;
     },
     enabled: !!date,
   });

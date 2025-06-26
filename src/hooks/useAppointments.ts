@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Appointment } from '@/types/database';
+import { TablesInsert } from '@/integrations/supabase/types';
 
 export const useAppointments = () => {
   return useQuery({
@@ -17,7 +17,7 @@ export const useAppointments = () => {
         .order('appointment_date', { ascending: true });
 
       if (error) throw error;
-      return data as Appointment[];
+      return data;
     },
   });
 };
@@ -26,10 +26,10 @@ export const useCreateAppointment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (appointment: Partial<Appointment>) => {
+    mutationFn: async (appointment: TablesInsert<'appointments'>) => {
       const { data, error } = await supabase
         .from('appointments')
-        .insert([appointment])
+        .insert(appointment)
         .select()
         .single();
 
@@ -46,7 +46,7 @@ export const useUpdateAppointment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Appointment> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<TablesInsert<'appointments'>>) => {
       const { data, error } = await supabase
         .from('appointments')
         .update(updates)

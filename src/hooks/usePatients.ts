@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Patient } from '@/types/database';
+import { TablesInsert } from '@/integrations/supabase/types';
 
 export const usePatients = () => {
   return useQuery({
@@ -15,7 +15,7 @@ export const usePatients = () => {
         `);
 
       if (error) throw error;
-      return data as Patient[];
+      return data;
     },
   });
 };
@@ -24,10 +24,10 @@ export const useCreatePatient = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (patient: Partial<Patient>) => {
+    mutationFn: async (patient: TablesInsert<'patients'>) => {
       const { data, error } = await supabase
         .from('patients')
-        .insert([patient])
+        .insert(patient)
         .select()
         .single();
 
@@ -44,7 +44,7 @@ export const useUpdatePatient = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Patient> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<TablesInsert<'patients'>>) => {
       const { data, error } = await supabase
         .from('patients')
         .update(updates)
