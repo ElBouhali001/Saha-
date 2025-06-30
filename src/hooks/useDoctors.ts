@@ -64,7 +64,14 @@ export const useAvailableDoctors = (date?: string) => {
       }
       
       console.log('Fetched doctors:', data);
-      return data || [];
+      
+      // Filtrer seulement les médecins qui ont des spécialités
+      const doctorsWithSpecialties = data?.filter(doctor => 
+        doctor.doctor_specialties && doctor.doctor_specialties.length > 0
+      ) || [];
+      
+      console.log('Doctors with specialties:', doctorsWithSpecialties);
+      return doctorsWithSpecialties;
     },
     enabled: !!date,
   });
