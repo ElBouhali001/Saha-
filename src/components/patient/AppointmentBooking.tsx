@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
@@ -10,6 +10,7 @@ import SpecialtySelector from './appointment/SpecialtySelector';
 import DoctorSelector from './appointment/DoctorSelector';
 import AppointmentForm from './appointment/AppointmentForm';
 import UpcomingAppointments from './appointment/UpcomingAppointments';
+import { createTestDoctorProfiles } from '@/utils/createTestDoctorProfiles';
 
 const AppointmentBooking = () => {
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -27,6 +28,15 @@ const AppointmentBooking = () => {
   const { data: appointments = [] } = useAppointments();
   const createAppointment = useCreateAppointment();
   const { toast } = useToast();
+
+  // Créer les profils de test au premier chargement
+  useEffect(() => {
+    const initializeTestData = async () => {
+      await createTestDoctorProfiles();
+    };
+    
+    initializeTestData();
+  }, []);
 
   // Helper function to get primary specialty
   const getPrimarySpecialty = (doctor: any) => {

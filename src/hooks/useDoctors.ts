@@ -43,12 +43,14 @@ export const useAvailableDoctors = (date?: string) => {
   return useQuery({
     queryKey: ['available-doctors', date],
     queryFn: async () => {
+      console.log('Fetching available doctors for date:', date);
+      
       const { data, error } = await supabase
         .from('doctors')
         .select(`
           *,
           profile:profiles(*),
-          doctor_specialties!inner(
+          doctor_specialties(
             id,
             is_primary,
             specialty:specialties(*)
@@ -56,8 +58,13 @@ export const useAvailableDoctors = (date?: string) => {
         `)
         .eq('availability_status', 'available');
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching doctors:', error);
+        throw error;
+      }
+      
+      console.log('Fetched doctors:', data);
+      return data || [];
     },
     enabled: !!date,
   });
