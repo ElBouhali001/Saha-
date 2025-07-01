@@ -119,7 +119,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     const hostname = window.location.hostname;
     // Vérifier si c'est une URL de prévisualisation Lovable
     return hostname.includes('lovableproject.com') || 
-           hostname.match(/^[a-f0-9-]+\.lovableproject\.com$/);
+           Boolean(hostname.match(/^[a-f0-9-]+\.lovableproject\.com$/));
   };
 
   const setCurrentTenant = async (tenantId: string) => {

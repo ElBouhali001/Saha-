@@ -19,6 +19,13 @@ const LoginForm = () => {
   const { login, isLoading } = useAuth();
   const { tenant } = useTenant();
 
+  // Automatically show demo profiles when a tenant is selected
+  React.useEffect(() => {
+    if (tenant && !showDemoProfiles) {
+      setShowDemoProfiles(true);
+    }
+  }, [tenant]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -53,13 +60,17 @@ const LoginForm = () => {
     setShowDemoProfiles(false);
   };
 
+  const handleBackToLogin = () => {
+    setShowDemoProfiles(false);
+  };
+
   if (showDemoProfiles && tenant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white p-4">
         <div className="w-full max-w-6xl space-y-4">
           <Button 
             variant="outline" 
-            onClick={() => setShowDemoProfiles(false)}
+            onClick={handleBackToLogin}
             className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

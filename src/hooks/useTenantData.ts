@@ -3,8 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenant } from '@/contexts/TenantContext';
 
-type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
-
 interface QueryOptions {
   select?: string;
   filters?: Record<string, any>;
@@ -12,9 +10,9 @@ interface QueryOptions {
 }
 
 export function useTenantData(
-  tableName: TableName,
+  tableName: string,
   queryKey: string,
-  options?: QueryOptions
+  options: QueryOptions = {}
 ) {
   const { tenant } = useTenant();
 
@@ -32,17 +30,17 @@ export function useTenantData(
 
       let query = supabase
         .from(tableName)
-        .select(options?.select || '*');
+        .select(options.select || '*');
 
       // Appliquer les filtres
-      if (options?.filters) {
+      if (options.filters) {
         Object.entries(options.filters).forEach(([key, value]) => {
           query = query.eq(key, value);
         });
       }
 
       // Appliquer l'ordre
-      if (options?.orderBy) {
+      if (options.orderBy) {
         query = query.order(options.orderBy.column, { 
           ascending: options.orderBy.ascending ?? true 
         });
