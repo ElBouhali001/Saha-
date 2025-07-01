@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from './Sidebar';
@@ -6,7 +5,7 @@ import AdminDashboard from '../dashboard/AdminDashboard';
 import DoctorDashboard from '../dashboard/DoctorDashboard';
 import AgentDashboard from '../dashboard/AgentDashboard';
 import PatientDashboard from '../dashboard/PatientDashboard';
-import PatientInterface from '../patient/PatientInterface';
+import PatientApp from '../patient/PatientApp';
 import PatientManagement from '../patients/PatientManagement';
 import AppointmentScheduling from '../appointments/AppointmentScheduling';
 import DoctorAgenda from '../agenda/DoctorAgenda';
@@ -41,7 +40,7 @@ const MainLayout = () => {
             return <div className="p-6">Page non trouvée</div>;
         }
       case 'patient-interface':
-        return <PatientInterface />;
+        return <PatientApp />;
       case 'patients':
         return <PatientManagement />;
       case 'appointments':

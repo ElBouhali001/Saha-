@@ -1,0 +1,36 @@
+
+/* Styles spécifiques pour mobile */
+@media (max-width: 768px) {
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .mobile-header {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Optimisation des cards pour mobile */
+  .mobile-card {
+    margin: 0.5rem;
+    border-radius: 0.75rem;
+  }
+  
+  /* Navigation bottom pour mobile */
+  .mobile-nav-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Styles pour tablette */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Amélioration des touch targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
