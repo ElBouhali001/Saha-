@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Save, Calculator } from 'lucide-react';
+import { FileText, Save, Calculator, Send } from 'lucide-react';
 import PricingTiersDisplay from './PricingTiers';
 import PatientInfoSection from './sections/PatientInfoSection';
 import ConsultationTypeSection from './sections/ConsultationTypeSection';
@@ -36,6 +36,23 @@ const InvoiceCreation = () => {
     handleSubmit();
   };
 
+  const getSubmitButtonText = () => {
+    switch (patientInfo.coverage) {
+      case 'mutuelle':
+        return 'Créer et transmettre à la mutuelle';
+      case 'tiers-payant':
+        return 'Créer et traiter les paiements';
+      default:
+        return 'Créer la facture';
+    }
+  };
+
+  const getSubmitButtonIcon = () => {
+    return patientInfo.coverage === 'autre' ? Save : Send;
+  };
+
+  const ButtonIcon = getSubmitButtonIcon();
+
   return (
     <div className="space-y-6">
       <Card>
@@ -45,7 +62,7 @@ const InvoiceCreation = () => {
             <span>Nouvelle Facture avec Tarification</span>
           </CardTitle>
           <CardDescription>
-            Créer une facture avec application automatique des tarifs par tranches
+            Créer une facture avec application automatique des tarifs par tranches et transmission selon la prise en charge
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,17 +97,20 @@ const InvoiceCreation = () => {
               subtotal={calculateSubtotal()}
               tax={calculateTax()}
               total={calculateTotal()}
+              coverage={patientInfo.coverage}
+              coverageRate={70}
             />
 
             <InvoiceDetailsSection
               invoiceDetails={invoiceDetails}
               onUpdate={updateInvoiceDetails}
+              coverage={patientInfo.coverage}
             />
 
             <div className="flex space-x-4">
               <Button type="submit" className="flex-1">
-                <Save className="w-4 h-4 mr-2" />
-                Créer la facture
+                <ButtonIcon className="w-4 h-4 mr-2" />
+                {getSubmitButtonText()}
               </Button>
               <Button type="button" variant="outline" className="flex-1">
                 <Calculator className="w-4 h-4 mr-2" />

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { calculateTieredPrice, getPricingTier } from '../PricingTiers';
@@ -96,6 +95,15 @@ export const useInvoiceForm = () => {
       total: consultationFinalPrice * updatedItems[0].quantity
     };
     setInvoiceItems(updatedItems);
+
+    // Réinitialiser le mode de paiement selon la prise en charge
+    if (newCoverage === 'mutuelle') {
+      setInvoiceDetails(prev => ({ ...prev, paymentMethod: 'automatic_transmission' }));
+    } else if (newCoverage === 'tiers-payant') {
+      setInvoiceDetails(prev => ({ ...prev, paymentMethod: 'partial_payment' }));
+    } else {
+      setInvoiceDetails(prev => ({ ...prev, paymentMethod: '' }));
+    }
   };
 
   const addInvoiceItem = () => {
@@ -181,7 +189,38 @@ export const useInvoiceForm = () => {
       return false;
     }
 
+    // Validation spécifique selon le type de prise en charge
+    if (patientInfo.coverage === 'autre' && !invoiceDetails.paymentMethod) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner un mode de paiement",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     const selectedTier = getPricingTier(patientInfo.coverage);
+    const total = calculateTotal();
+    
+    // Calcul des montants selon la prise en charge
+    let patientAmount = 0;
+    let insuranceAmount = 0;
+    let transmissionRequired = false;
+
+    switch (patientInfo.coverage) {
+      case 'mutuelle':
+        insuranceAmount = total;
+        transmissionRequired = true;
+        break;
+      case 'tiers-payant':
+        patientAmount = Math.round(total * 0.3); // 30% patient
+        insuranceAmount = Math.round(total * 0.7); // 70% mutuelle
+        transmissionRequired = true;
+        break;
+      default:
+        patientAmount = total;
+        break;
+    }
     
     console.log('Création facture avec tarification:', {
       patient: patientInfo,
@@ -189,14 +228,29 @@ export const useInvoiceForm = () => {
       pricingTier: selectedTier,
       items: invoiceItems,
       details: invoiceDetails,
-      subtotal: calculateSubtotal(),
-      tax: calculateTax(),
-      total: calculateTotal()
+      financial: {
+        subtotal: calculateSubtotal(),
+        tax: calculateTax(),
+        total: total,
+        patientAmount,
+        insuranceAmount,
+        transmissionRequired
+      }
     });
+
+    let successMessage = `Facture créée avec tarif ${selectedTier.tier} pour ${patientInfo.name}`;
+    
+    if (transmissionRequired) {
+      if (patientInfo.coverage === 'mutuelle') {
+        successMessage += ' - Transmission automatique à la mutuelle programmée';
+      } else {
+        successMessage += ` - Paiement patient: ${patientAmount.toLocaleString()} CFA, Transmission mutuelle: ${insuranceAmount.toLocaleString()} CFA`;
+      }
+    }
 
     toast({
       title: "Facture créée",
-      description: `Facture créée avec tarif ${selectedTier.tier} pour ${patientInfo.name}`,
+      description: successMessage,
     });
 
     // Réinitialiser le formulaire
