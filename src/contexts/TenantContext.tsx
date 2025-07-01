@@ -29,13 +29,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       // Extraire le subdomain depuis l'URL si pas fourni
       const currentSubdomain = subdomain || extractSubdomain();
       
-      if (!currentSubdomain) {
-        // Mode développement - utiliser le premier tenant
+      // Si pas de subdomain ou si c'est une URL Lovable, utiliser le premier tenant
+      if (!currentSubdomain || isLovablePreviewUrl()) {
+        console.log('Mode développement ou URL Lovable - utilisation du premier tenant disponible');
+        
         const { data, error } = await supabase
           .from('tenants')
           .select('*')
-          .limit(1)
-          .single();
+          .order('created_at')
+          .limit(1);
           
         if (error) {
           console.error('Erreur lors de la récupération du tenant:', error);
@@ -47,7 +49,17 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           return;
         }
         
-        const mappedTenant = mapTenantFromDb(data as TenantRow);
+        if (!data || data.length === 0) {
+          console.error('Aucun tenant trouvé');
+          toast({
+            title: "Aucune organisation",
+            description: "Aucune organisation n'est configurée",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        const mappedTenant = mapTenantFromDb(data[0] as TenantRow);
         setTenant(mappedTenant);
         await setCurrentTenant(mappedTenant.id);
         return;
@@ -103,6 +115,13 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     return null;
   };
 
+  const isLovablePreviewUrl = (): boolean => {
+    const hostname = window.location.hostname;
+    // Vérifier si c'est une URL de prévisualisation Lovable
+    return hostname.includes('lovableproject.com') || 
+           hostname.match(/^[a-f0-9-]+\.lovableproject\.com$/);
+  };
+
   const setCurrentTenant = async (tenantId: string) => {
     try {
       // Appeler la fonction PostgreSQL pour définir le tenant courant
@@ -124,7 +143,12 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
 
   const value = {
     tenant,
-    setTenant,
+    setTenant: (newTenant: Tenant | null) => {
+      setTenant(newTenant);
+      if (newTenant) {
+        setCurrentTenant(newTenant.id);
+      }
+    },
     isLoading,
     resolveTenant,
   };
