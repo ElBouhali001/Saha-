@@ -1,8 +1,8 @@
 
-import { TenantDashboard } from "@/components/admin/TenantDashboard";
+import MainApp from '@/components/MainApp';
 
 const Index = () => {
-  return <TenantDashboard />;
+  return <MainApp />;
 };
 
 export default Index;

@@ -1,15 +1,7 @@
+
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { calculateTieredPrice, getPricingTier } from '../PricingTiers';
-
-interface AttachmentFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  url?: string;
-  uploading?: boolean;
-}
 
 interface InvoiceItem {
   id: string;
@@ -78,8 +70,6 @@ export const useInvoiceForm = () => {
     dueDate: ''
   });
 
-  const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
-
   const updatePatientInfo = (field: keyof PatientInfo, value: string) => {
     setPatientInfo(prev => ({ ...prev, [field]: value }));
   };
@@ -106,15 +96,6 @@ export const useInvoiceForm = () => {
       total: consultationFinalPrice * updatedItems[0].quantity
     };
     setInvoiceItems(updatedItems);
-
-    // Réinitialiser le mode de paiement selon la prise en charge
-    if (newCoverage === 'mutuelle') {
-      setInvoiceDetails(prev => ({ ...prev, paymentMethod: 'automatic_transmission' }));
-    } else if (newCoverage === 'tiers-payant') {
-      setInvoiceDetails(prev => ({ ...prev, paymentMethod: 'partial_payment' }));
-    } else {
-      setInvoiceDetails(prev => ({ ...prev, paymentMethod: '' }));
-    }
   };
 
   const addInvoiceItem = () => {
@@ -200,38 +181,7 @@ export const useInvoiceForm = () => {
       return false;
     }
 
-    // Validation spécifique selon le type de prise en charge
-    if (patientInfo.coverage === 'autre' && !invoiceDetails.paymentMethod) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un mode de paiement",
-        variant: "destructive"
-      });
-      return false;
-    }
-
     const selectedTier = getPricingTier(patientInfo.coverage);
-    const total = calculateTotal();
-    
-    // Calcul des montants selon la prise en charge
-    let patientAmount = 0;
-    let insuranceAmount = 0;
-    let transmissionRequired = false;
-
-    switch (patientInfo.coverage) {
-      case 'mutuelle':
-        insuranceAmount = total;
-        transmissionRequired = true;
-        break;
-      case 'tiers-payant':
-        patientAmount = Math.round(total * 0.3); // 30% patient
-        insuranceAmount = Math.round(total * 0.7); // 70% mutuelle
-        transmissionRequired = true;
-        break;
-      default:
-        patientAmount = total;
-        break;
-    }
     
     console.log('Création facture avec tarification:', {
       patient: patientInfo,
@@ -239,36 +189,14 @@ export const useInvoiceForm = () => {
       pricingTier: selectedTier,
       items: invoiceItems,
       details: invoiceDetails,
-      attachments: attachments,
-      financial: {
-        subtotal: calculateSubtotal(),
-        tax: calculateTax(),
-        total: total,
-        patientAmount,
-        insuranceAmount,
-        transmissionRequired
-      }
+      subtotal: calculateSubtotal(),
+      tax: calculateTax(),
+      total: calculateTotal()
     });
-
-    let successMessage = `Facture créée avec tarif ${selectedTier.tier} pour ${patientInfo.name}`;
-    
-    if (transmissionRequired) {
-      if (patientInfo.coverage === 'mutuelle') {
-        successMessage += ' - Transmission automatique à la mutuelle programmée';
-        if (attachments.length > 0) {
-          successMessage += ` avec ${attachments.length} pièce(s) jointe(s)`;
-        }
-      } else {
-        successMessage += ` - Paiement patient: ${patientAmount.toLocaleString()} CFA, Transmission mutuelle: ${insuranceAmount.toLocaleString()} CFA`;
-        if (attachments.length > 0) {
-          successMessage += ` avec ${attachments.length} pièce(s) jointe(s)`;
-        }
-      }
-    }
 
     toast({
       title: "Facture créée",
-      description: successMessage,
+      description: `Facture créée avec tarif ${selectedTier.tier} pour ${patientInfo.name}`,
     });
 
     // Réinitialiser le formulaire
@@ -283,7 +211,6 @@ export const useInvoiceForm = () => {
       total: 9000 
     }]);
     setInvoiceDetails({ paymentMethod: '', notes: '', dueDate: '' });
-    setAttachments([]);
 
     return true;
   };
@@ -304,8 +231,6 @@ export const useInvoiceForm = () => {
     calculateSubtotal,
     calculateTax,
     calculateTotal,
-    attachments,
-    setAttachments,
     handleSubmit
   };
 };
