@@ -10,9 +10,11 @@ import TeleconsultationModule from './TeleconsultationModule';
 import PatientGuardianship from './PatientGuardianship';
 import PrimaryDoctorRequest from './PrimaryDoctorRequest';
 import LabRequirements from './LabRequirements';
+import { useMockPrescriptions } from '@/hooks/useMockPrescriptions';
 
 const PatientInterface = () => {
   const [activeTab, setActiveTab] = useState('appointments');
+  const { data: prescriptions = [] } = useMockPrescriptions();
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -62,7 +64,7 @@ const PatientInterface = () => {
         </TabsContent>
 
         <TabsContent value="prescriptions" className="space-y-6">
-          <PrescriptionHistory />
+          <PrescriptionHistory prescriptions={prescriptions} />
         </TabsContent>
 
         <TabsContent value="teleconsultation" className="space-y-6">
