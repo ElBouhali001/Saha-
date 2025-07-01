@@ -1,19 +1,21 @@
 
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenant } from '@/contexts/TenantContext';
 
 type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
 
-export function useTenantData<T = any>(
+interface QueryOptions {
+  select?: string;
+  filters?: Record<string, any>;
+  orderBy?: { column: string; ascending?: boolean };
+}
+
+export function useTenantData(
   tableName: TableName,
   queryKey: string,
-  options?: {
-    select?: string;
-    filters?: Record<string, any>;
-    orderBy?: { column: string; ascending?: boolean };
-  }
-): UseQueryResult<T[]> {
+  options?: QueryOptions
+) {
   const { tenant } = useTenant();
 
   return useQuery({
@@ -56,7 +58,7 @@ export function useTenantData<T = any>(
     },
     enabled: !!tenant,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (updated from cacheTime)
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }
 
