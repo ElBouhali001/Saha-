@@ -6,19 +6,19 @@ import { useTenant } from '@/contexts/TenantContext';
 // Types pour les tables principales
 type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
 
-export function useTenantData<T>(
+export function useTenantData<T = any>(
   tableName: TableName,
   options?: {
     select?: string;
     filters?: Record<string, any>;
     orderBy?: { column: string; ascending?: boolean };
   }
-): UseQueryResult<T[]> {
+): UseQueryResult<T[], Error> {
   const { currentTenant } = useTenant();
 
   return useQuery({
     queryKey: [currentTenant?.id, tableName, options],
-    queryFn: async () => {
+    queryFn: async (): Promise<T[]> => {
       if (!currentTenant) {
         throw new Error('Tenant non disponible');
       }
@@ -47,7 +47,7 @@ export function useTenantData<T>(
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as T[];
+      return (data || []) as T[];
     },
     enabled: !!currentTenant,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -55,18 +55,18 @@ export function useTenantData<T>(
   });
 }
 
-export function useTenantSingleData<T>(
+export function useTenantSingleData<T = any>(
   tableName: TableName, 
   id: string,
   options?: {
     select?: string;
   }
-): UseQueryResult<T | null> {
+): UseQueryResult<T | null, Error> {
   const { currentTenant } = useTenant();
 
   return useQuery({
     queryKey: [currentTenant?.id, tableName, id, options],
-    queryFn: async () => {
+    queryFn: async (): Promise<T | null> => {
       if (!currentTenant) {
         throw new Error('Tenant non disponible');
       }
