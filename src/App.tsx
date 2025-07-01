@@ -1,15 +1,16 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ModuleProvider } from "@/contexts/ModuleContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TransmissionAccess from "./pages/TransmissionAccess";
 import SupabaseAuth from "./pages/SupabaseAuth";
 import PatientProfile from "./pages/PatientProfile";
-import { ModuleProvider } from "@/contexts/ModuleContext";
 
 const queryClient = new QueryClient();
 

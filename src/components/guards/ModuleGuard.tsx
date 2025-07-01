@@ -3,20 +3,18 @@ import React from 'react';
 import { useModuleAccess } from '@/hooks/useModuleAccess';
 import { ModuleId } from '@/types/modules';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Lock } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface ModuleGuardProps {
   moduleId: ModuleId;
   children: React.ReactNode;
   fallback?: React.ReactNode;
-  showUpgrade?: boolean;
 }
 
 const ModuleGuard: React.FC<ModuleGuardProps> = ({ 
   moduleId, 
   children, 
-  fallback,
-  showUpgrade = true 
+  fallback 
 }) => {
   const { canAccessModule } = useModuleAccess();
 
@@ -26,25 +24,18 @@ const ModuleGuard: React.FC<ModuleGuardProps> = ({
     }
 
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-screen">
         <Card className="w-96">
           <CardHeader>
             <CardTitle className="flex items-center text-orange-600">
-              <Lock className="w-5 h-5 mr-2" />
+              <AlertTriangle className="w-5 h-5 mr-2" />
               Module Non Disponible
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <p className="text-gray-600">
-              Cette fonctionnalité nécessite le module <strong>{moduleId}</strong> qui n'est pas activé.
+              Le module "{moduleId}" n'est pas activé ou vous n'avez pas accès à cette fonctionnalité.
             </p>
-            {showUpgrade && (
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-blue-800 text-sm">
-                  Contactez votre administrateur pour activer ce module ou mettez à niveau votre abonnement.
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
