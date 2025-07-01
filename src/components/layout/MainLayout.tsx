@@ -14,6 +14,8 @@ import MedicalConsultation from '../consultation/MedicalConsultation';
 import AIModule from '../ai/AIModule';
 import BillingModule from '../billing/BillingModule';
 import InventoryModule from '../inventory/InventoryModule';
+import LaboratoryDashboard from '../laboratory/LaboratoryDashboard';
+import PharmacyDashboard from '../pharmacy/PharmacyDashboard';
 
 const MainLayout = () => {
   const { user } = useAuth();
@@ -31,6 +33,10 @@ const MainLayout = () => {
             return <AgentDashboard />;
           case 'patient':
             return <PatientDashboard />;
+          case 'lab_technician':
+            return <LaboratoryDashboard />;
+          case 'pharmacist':
+            return <PharmacyDashboard />;
           default:
             return <div className="p-6">Page non trouvée</div>;
         }
@@ -51,6 +57,14 @@ const MainLayout = () => {
         return <BillingModule />;
       case 'inventory':
         return <InventoryModule />;
+      case 'laboratory':
+      case 'lab-schedule':
+      case 'lab-results':
+        return <LaboratoryDashboard />;
+      case 'pharmacy':
+      case 'pharmacy-inventory':
+      case 'pharmacy-reports':
+        return <PharmacyDashboard />;
       default:
         return (
           <div className="p-6">

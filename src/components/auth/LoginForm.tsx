@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,9 @@ const LoginForm = () => {
       doctor: { email: 'dr.kouame@medipatient.com', password: 'doctor123' },
       agent: { email: 'agent@medipatient.com', password: 'agent123' },
       patient: { email: 'patient@medipatient.com', password: 'patient123' },
+      lab_technician: { email: 'labo@medipatient.com', password: 'labo123' },
+      pharmacist: { email: 'pharmacien@medipatient.com', password: 'pharma123' },
+      insurance_agent: { email: 'assurance@medipatient.com', password: 'assurance123' },
     };
     
     const cred = credentials[role as keyof typeof credentials];
@@ -139,6 +143,30 @@ const LoginForm = () => {
                 className="text-xs"
               >
                 Patient
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => fillDemoCredentials('lab_technician')}
+                className="text-xs"
+              >
+                Technicien Labo
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => fillDemoCredentials('pharmacist')}
+                className="text-xs"
+              >
+                Pharmacien
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => fillDemoCredentials('insurance_agent')}
+                className="text-xs col-span-2"
+              >
+                Agent Assurance
               </Button>
             </div>
           </div>
