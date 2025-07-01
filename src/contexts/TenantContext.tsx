@@ -73,13 +73,31 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const initializeTenant = async () => {
     try {
       // Pour la démo, utiliser le tenant par défaut
-      const { data: tenant, error: tenantError } = await supabase
+      const { data: tenantData, error: tenantError } = await supabase
         .from('tenants')
         .select('*')
         .eq('subdomain', 'cabinet-martin')
         .single();
 
       if (tenantError) throw tenantError;
+
+      // Transformer les données pour correspondre à notre interface
+      const tenant: Tenant = {
+        id: tenantData.id,
+        name: tenantData.name,
+        subdomain: tenantData.subdomain,
+        subscription_plan: tenantData.subscription_plan as 'basic' | 'professional' | 'enterprise',
+        subscription_status: tenantData.subscription_status as 'active' | 'suspended' | 'cancelled',
+        subscription_valid_until: tenantData.subscription_valid_until,
+        subscription_seats: tenantData.subscription_seats,
+        settings: typeof tenantData.settings === 'object' ? tenantData.settings as any : {
+          timezone: 'Europe/Paris',
+          language: 'fr',
+          features: []
+        },
+        created_at: tenantData.created_at,
+        updated_at: tenantData.updated_at
+      };
 
       // Définir le tenant courant dans la session
       await supabase.rpc('set_current_tenant', { tenant_id: tenant.id });
@@ -94,7 +112,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .single();
 
       if (configError) throw configError;
-      setTenantConfig(config);
+      setTenantConfig(config as TenantSecurityConfig);
 
     } catch (error) {
       console.error('Erreur lors de l\'initialisation du tenant:', error);
@@ -106,13 +124,31 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const setCurrentTenant = async (tenantId: string) => {
     setIsLoading(true);
     try {
-      const { data: tenant, error } = await supabase
+      const { data: tenantData, error } = await supabase
         .from('tenants')
         .select('*')
         .eq('id', tenantId)
         .single();
 
       if (error) throw error;
+
+      // Transformer les données pour correspondre à notre interface
+      const tenant: Tenant = {
+        id: tenantData.id,
+        name: tenantData.name,
+        subdomain: tenantData.subdomain,
+        subscription_plan: tenantData.subscription_plan as 'basic' | 'professional' | 'enterprise',
+        subscription_status: tenantData.subscription_status as 'active' | 'suspended' | 'cancelled',
+        subscription_valid_until: tenantData.subscription_valid_until,
+        subscription_seats: tenantData.subscription_seats,
+        settings: typeof tenantData.settings === 'object' ? tenantData.settings as any : {
+          timezone: 'Europe/Paris',
+          language: 'fr',
+          features: []
+        },
+        created_at: tenantData.created_at,
+        updated_at: tenantData.updated_at
+      };
 
       // Définir le tenant courant dans la session
       await supabase.rpc('set_current_tenant', { tenant_id: tenantId });
@@ -126,7 +162,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .eq('tenant_id', tenantId)
         .single();
 
-      setTenantConfig(config);
+      setTenantConfig(config as TenantSecurityConfig);
     } catch (error) {
       console.error('Erreur lors du changement de tenant:', error);
     } finally {

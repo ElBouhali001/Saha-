@@ -3,8 +3,11 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenant } from '@/contexts/TenantContext';
 
+// Types pour les tables principales
+type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
+
 export function useTenantData<T>(
-  tableName: string,
+  tableName: TableName,
   options?: {
     select?: string;
     filters?: Record<string, any>;
@@ -48,12 +51,12 @@ export function useTenantData<T>(
     },
     enabled: !!currentTenant,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (remplace cacheTime)
   });
 }
 
 export function useTenantSingleData<T>(
-  tableName: string, 
+  tableName: TableName, 
   id: string,
   options?: {
     select?: string;
@@ -82,6 +85,6 @@ export function useTenantSingleData<T>(
     },
     enabled: !!currentTenant && !!id,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
