@@ -19,7 +19,10 @@ import {
   Brain,
   Video,
   Monitor,
-  CalendarDays
+  CalendarDays,
+  FlaskConical,
+  UserCheck,
+  CreditCard
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -44,6 +47,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'doctors', label: 'Médecins', icon: User },
           { id: 'billing', label: 'Facturation', icon: DollarSign },
           { id: 'inventory', label: 'Stock', icon: Package },
+          { id: 'laboratories', label: 'Laboratoires', icon: FlaskConical },
+          { id: 'pharmacies', label: 'Pharmacies', icon: Pill },
           { id: 'reports', label: 'Rapports', icon: BarChart },
           { id: 'settings', label: 'Configuration', icon: Settings },
         ];
@@ -56,6 +61,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'consultations', label: 'Consultations', icon: FileText },
           { id: 'ai-assistant', label: 'Assistant IA', icon: Brain },
           { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
+          { id: 'lab-tests', label: 'Analyses', icon: FlaskConical },
+          { id: 'primary-doctor', label: 'Médecin Traitant', icon: UserCheck },
           { id: 'inventory', label: 'Stock', icon: Package },
           { id: 'transfers', label: 'Transmissions', icon: MessageSquare },
         ];
@@ -70,6 +77,29 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'inventory', label: 'Stock', icon: Package },
           { id: 'reception', label: 'Accueil', icon: Clock },
         ];
+
+      case 'lab_technician':
+        return [
+          ...commonItems,
+          { id: 'laboratory', label: 'Analyses', icon: FlaskConical },
+          { id: 'lab-schedule', label: 'Planning', icon: Calendar },
+          { id: 'lab-results', label: 'Résultats', icon: FileText },
+        ];
+
+      case 'pharmacist':
+        return [
+          ...commonItems,
+          { id: 'pharmacy', label: 'Ordonnances', icon: Pill },
+          { id: 'pharmacy-inventory', label: 'Stock Pharmacie', icon: Package },
+          { id: 'pharmacy-reports', label: 'Rapports', icon: BarChart },
+        ];
+
+      case 'insurance_agent':
+        return [
+          ...commonItems,
+          { id: 'insurance-claims', label: 'Remboursements', icon: CreditCard },
+          { id: 'insurance-reports', label: 'Rapports', icon: BarChart },
+        ];
       
       case 'patient':
         return [
@@ -77,6 +107,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           { id: 'appointments', label: 'Mes RDV', icon: Calendar },
           { id: 'medical-history', label: 'Mon Dossier', icon: FileText },
           { id: 'prescriptions', label: 'Ordonnances', icon: Pill },
+          { id: 'lab-results', label: 'Mes Analyses', icon: FlaskConical },
+          { id: 'primary-doctor-request', label: 'Médecin Traitant', icon: UserCheck },
           { id: 'teleconsult', label: 'Téléconsultation', icon: Video },
         ];
       
@@ -92,7 +124,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
       case 'admin': return 'text-purple-600';
       case 'doctor': return 'text-blue-600';
       case 'agent': return 'text-green-600';
-      case 'patient': return 'text-orange-600';
+      case 'lab_technician': return 'text-cyan-600';
+      case 'pharmacist': return 'text-orange-600';
+      case 'insurance_agent': return 'text-indigo-600';
+      case 'patient': return 'text-pink-600';
       default: return 'text-gray-600';
     }
   };
@@ -101,7 +136,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
     switch (user?.role) {
       case 'admin': return 'Administrateur';
       case 'doctor': return 'Médecin';
-      case 'agent': return 'Agent';
+      case 'agent': return 'Agent/Secrétaire';
+      case 'lab_technician': return 'Technicien Labo';
+      case 'pharmacist': return 'Pharmacien';
+      case 'insurance_agent': return 'Agent Assurance';
       case 'patient': return 'Patient';
       default: return 'Utilisateur';
     }
