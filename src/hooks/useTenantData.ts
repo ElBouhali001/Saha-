@@ -2,6 +2,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenant } from '@/contexts/TenantContext';
+import type { Database } from '@/integrations/supabase/types';
+
+type TableName = keyof Database['public']['Tables'];
 
 interface QueryOptions {
   select?: string;
@@ -9,8 +12,8 @@ interface QueryOptions {
   orderBy?: { column: string; ascending?: boolean };
 }
 
-export function useTenantData(
-  tableName: string,
+export function useTenantData<T extends TableName>(
+  tableName: T,
   queryKey: string,
   options: QueryOptions = {}
 ) {
