@@ -35,8 +35,8 @@ export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const moduleId = id as ModuleId;
         defaultModules[moduleId] = {
           ...config,
-          // Les modules core sont toujours activés, les autres selon la configuration
-          isEnabled: CORE_MODULES.includes(moduleId) || getStoredModuleStatus(moduleId)
+          // Les modules core sont toujours activés, les autres selon la configuration utilisateur ou par défaut
+          isEnabled: CORE_MODULES.includes(moduleId) || getDefaultModuleStatus(moduleId) || getStoredModuleStatus(moduleId)
         };
       });
 
@@ -45,6 +45,21 @@ export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     initializeModules();
   }, [user]);
+
+  // Modules activés par défaut pour la démonstration
+  const getDefaultModuleStatus = (moduleId: ModuleId): boolean => {
+    const defaultEnabledModules: ModuleId[] = [
+      'appointment-scheduling',
+      'medical-consultation', 
+      'billing-invoicing',
+      'inventory-management',
+      'laboratory-integration',
+      'pharmacy-integration',
+      'ai-assistant',
+      'transmission-referrals'
+    ];
+    return defaultEnabledModules.includes(moduleId);
+  };
 
   const getStoredModuleStatus = (moduleId: ModuleId): boolean => {
     try {
