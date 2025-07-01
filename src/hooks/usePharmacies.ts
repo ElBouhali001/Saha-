@@ -28,8 +28,14 @@ export const usePharmacyPrescriptions = (pharmacyId?: string) => {
           *,
           prescription:prescriptions(
             *,
-            patient:patients(*, profile:profiles(*)),
-            doctor:doctors(*, profile:profiles(*))
+            patient:patients(
+              *,
+              profile:profiles(*)
+            ),
+            doctor:doctors(
+              *, 
+              profile:profiles(*)
+            )
           ),
           pharmacy:pharmacies(*)
         `)

@@ -1,18 +1,22 @@
 
 export interface User {
   id: string;
-  email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'doctor' | 'agent' | 'patient';
-  structureId?: string;
-  speciality?: string; // For doctors
+  email: string;
+  role: 'admin' | 'doctor' | 'agent' | 'patient' | 'lab_technician' | 'pharmacist' | 'insurance_agent';
   phone?: string;
-  createdAt: string;
+  structureType?: 'medical_center' | 'laboratory' | 'pharmacy' | 'insurance';
 }
 
-export interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+export interface UserProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  role: 'admin' | 'doctor' | 'agent' | 'patient' | 'lab_technician' | 'pharmacist' | 'insurance_agent';
+  structure_type?: 'medical_center' | 'laboratory' | 'pharmacy' | 'insurance';
+  created_at: string;
+  updated_at: string;
 }

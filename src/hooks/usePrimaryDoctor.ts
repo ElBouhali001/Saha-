@@ -11,8 +11,14 @@ export const usePrimaryDoctorRequests = (doctorId?: string) => {
         .from('primary_doctor_requests')
         .select(`
           *,
-          patient:patients(*, profile:profiles(*)),
-          doctor:doctors(*, profile:profiles(*))
+          patient:patients(
+            *, 
+            profile:profiles(*)
+          ),
+          doctor:doctors(
+            *, 
+            profile:profiles(*)
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -35,8 +41,14 @@ export const usePrimaryDoctors = (patientId?: string) => {
         .from('primary_doctors')
         .select(`
           *,
-          patient:patients(*, profile:profiles(*)),
-          doctor:doctors(*, profile:profiles(*))
+          patient:patients(
+            *, 
+            profile:profiles(*)
+          ),
+          doctor:doctors(
+            *, 
+            profile:profiles(*)
+          )
         `)
         .eq('is_active', true)
         .order('created_at', { ascending: false });

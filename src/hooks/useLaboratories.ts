@@ -26,8 +26,14 @@ export const useLabTests = (patientId?: string) => {
         .from('lab_tests')
         .select(`
           *,
-          patient:patients(*),
-          doctor:doctors(*, profile:profiles(*)),
+          patient:patients(
+            *,
+            profile:profiles(*)
+          ),
+          doctor:doctors(
+            *, 
+            profile:profiles(*)
+          ),
           laboratory:laboratories(*),
           consultation:consultations(*)
         `)
