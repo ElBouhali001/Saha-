@@ -6,19 +6,23 @@ import { useTenant } from '@/contexts/TenantContext';
 // Types pour les tables principales
 type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
 
-export function useTenantData<T = any>(
+// Type pour les options de requête
+interface QueryOptions {
+  select?: string;
+  filters?: Record<string, any>;
+  orderBy?: { column: string; ascending?: boolean };
+}
+
+// Hook principal pour les données tenant
+export function useTenantData(
   tableName: TableName,
-  options?: {
-    select?: string;
-    filters?: Record<string, any>;
-    orderBy?: { column: string; ascending?: boolean };
-  }
-): UseQueryResult<T[], Error> {
+  options?: QueryOptions
+): UseQueryResult<any[], Error> {
   const { currentTenant } = useTenant();
 
   return useQuery({
     queryKey: [currentTenant?.id, tableName, options],
-    queryFn: async (): Promise<T[]> => {
+    queryFn: async () => {
       if (!currentTenant) {
         throw new Error('Tenant non disponible');
       }
@@ -47,7 +51,7 @@ export function useTenantData<T = any>(
       const { data, error } = await query;
 
       if (error) throw error;
-      return (data || []) as T[];
+      return data || [];
     },
     enabled: !!currentTenant,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -55,18 +59,17 @@ export function useTenantData<T = any>(
   });
 }
 
-export function useTenantSingleData<T = any>(
+// Hook pour récupérer un seul enregistrement
+export function useTenantSingleData(
   tableName: TableName, 
   id: string,
-  options?: {
-    select?: string;
-  }
-): UseQueryResult<T | null, Error> {
+  options?: { select?: string }
+): UseQueryResult<any | null, Error> {
   const { currentTenant } = useTenant();
 
   return useQuery({
     queryKey: [currentTenant?.id, tableName, id, options],
-    queryFn: async (): Promise<T | null> => {
+    queryFn: async () => {
       if (!currentTenant) {
         throw new Error('Tenant non disponible');
       }
@@ -81,9 +84,9 @@ export function useTenantSingleData<T = any>(
         .maybeSingle();
 
       if (error) throw error;
-      return data as T | null;
+      return data;
     },
-    enabled: !!currentTenant && !!id,
+    enabled: !!(currentTenant && id),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
