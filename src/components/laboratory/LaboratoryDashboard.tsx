@@ -5,15 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, FlaskConical, User, FileText, CheckCircle } from 'lucide-react';
-import { useLabTests, useUpdateLabTest } from '@/hooks/useLaboratories';
+import { useMockLabTests, useMockUpdateLabTest } from '@/hooks/useMockData';
 
 const LaboratoryDashboard = () => {
-  const { data: labTests = [], isLoading } = useLabTests();
-  const updateLabTest = useUpdateLabTest();
+  const { data: labTests = [], isLoading } = useMockLabTests();
+  const updateLabTest = useMockUpdateLabTest();
 
   const pendingTests = labTests.filter(test => test.status === 'prescribed');
   const scheduledTests = labTests.filter(test => test.status === 'scheduled');
-  const completedTests = labTests.filter(test => test.status === 'completed');
+  const completedTests = labTests.filter(test => test.status === 'completed' || test.status === 'results_available');
 
   const handleStatusUpdate = async (testId: string, newStatus: string, additionalData?: any) => {
     await updateLabTest.mutateAsync({
@@ -126,11 +126,11 @@ const LaboratoryDashboard = () => {
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4" />
-                            <span>Patient: {test.patient?.profile?.first_name} {test.patient?.profile?.last_name}</span>
+                            <span>Patient: {test.patient.profile.first_name} {test.patient.profile.last_name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4" />
-                            <span>Médecin: Dr. {test.doctor?.profile?.first_name} {test.doctor?.profile?.last_name}</span>
+                            <span>Médecin: {test.doctor.profile.first_name} {test.doctor.profile.last_name}</span>
                           </div>
                         </div>
 
@@ -194,7 +194,7 @@ const LaboratoryDashboard = () => {
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-2">
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4" />
-                            <span>Patient: {test.patient?.profile?.first_name} {test.patient?.profile?.last_name}</span>
+                            <span>Patient: {test.patient.profile.first_name} {test.patient.profile.last_name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Clock className="w-4 h-4" />
@@ -247,13 +247,28 @@ const LaboratoryDashboard = () => {
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4" />
-                            <span>Patient: {test.patient?.profile?.first_name} {test.patient?.profile?.last_name}</span>
+                            <span>Patient: {test.patient.profile.first_name} {test.patient.profile.last_name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Clock className="w-4 h-4" />
                             <span>Terminée le: {test.results_date ? new Date(test.results_date).toLocaleDateString('fr-FR') : 'N/A'}</span>
                           </div>
                         </div>
+
+                        {test.results && (
+                          <div className="mt-3 p-3 bg-green-50 rounded-lg">
+                            <h4 className="font-medium text-green-800 mb-2">Résultats:</h4>
+                            <div className="text-sm text-green-700">
+                              {typeof test.results === 'object' ? (
+                                Object.entries(test.results).map(([key, value]) => (
+                                  <p key={key}><strong>{key}:</strong> {String(value)}</p>
+                                ))
+                              ) : (
+                                <p>{test.results}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex space-x-2">

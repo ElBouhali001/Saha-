@@ -3,12 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, FileText, Pill, Video, Download, Clock, Phone, MessageSquare, User, Activity, Users } from 'lucide-react';
+import { Calendar, FileText, Pill, Video, Download, Clock, Phone, MessageSquare, User, Activity, Users, FlaskConical } from 'lucide-react';
 import TeleconsultationModule from './TeleconsultationModule';
 import PrescriptionHistory from './PrescriptionHistory';
 import MedicalRecordsView from './MedicalRecordsView';
 import AppointmentBooking from './AppointmentBooking';
 import PatientGuardianship from './PatientGuardianship';
+import LabRequirements from './LabRequirements';
 
 const PatientInterface = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -64,9 +65,25 @@ const PatientInterface = () => {
     },
     alerts: [
       'Prise de médicament: Lisinopril à 8h00',
-      'Prochain RDV dans 3 jours'
+      'Prochain RDV dans 3 jours',
+      'Analyse sanguine prescrite - À programmer'
     ]
   };
+
+  const pendingLabTests = [
+    {
+      name: 'Bilan sanguin complet',
+      prescribedBy: 'Dr. Kouamé Adjoua',
+      urgency: 'normal',
+      status: 'À programmer'
+    },
+    {
+      name: 'Test de glycémie',
+      prescribedBy: 'Dr. Mamadou Diallo',
+      urgency: 'urgent',
+      status: 'À programmer'
+    }
+  ];
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -76,7 +93,7 @@ const PatientInterface = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:w-fit">
+        <TabsList className="grid w-full grid-cols-7 lg:w-fit">
           <TabsTrigger value="dashboard" className="flex items-center space-x-2">
             <Activity className="w-4 h-4" />
             <span>Tableau de bord</span>
@@ -88,6 +105,10 @@ const PatientInterface = () => {
           <TabsTrigger value="appointments" className="flex items-center space-x-2">
             <Calendar className="w-4 h-4" />
             <span>Rendez-vous</span>
+          </TabsTrigger>
+          <TabsTrigger value="lab-requirements" className="flex items-center space-x-2">
+            <FlaskConical className="w-4 h-4" />
+            <span>Analyses</span>
           </TabsTrigger>
           <TabsTrigger value="teleconsultation" className="flex items-center space-x-2">
             <Video className="w-4 h-4" />
@@ -152,6 +173,51 @@ const PatientInterface = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Analyses prescrites */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <FlaskConical className="w-5 h-5 text-purple-500" />
+                <span>Analyses Prescrites</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {pendingLabTests.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">Aucune analyse en attente</p>
+              ) : (
+                <div className="space-y-3">
+                  {pendingLabTests.map((test, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <FlaskConical className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">{test.name}</span>
+                          <Badge variant={test.urgency === 'urgent' ? 'destructive' : 'secondary'}>
+                            {test.urgency === 'urgent' ? 'Urgent' : 'Normal'}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">Prescrit par {test.prescribedBy}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setActiveTab('lab-requirements')}
+                        >
+                          Voir prérequis
+                        </Button>
+                        <Button size="sm">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Programmer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Prochains rendez-vous */}
           <Card>
@@ -252,7 +318,7 @@ const PatientInterface = () => {
               <CardTitle>Actions Rapides</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <Button 
                   className="h-20 flex-col space-y-2" 
                   variant="outline"
@@ -260,6 +326,14 @@ const PatientInterface = () => {
                 >
                   <Calendar className="w-6 h-6" />
                   <span>Prendre RDV</span>
+                </Button>
+                <Button 
+                  className="h-20 flex-col space-y-2" 
+                  variant="outline"
+                  onClick={() => setActiveTab('lab-requirements')}
+                >
+                  <FlaskConical className="w-6 h-6" />
+                  <span>Mes Analyses</span>
                 </Button>
                 <Button 
                   className="h-20 flex-col space-y-2" 
@@ -296,6 +370,10 @@ const PatientInterface = () => {
 
         <TabsContent value="appointments">
           <AppointmentBooking />
+        </TabsContent>
+
+        <TabsContent value="lab-requirements">
+          <LabRequirements />
         </TabsContent>
 
         <TabsContent value="teleconsultation">
