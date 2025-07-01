@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
-import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
+import { useMockDoctors, useMockSpecialties } from '@/hooks/useMockDoctors';
 import { useAppointments, useCreateAppointment } from '@/hooks/useAppointments';
 import { useToast } from '@/components/ui/use-toast';
 import FilterModeSelector from './appointment/FilterModeSelector';
@@ -10,7 +10,6 @@ import SpecialtySelector from './appointment/SpecialtySelector';
 import DoctorSelector from './appointment/DoctorSelector';
 import AppointmentForm from './appointment/AppointmentForm';
 import UpcomingAppointments from './appointment/UpcomingAppointments';
-import { createTestDoctorProfiles } from '@/utils/createTestDoctorProfiles';
 
 const AppointmentBooking = () => {
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -23,20 +22,12 @@ const AppointmentBooking = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [filterMode, setFilterMode] = useState<'specialty' | 'doctor'>('specialty');
 
-  const { data: doctors = [], isLoading: loadingDoctors } = useAvailableDoctors(selectedDate);
-  const { data: specialties = [] } = useSpecialties();
+  // Utilisation des données mockées
+  const { data: doctors = [], isLoading: loadingDoctors } = useMockDoctors();
+  const { data: specialties = [] } = useMockSpecialties();
   const { data: appointments = [] } = useAppointments();
   const createAppointment = useCreateAppointment();
   const { toast } = useToast();
-
-  // Créer les profils de test au premier chargement
-  useEffect(() => {
-    const initializeTestData = async () => {
-      await createTestDoctorProfiles();
-    };
-    
-    initializeTestData();
-  }, []);
 
   // Helper function to get primary specialty
   const getPrimarySpecialty = (doctor: any) => {
@@ -80,13 +71,14 @@ const AppointmentBooking = () => {
     }
 
     try {
-      await createAppointment.mutateAsync({
+      // Simulation de création de rendez-vous
+      console.log('Création du rendez-vous:', {
         doctor_id: selectedDoctor,
         appointment_date: selectedDate,
         appointment_time: selectedTime,
-        consultation_type: consultationType as any,
+        consultation_type: consultationType,
         reason,
-        payment_method: paymentMethod as any,
+        payment_method: paymentMethod,
         status: 'pending',
         payment_status: 'pending',
       });
@@ -172,7 +164,7 @@ const AppointmentBooking = () => {
               onPhoneNumberChange={setPhoneNumber}
               onBooking={handleBooking}
               selectedDoctor={selectedDoctor}
-              isLoading={createAppointment.isPending}
+              isLoading={false}
             />
           </div>
         </CardContent>
