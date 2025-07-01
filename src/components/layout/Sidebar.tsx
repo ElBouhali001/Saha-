@@ -1,29 +1,14 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
-  Calendar, 
-  User, 
-  FileText, 
-  Clock, 
-  Pill, 
-  DollarSign,
-  Package,
-  BarChart,
-  Settings,
-  Home,
-  Users,
-  MessageSquare,
   LogOut,
-  Brain,
-  Video,
-  Monitor,
-  CalendarDays,
-  FlaskConical,
-  UserCheck,
-  CreditCard
+  User,
+  Home
 } from 'lucide-react';
+import ModularNavigation from './ModularNavigation';
 
 interface SidebarProps {
   currentPage: string;
@@ -32,92 +17,6 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
   const { user, logout } = useAuth();
-
-  const getMenuItems = () => {
-    const commonItems = [
-      { id: 'dashboard', label: 'Tableau de bord', icon: Home },
-    ];
-
-    switch (user?.role) {
-      case 'admin':
-        return [
-          ...commonItems,
-          { id: 'patients', label: 'Patients', icon: Users },
-          { id: 'appointments', label: 'Rendez-vous', icon: Calendar },
-          { id: 'doctors', label: 'Médecins', icon: User },
-          { id: 'billing', label: 'Facturation', icon: DollarSign },
-          { id: 'inventory', label: 'Stock', icon: Package },
-          { id: 'laboratories', label: 'Laboratoires', icon: FlaskConical },
-          { id: 'pharmacies', label: 'Pharmacies', icon: Pill },
-          { id: 'reports', label: 'Rapports', icon: BarChart },
-          { id: 'settings', label: 'Configuration', icon: Settings },
-        ];
-      
-      case 'doctor':
-        return [
-          ...commonItems,
-          { id: 'schedule', label: 'Mon Planning', icon: Calendar },
-          { id: 'patients', label: 'Mes Patients', icon: Users },
-          { id: 'consultations', label: 'Consultations', icon: FileText },
-          { id: 'ai-assistant', label: 'Assistant IA', icon: Brain },
-          { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
-          { id: 'lab-tests', label: 'Analyses', icon: FlaskConical },
-          { id: 'primary-doctor', label: 'Médecin Traitant', icon: UserCheck },
-          { id: 'inventory', label: 'Stock', icon: Package },
-          { id: 'transfers', label: 'Transmissions', icon: MessageSquare },
-        ];
-      
-      case 'agent':
-        return [
-          ...commonItems,
-          { id: 'appointments', label: 'Rendez-vous', icon: Calendar },
-          { id: 'doctor-agenda', label: 'Agenda Médecins', icon: CalendarDays },
-          { id: 'patients', label: 'Patients', icon: Users },
-          { id: 'billing', label: 'Facturation', icon: DollarSign },
-          { id: 'inventory', label: 'Stock', icon: Package },
-          { id: 'reception', label: 'Accueil', icon: Clock },
-        ];
-
-      case 'lab_technician':
-        return [
-          ...commonItems,
-          { id: 'laboratory', label: 'Analyses', icon: FlaskConical },
-          { id: 'lab-schedule', label: 'Planning', icon: Calendar },
-          { id: 'lab-results', label: 'Résultats', icon: FileText },
-        ];
-
-      case 'pharmacist':
-        return [
-          ...commonItems,
-          { id: 'pharmacy', label: 'Ordonnances', icon: Pill },
-          { id: 'pharmacy-inventory', label: 'Stock Pharmacie', icon: Package },
-          { id: 'pharmacy-reports', label: 'Rapports', icon: BarChart },
-        ];
-
-      case 'insurance_agent':
-        return [
-          ...commonItems,
-          { id: 'insurance-claims', label: 'Remboursements', icon: CreditCard },
-          { id: 'insurance-reports', label: 'Rapports', icon: BarChart },
-        ];
-      
-      case 'patient':
-        return [
-          { id: 'patient-interface', label: 'Mon Espace', icon: Monitor },
-          { id: 'appointments', label: 'Mes RDV', icon: Calendar },
-          { id: 'medical-history', label: 'Mon Dossier', icon: FileText },
-          { id: 'prescriptions', label: 'Ordonnances', icon: Pill },
-          { id: 'lab-results', label: 'Mes Analyses', icon: FlaskConical },
-          { id: 'primary-doctor-request', label: 'Médecin Traitant', icon: UserCheck },
-          { id: 'teleconsult', label: 'Téléconsultation', icon: Video },
-        ];
-      
-      default:
-        return commonItems;
-    }
-  };
-
-  const menuItems = getMenuItems();
 
   const getRoleColor = () => {
     switch (user?.role) {
@@ -176,28 +75,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentPage === item.id;
-          
-          return (
-            <Button
-              key={item.id}
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start space-x-3",
-                isActive && "bg-blue-50 text-blue-700 border-blue-200"
-              )}
-              onClick={() => onPageChange(item.id)}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{item.label}</span>
-            </Button>
-          );
-        })}
-      </nav>
+      {/* Navigation Modulaire */}
+      <ModularNavigation currentPage={currentPage} onPageChange={onPageChange} />
 
       {/* Logout */}
       <div className="p-4 border-t border-gray-200">
