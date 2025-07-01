@@ -7,6 +7,15 @@ export interface User {
   role: 'admin' | 'doctor' | 'agent' | 'patient' | 'lab_technician' | 'pharmacist' | 'insurance_agent';
   phone?: string;
   structureType?: 'medical_center' | 'laboratory' | 'pharmacy' | 'insurance';
+  structureId?: string;
+  speciality?: string; // For doctors
+  createdAt: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 export interface UserProfile {
