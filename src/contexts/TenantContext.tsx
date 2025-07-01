@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Tenant } from '@/types/tenant';
+import { Tenant, TenantRow, mapTenantFromDb } from '@/types/tenant';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -47,8 +47,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           return;
         }
         
-        setTenant(data);
-        await setCurrentTenant(data.id);
+        const mappedTenant = mapTenantFromDb(data as TenantRow);
+        setTenant(mappedTenant);
+        await setCurrentTenant(mappedTenant.id);
         return;
       }
 
@@ -69,8 +70,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         return;
       }
 
-      setTenant(data);
-      await setCurrentTenant(data.id);
+      const mappedTenant = mapTenantFromDb(data as TenantRow);
+      setTenant(mappedTenant);
+      await setCurrentTenant(mappedTenant.id);
       
     } catch (error) {
       console.error('Erreur lors de la résolution du tenant:', error);

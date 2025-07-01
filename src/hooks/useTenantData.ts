@@ -3,8 +3,10 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenant } from '@/contexts/TenantContext';
 
+type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
+
 export function useTenantData<T>(
-  tableName: string,
+  tableName: TableName,
   queryKey: string,
   options?: {
     select?: string;
@@ -54,7 +56,7 @@ export function useTenantData<T>(
     },
     enabled: !!tenant,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (updated from cacheTime)
   });
 }
 

@@ -16,6 +16,40 @@ export interface Tenant {
   updated_at: string;
 }
 
+// Type for database row that matches Supabase generated types
+export interface TenantRow {
+  id: string;
+  name: string;
+  subdomain: string;
+  subscription_plan: string;
+  subscription_status: string;
+  subscription_valid_until: string | null;
+  subscription_seats: number;
+  settings: any;
+  created_at: string;
+  updated_at: string;
+}
+
+// Helper function to convert database row to Tenant
+export function mapTenantFromDb(row: TenantRow): Tenant {
+  return {
+    id: row.id,
+    name: row.name,
+    subdomain: row.subdomain,
+    subscription_plan: row.subscription_plan as 'basic' | 'professional' | 'enterprise',
+    subscription_status: row.subscription_status as 'active' | 'suspended' | 'cancelled',
+    subscription_valid_until: row.subscription_valid_until || undefined,
+    subscription_seats: row.subscription_seats,
+    settings: typeof row.settings === 'object' ? row.settings : {
+      timezone: 'Europe/Paris',
+      language: 'fr',
+      features: []
+    },
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
 export interface GlobalPatient {
   id: string;
   first_name: string;

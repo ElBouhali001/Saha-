@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Building2, Users, Crown } from 'lucide-react';
-import { Tenant } from '@/types/tenant';
+import { Tenant, TenantRow, mapTenantFromDb } from '@/types/tenant';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenant } from '@/contexts/TenantContext';
 
@@ -28,7 +28,8 @@ export const TenantSelector: React.FC = () => {
         return;
       }
 
-      setTenants(data || []);
+      const mappedTenants = (data as TenantRow[]).map(mapTenantFromDb);
+      setTenants(mappedTenants);
     } catch (error) {
       console.error('Erreur lors de la récupération des tenants:', error);
     } finally {
