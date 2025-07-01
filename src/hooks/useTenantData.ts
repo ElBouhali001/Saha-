@@ -5,7 +5,7 @@ import { useTenant } from '@/contexts/TenantContext';
 
 type TableName = 'patients' | 'doctors' | 'appointments' | 'consultations' | 'prescriptions' | 'profiles';
 
-export function useTenantData<T>(
+export function useTenantData<T = any>(
   tableName: TableName,
   queryKey: string,
   options?: {
@@ -52,7 +52,7 @@ export function useTenantData<T>(
         throw error;
       }
 
-      return data as T[];
+      return data || [];
     },
     enabled: !!tenant,
     staleTime: 5 * 60 * 1000, // 5 minutes
