@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import ConsultationTypeSection from './sections/ConsultationTypeSection';
 import InvoiceItemsSection from './sections/InvoiceItemsSection';
 import FinancialSummary from './sections/FinancialSummary';
 import InvoiceDetailsSection from './sections/InvoiceDetailsSection';
+import InvoiceAttachmentsSection from './sections/InvoiceAttachmentsSection';
 import { useInvoiceForm } from './hooks/useInvoiceForm';
 
 const InvoiceCreation = () => {
@@ -18,6 +18,8 @@ const InvoiceCreation = () => {
     invoiceItems,
     invoiceDetails,
     consultationTypes,
+    attachments,
+    setAttachments,
     updatePatientInfo,
     updateInvoiceDetails,
     updatePricingForCoverage,
@@ -99,6 +101,12 @@ const InvoiceCreation = () => {
               total={calculateTotal()}
               coverage={patientInfo.coverage}
               coverageRate={70}
+            />
+
+            <InvoiceAttachmentsSection
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
+              coverage={patientInfo.coverage}
             />
 
             <InvoiceDetailsSection

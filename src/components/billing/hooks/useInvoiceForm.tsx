@@ -2,6 +2,15 @@ import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { calculateTieredPrice, getPricingTier } from '../PricingTiers';
 
+interface AttachmentFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url?: string;
+  uploading?: boolean;
+}
+
 interface InvoiceItem {
   id: string;
   description: string;
@@ -68,6 +77,8 @@ export const useInvoiceForm = () => {
     notes: '',
     dueDate: ''
   });
+
+  const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
 
   const updatePatientInfo = (field: keyof PatientInfo, value: string) => {
     setPatientInfo(prev => ({ ...prev, [field]: value }));
@@ -228,6 +239,7 @@ export const useInvoiceForm = () => {
       pricingTier: selectedTier,
       items: invoiceItems,
       details: invoiceDetails,
+      attachments: attachments,
       financial: {
         subtotal: calculateSubtotal(),
         tax: calculateTax(),
@@ -243,8 +255,14 @@ export const useInvoiceForm = () => {
     if (transmissionRequired) {
       if (patientInfo.coverage === 'mutuelle') {
         successMessage += ' - Transmission automatique à la mutuelle programmée';
+        if (attachments.length > 0) {
+          successMessage += ` avec ${attachments.length} pièce(s) jointe(s)`;
+        }
       } else {
         successMessage += ` - Paiement patient: ${patientAmount.toLocaleString()} CFA, Transmission mutuelle: ${insuranceAmount.toLocaleString()} CFA`;
+        if (attachments.length > 0) {
+          successMessage += ` avec ${attachments.length} pièce(s) jointe(s)`;
+        }
       }
     }
 
@@ -265,6 +283,7 @@ export const useInvoiceForm = () => {
       total: 9000 
     }]);
     setInvoiceDetails({ paymentMethod: '', notes: '', dueDate: '' });
+    setAttachments([]);
 
     return true;
   };
@@ -285,6 +304,8 @@ export const useInvoiceForm = () => {
     calculateSubtotal,
     calculateTax,
     calculateTotal,
+    attachments,
+    setAttachments,
     handleSubmit
   };
 };
