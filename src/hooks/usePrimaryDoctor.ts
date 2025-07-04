@@ -8,7 +8,7 @@ export const usePrimaryDoctorRequests = (doctorId?: string) => {
   return useQuery({
     queryKey: ['primary-doctor-requests', doctorId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('primary_doctor_requests')
         .select(`
           *,
@@ -46,7 +46,7 @@ export const useCreatePrimaryDoctorRequest = () => {
       request_message?: string;
       change_reason?: string;
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('primary_doctor_requests')
         .insert(requestData)
         .select()
@@ -87,7 +87,7 @@ export const useRespondToPrimaryDoctorRequest = () => {
       status: 'accepted' | 'rejected'; 
       response_message?: string; 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('primary_doctor_requests')
         .update({
           status,
@@ -102,7 +102,7 @@ export const useRespondToPrimaryDoctorRequest = () => {
 
       // Si accepté, créer la relation médecin traitant
       if (status === 'accepted') {
-        const { error: relationError } = await supabase
+        const { error: relationError } = await (supabase as any)
           .from('patients')
           .update({
             primary_doctor_id: data.doctor_id,
@@ -113,7 +113,7 @@ export const useRespondToPrimaryDoctorRequest = () => {
         if (relationError) throw relationError;
 
         // Ajouter à l'historique
-        await supabase
+        await (supabase as any)
           .from('primary_doctor_history')
           .insert({
             patient_id: data.patient_id,
@@ -151,7 +151,7 @@ export const usePrimaryDoctorHistory = (patientId?: string) => {
     queryFn: async () => {
       if (!patientId) return [];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('primary_doctor_history')
         .select(`
           *,

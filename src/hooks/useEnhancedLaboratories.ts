@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -8,7 +7,7 @@ export const useEnhancedLaboratories = () => {
   return useQuery({
     queryKey: ['enhanced-laboratories'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('laboratories')
         .select('*')
         .eq('is_active', true)
@@ -25,7 +24,7 @@ export const useLabAnalysisRequests = (patientId?: string, doctorId?: string) =>
   return useQuery({
     queryKey: ['lab-analysis-requests', patientId, doctorId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('lab_analysis_requests')
         .select(`
           *,
@@ -74,7 +73,7 @@ export const useCreateLabAnalysisRequest = () => {
       fasting_required?: boolean;
       priority?: 'normal' | 'urgent' | 'critical';
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('lab_analysis_requests')
         .insert(requestData)
         .select()
@@ -113,7 +112,7 @@ export const useUpdateLabAnalysisRequest = () => {
       requestId: string; 
       updates: any; 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('lab_analysis_requests')
         .update({
           ...updates,
@@ -156,7 +155,7 @@ export const useCreateLabAnalysisResult = () => {
       results: any;
       pdf_report_url?: string;
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('lab_analysis_results')
         .insert(resultData)
         .select()
@@ -195,7 +194,7 @@ export const useValidateLabAnalysisResult = () => {
       resultId: string; 
       validatorId: string; 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('lab_analysis_results')
         .update({
           validated_by: validatorId,

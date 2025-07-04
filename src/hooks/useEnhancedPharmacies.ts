@@ -8,7 +8,7 @@ export const useEnhancedPharmacies = () => {
   return useQuery({
     queryKey: ['enhanced-pharmacies'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('pharmacies')
         .select('*')
         .eq('is_active', true)
@@ -25,7 +25,7 @@ export const usePharmacyPrescriptions = (pharmacyId?: string, patientId?: string
   return useQuery({
     queryKey: ['pharmacy-prescriptions', pharmacyId, patientId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('pharmacy_prescriptions')
         .select(`
           *,
@@ -79,7 +79,7 @@ export const useCreatePharmacyPrescription = () => {
       patient_id: string;
       medications: any[];
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('pharmacy_prescriptions')
         .insert(prescriptionData)
         .select()
@@ -139,7 +139,7 @@ export const useUpdatePharmacyPrescriptionStatus = () => {
           break;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('pharmacy_prescriptions')
         .update(updateData)
         .eq('id', prescriptionId)
@@ -187,7 +187,7 @@ export const useAddSubstitution = () => {
       };
     }) => {
       // Récupérer les substitutions existantes
-      const { data: currentPrescription, error: fetchError } = await supabase
+      const { data: currentPrescription, error: fetchError } = await (supabase as any)
         .from('pharmacy_prescriptions')
         .select('substitutions')
         .eq('id', prescriptionId)
@@ -198,7 +198,7 @@ export const useAddSubstitution = () => {
       const currentSubstitutions = currentPrescription.substitutions || [];
       const updatedSubstitutions = [...currentSubstitutions, substitution];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('pharmacy_prescriptions')
         .update({
           substitutions: updatedSubstitutions,
@@ -235,7 +235,7 @@ export const usePharmacyInventory = (pharmacyId?: string) => {
     queryFn: async () => {
       if (!pharmacyId) return [];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('pharmacy_inventory')
         .select('*')
         .eq('pharmacy_id', pharmacyId)

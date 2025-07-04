@@ -8,7 +8,7 @@ export const useInsuranceCompanies = () => {
   return useQuery({
     queryKey: ['insurance-companies'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('insurance_companies')
         .select('*')
         .eq('is_active', true)
@@ -82,7 +82,7 @@ export const useInsuranceClaims = (patientInsuranceId?: string) => {
   return useQuery({
     queryKey: ['insurance-claims', patientInsuranceId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('insurance_claims')
         .select(`
           *,
@@ -112,7 +112,7 @@ export const useCreateInsuranceClaim = () => {
 
   return useMutation({
     mutationFn: async (claimData: any) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('insurance_claims')
         .insert(claimData)
         .select()

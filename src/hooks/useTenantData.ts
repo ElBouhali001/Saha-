@@ -30,16 +30,16 @@ export function useTenantData(
       // Définir le tenant courant pour cette requête
       await supabase.rpc('set_current_tenant', { tenant_id: currentTenant.id });
 
-      let query = supabase
-        .from(tableName)
-        .select(options?.select || '*');
+    let query = (supabase as any)
+      .from(tableName)
+      .select(options?.select || '*');
 
-      // Appliquer les filtres
-      if (options?.filters) {
-        Object.entries(options.filters).forEach(([key, value]) => {
-          query = query.eq(key, value);
-        });
-      }
+    // Appliquer les filtres
+    if (options?.filters) {
+      Object.entries(options.filters).forEach(([key, value]) => {
+        query = query.eq(key, value);
+      });
+    }
 
       // Appliquer l'ordre
       if (options?.orderBy) {
