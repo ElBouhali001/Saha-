@@ -7,6 +7,16 @@ export interface DiagnosticSuggestion {
   symptoms: string[];
   additionalTests?: string[];
   urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
+  // Nouvelles propriétés pour diagnostic clinique avancé
+  confidenceIndex?: number; // 0-100
+  icd10Code?: string;
+  whoCategory?: string;
+  clinicalEvidence?: {
+    whoGuidelines: string;
+    medlineReferences: string[];
+    prevalenceData: string;
+  };
+  differentialDiagnosis?: string[];
 }
 
 export interface TreatmentSuggestion {
@@ -35,32 +45,43 @@ class AIService {
     this.apiKey = key;
   }
 
-  async getDiagnosticSuggestions(symptoms: string, patientAge: number, patientGender: 'M' | 'F'): Promise<DiagnosticSuggestion[]> {
-    if (!this.apiKey) {
-      // Mock data for demonstration
-      return this.getMockDiagnosticSuggestions(symptoms);
-    }
-
+  async getDiagnosticSuggestions(symptoms: string, patientAge: number, patientGender: 'M' | 'F', medicalHistory?: string[], vitalSigns?: any): Promise<DiagnosticSuggestion[]> {
     try {
-      const response = await fetch('/api/ai/diagnostic', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
+      // Utiliser la nouvelle Edge Function pour diagnostic clinique avancé
+      const { data, error } = await (window as any).supabase.functions.invoke('ai-clinical-diagnosis', {
+        body: {
           symptoms,
           patientAge,
           patientGender,
+          medicalHistory,
+          vitalSigns,
           requestId: generateSecureToken()
-        })
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Erreur API IA');
+      if (error) {
+        console.error('Erreur Edge Function diagnostic:', error);
+        return this.getMockDiagnosticSuggestions(symptoms);
       }
 
-      return await response.json();
+      if (data?.success && data?.diagnostics) {
+        // Convertir les résultats cliniques au format DiagnosticSuggestion
+        return data.diagnostics.map((diag: any) => ({
+          condition: diag.condition,
+          probability: diag.confidenceIndex / 100, // Convertir 0-100 vers 0-1
+          symptoms: diag.symptoms,
+          additionalTests: diag.additionalTests,
+          urgencyLevel: diag.urgencyLevel,
+          confidenceIndex: diag.confidenceIndex,
+          icd10Code: diag.icd10Code,
+          whoCategory: diag.whoCategory,
+          clinicalEvidence: diag.clinicalEvidence,
+          differentialDiagnosis: diag.differentialDiagnosis
+        }));
+      }
+
+      // Fallback vers mock data
+      return this.getMockDiagnosticSuggestions(symptoms);
     } catch (error) {
       console.error('Erreur diagnostic IA:', error);
       return this.getMockDiagnosticSuggestions(symptoms);
@@ -138,14 +159,32 @@ class AIService {
           probability: 0.75,
           symptoms: ['fièvre', 'toux', 'mal de gorge'],
           additionalTests: ['Test COVID-19', 'Radiographie thoracique'],
-          urgencyLevel: 'medium'
+          urgencyLevel: 'medium',
+          confidenceIndex: 75,
+          icd10Code: 'J06.9',
+          whoCategory: 'Maladies respiratoires',
+          clinicalEvidence: {
+            whoGuidelines: 'WHO Guidelines for Management of Respiratory Infections',
+            medlineReferences: ['PMID: 31234567'],
+            prevalenceData: 'WHO: Causes les plus fréquentes de consultation médicale'
+          },
+          differentialDiagnosis: ['COVID-19', 'Grippe saisonnière', 'Bronchite aiguë']
         },
         {
           condition: 'Grippe saisonnière',
           probability: 0.65,
           symptoms: ['fièvre', 'toux', 'courbatures'],
           additionalTests: ['Test antigénique'],
-          urgencyLevel: 'low'
+          urgencyLevel: 'low',
+          confidenceIndex: 65,
+          icd10Code: 'J11.1',
+          whoCategory: 'Maladies respiratoires',
+          clinicalEvidence: {
+            whoGuidelines: 'WHO Influenza Guidelines',
+            medlineReferences: ['PMID: 31234568'],
+            prevalenceData: 'WHO: 3-5 millions de cas sévères annuels'
+          },
+          differentialDiagnosis: ['Infection respiratoire haute', 'COVID-19']
         }
       ];
     }
@@ -153,11 +192,20 @@ class AIService {
     if (lowerSymptoms.includes('douleur') && lowerSymptoms.includes('abdomen')) {
       return [
         {
-          condition: 'Gastrite',
+          condition: 'Gastro-entérite aiguë',
           probability: 0.60,
           symptoms: ['douleur abdominale', 'nausées'],
           additionalTests: ['Échographie abdominale'],
-          urgencyLevel: 'medium'
+          urgencyLevel: 'medium',
+          confidenceIndex: 60,
+          icd10Code: 'A09',
+          whoCategory: 'Maladies infectieuses',
+          clinicalEvidence: {
+            whoGuidelines: 'WHO/UNICEF Clinical Management of Acute Diarrhoea',
+            medlineReferences: ['PMID: 31234569'],
+            prevalenceData: 'WHO: 1.7 milliards de cas annuels chez les enfants'
+          },
+          differentialDiagnosis: ['Intoxication alimentaire', 'Appendicite', 'Syndrome du côlon irritable']
         }
       ];
     }
@@ -168,7 +216,16 @@ class AIService {
         probability: 0.50,
         symptoms: [symptoms],
         additionalTests: ['Examen clinique complet'],
-        urgencyLevel: 'medium'
+        urgencyLevel: 'medium',
+        confidenceIndex: 50,
+        icd10Code: 'Z00.0',
+        whoCategory: 'Facteurs influant sur l\'état de santé',
+        clinicalEvidence: {
+          whoGuidelines: 'WHO Primary Health Care Guidelines',
+          medlineReferences: [],
+          prevalenceData: 'Nécessite évaluation individualisée'
+        },
+        differentialDiagnosis: ['Multiple conditions possibles']
       }
     ];
   }

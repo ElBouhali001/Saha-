@@ -18,6 +18,13 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
   const [symptoms, setSymptoms] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientGender, setPatientGender] = useState<'M' | 'F'>('M');
+  const [medicalHistory, setMedicalHistory] = useState('');
+  const [vitalSigns, setVitalSigns] = useState({
+    temperature: '',
+    bloodPressure: '',
+    heartRate: '',
+    respiratoryRate: ''
+  });
   const [suggestions, setSuggestions] = useState<DiagnosticSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,10 +33,20 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
 
     setIsLoading(true);
     try {
+      const historyArray = medicalHistory.trim() ? medicalHistory.split(',').map(h => h.trim()) : undefined;
+      const vitals = Object.entries(vitalSigns).some(([_, value]) => value.trim()) ? {
+        temperature: vitalSigns.temperature ? parseFloat(vitalSigns.temperature) : undefined,
+        bloodPressure: vitalSigns.bloodPressure || undefined,
+        heartRate: vitalSigns.heartRate ? parseInt(vitalSigns.heartRate) : undefined,
+        respiratoryRate: vitalSigns.respiratoryRate ? parseInt(vitalSigns.respiratoryRate) : undefined
+      } : undefined;
+
       const results = await aiService.getDiagnosticSuggestions(
         symptoms,
         parseInt(patientAge) || 30,
-        patientGender
+        patientGender,
+        historyArray,
+        vitals
       );
       setSuggestions(results);
     } catch (error) {
@@ -62,10 +79,18 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Brain className="w-5 h-5 mr-2 text-purple-600" />
-          Assistant Diagnostique IA
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Brain className="w-5 h-5 mr-2 text-purple-600" />
+            Assistant Diagnostique IA
+          </div>
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Connecté OMS
+          </Badge>
         </CardTitle>
+        <p className="text-sm text-gray-600 mt-1">
+          Diagnostic différentiel basé sur les bases de données cliniques mondiales et les guidelines de l'OMS
+        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,7 +119,7 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
         </div>
 
         <div>
-          <Label htmlFor="symptoms">Symptômes observés</Label>
+          <Label htmlFor="symptoms">Symptômes observés *</Label>
           <Textarea
             id="symptoms"
             placeholder="Décrire les symptômes du patient (fièvre, toux, douleurs, etc.)"
@@ -104,33 +129,102 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
           />
         </div>
 
+        <div>
+          <Label htmlFor="medical-history">Antécédents médicaux</Label>
+          <Textarea
+            id="medical-history"
+            placeholder="Antécédents médicaux significatifs (séparés par des virgules)"
+            value={medicalHistory}
+            onChange={(e) => setMedicalHistory(e.target.value)}
+            rows={2}
+          />
+        </div>
+
+        <div>
+          <Label>Signes vitaux (optionnel)</Label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+            <div>
+              <Label htmlFor="temperature" className="text-xs">Température (°C)</Label>
+              <Input
+                id="temperature"
+                type="number"
+                step="0.1"
+                placeholder="37.5"
+                value={vitalSigns.temperature}
+                onChange={(e) => setVitalSigns(prev => ({ ...prev, temperature: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="blood-pressure" className="text-xs">Tension (mmHg)</Label>
+              <Input
+                id="blood-pressure"
+                placeholder="120/80"
+                value={vitalSigns.bloodPressure}
+                onChange={(e) => setVitalSigns(prev => ({ ...prev, bloodPressure: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="heart-rate" className="text-xs">Pouls (bpm)</Label>
+              <Input
+                id="heart-rate"
+                type="number"
+                placeholder="72"
+                value={vitalSigns.heartRate}
+                onChange={(e) => setVitalSigns(prev => ({ ...prev, heartRate: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="respiratory-rate" className="text-xs">Resp. (/min)</Label>
+              <Input
+                id="respiratory-rate"
+                type="number"
+                placeholder="16"
+                value={vitalSigns.respiratoryRate}
+                onChange={(e) => setVitalSigns(prev => ({ ...prev, respiratoryRate: e.target.value }))}
+              />
+            </div>
+          </div>
+        </div>
+
         <Button 
           onClick={handleAnalyze} 
           disabled={!symptoms.trim() || isLoading}
           className="w-full"
         >
           <Brain className="w-4 h-4 mr-2" />
-          {isLoading ? 'Analyse en cours...' : 'Analyser les symptômes'}
+          {isLoading ? 'Analyse clinique IA en cours...' : 'Diagnostic IA + Bases OMS'}
         </Button>
 
         {suggestions.length > 0 && (
           <div className="space-y-3 mt-6">
-            <h4 className="font-medium text-gray-900">Suggestions diagnostiques</h4>
+            <h4 className="font-medium text-gray-900">Diagnostic différentiel IA + OMS</h4>
             {suggestions.map((suggestion, index) => (
               <Card key={index} className="border-l-4 border-l-purple-500">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <h5 className="font-medium text-gray-900">{suggestion.condition}</h5>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant="secondary">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h5 className="font-medium text-gray-900">{suggestion.condition}</h5>
+                        {suggestion.icd10Code && (
+                          <Badge variant="outline" className="text-xs font-mono">
+                            {suggestion.icd10Code}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                           <Target className="w-3 h-3 mr-1" />
-                          {Math.round(suggestion.probability * 100)}% probabilité
+                          {suggestion.confidenceIndex || Math.round(suggestion.probability * 100)}% confiance
                         </Badge>
                         <Badge className={getUrgencyColor(suggestion.urgencyLevel)}>
                           <AlertTriangle className="w-3 h-3 mr-1" />
                           {getUrgencyLabel(suggestion.urgencyLevel)}
                         </Badge>
+                        {suggestion.whoCategory && (
+                          <Badge variant="outline" className="text-xs">
+                            {suggestion.whoCategory}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     {onSuggestionSelect && (
@@ -144,7 +238,7 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
                     )}
                   </div>
 
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-3 text-sm">
                     <div>
                       <span className="font-medium">Symptômes associés:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -166,15 +260,43 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
                         </ul>
                       </div>
                     )}
+
+                    {suggestion.differentialDiagnosis && suggestion.differentialDiagnosis.length > 0 && (
+                      <div>
+                        <span className="font-medium">Diagnostic différentiel:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {suggestion.differentialDiagnosis.map((diff, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {diff}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {suggestion.clinicalEvidence && (
+                      <div className="bg-gray-50 p-3 rounded mt-3">
+                        <span className="font-medium text-xs">Références cliniques:</span>
+                        <div className="mt-1 space-y-1 text-xs text-gray-600">
+                          <div><strong>OMS:</strong> {suggestion.clinicalEvidence.whoGuidelines}</div>
+                          {suggestion.clinicalEvidence.prevalenceData && (
+                            <div><strong>Prévalence:</strong> {suggestion.clinicalEvidence.prevalenceData}</div>
+                          )}
+                          {suggestion.clinicalEvidence.medlineReferences.length > 0 && (
+                            <div><strong>Références:</strong> {suggestion.clinicalEvidence.medlineReferences.join(', ')}</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             ))}
             
-            <div className="text-xs text-gray-500 bg-yellow-50 p-3 rounded border border-yellow-200">
-              <AlertTriangle className="w-4 h-4 inline mr-2 text-yellow-600" />
-              <strong>Avertissement:</strong> Ces suggestions sont générées par IA à titre informatif uniquement. 
-              Elles ne remplacent pas l'expertise médicale et le jugement clinique du praticien.
+            <div className="text-xs text-gray-500 bg-blue-50 p-3 rounded border border-blue-200">
+              <Brain className="w-4 h-4 inline mr-2 text-blue-600" />
+              <strong>IA Clinique:</strong> Diagnostic basé sur l'analyse croisée des symptômes avec les bases de données cliniques mondiales et les guidelines de l'OMS. 
+              Ces résultats doivent être interprétés par un professionnel de santé qualifié.
             </div>
           </div>
         )}

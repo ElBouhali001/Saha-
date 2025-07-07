@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MedicalRecord, Prescription } from '@/types/patient';
-import { FileText, Pill, Send, Shield } from 'lucide-react';
+import { FileText, Pill, Send, Shield, Brain } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePermissions } from '@/utils/permissions';
 import { generateSecureTicket, generateSecureToken } from '@/utils/security';
@@ -11,6 +11,7 @@ import TicketAuthentication from './TicketAuthentication';
 import PatientInfoDisplay from './PatientInfoDisplay';
 import ConsultationForm from './ConsultationForm';
 import PrescriptionManager from './PrescriptionManager';
+import ClinicalDiagnosticPanel from './ClinicalDiagnosticPanel';
 
 const MedicalConsultation = () => {
   const { user } = useAuth();
@@ -24,10 +25,16 @@ const MedicalConsultation = () => {
     notes: ''
   });
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [showDiagnosticPanel, setShowDiagnosticPanel] = useState(false);
 
   const handlePatientAuthenticated = (authenticatedPatient: any) => {
     setPatient(authenticatedPatient);
     setAccessGranted(true);
+  };
+
+  const handleDiagnosisSelect = (diagnosis: string) => {
+    setConsultation(prev => ({ ...prev, diagnosis }));
+    setShowDiagnosticPanel(false);
   };
 
   const handleSaveConsultation = () => {
@@ -92,38 +99,74 @@ const MedicalConsultation = () => {
         {!patient || !accessGranted ? (
           <TicketAuthentication onPatientAuthenticated={handlePatientAuthenticated} />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <PatientInfoDisplay patient={patient} />
-            
-            <div className="lg:col-span-2 space-y-6">
-              <ConsultationForm 
-                consultation={consultation} 
-                onConsultationChange={setConsultation} 
-              />
-              
-              <div className="bg-white p-6 rounded-lg border">
-                <PrescriptionManager 
-                  prescriptions={prescriptions}
-                  onPrescriptionsChange={setPrescriptions}
-                  patientName={`${patient.firstName} ${patient.lastName}`}
-                />
-                
-                <div className="flex space-x-3 pt-4 border-t mt-6">
-                  <Button onClick={handleSaveConsultation} className="flex-1">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Sauvegarder
-                  </Button>
-                  <Button variant="outline" onClick={generateTransmissionCode} className="flex-1">
-                    <Send className="w-4 h-4 mr-2" />
-                    Transmettre
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    <Pill className="w-4 h-4 mr-2" />
-                    Ordonnance PDF
+          <div className="space-y-6">
+            {showDiagnosticPanel ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Diagnostic IA + Bases Cliniques OMS</h2>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowDiagnosticPanel(false)}
+                  >
+                    Retour à la consultation
                   </Button>
                 </div>
+                <ClinicalDiagnosticPanel 
+                  onDiagnosisSelect={handleDiagnosisSelect}
+                  patientData={{
+                    age: patient.age || 30,
+                    gender: patient.gender || 'M',
+                    symptoms: consultation.symptoms,
+                  }}
+                />
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <PatientInfoDisplay patient={patient} />
+                
+                <div className="lg:col-span-2 space-y-6">
+                  <ConsultationForm 
+                    consultation={consultation} 
+                    onConsultationChange={setConsultation} 
+                  />
+                  
+                  <div className="bg-white p-6 rounded-lg border">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-medium">Assistant Diagnostic</h3>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowDiagnosticPanel(true)}
+                        className="flex items-center space-x-2"
+                      >
+                        <Brain className="w-4 h-4" />
+                        <span>Diagnostic IA + OMS</span>
+                      </Button>
+                    </div>
+                    
+                    <PrescriptionManager 
+                      prescriptions={prescriptions}
+                      onPrescriptionsChange={setPrescriptions}
+                      patientName={`${patient.firstName} ${patient.lastName}`}
+                    />
+                    
+                    <div className="flex space-x-3 pt-4 border-t mt-6">
+                      <Button onClick={handleSaveConsultation} className="flex-1">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Sauvegarder
+                      </Button>
+                      <Button variant="outline" onClick={generateTransmissionCode} className="flex-1">
+                        <Send className="w-4 h-4 mr-2" />
+                        Transmettre
+                      </Button>
+                      <Button variant="outline" className="flex-1">
+                        <Pill className="w-4 h-4 mr-2" />
+                        Ordonnance PDF
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
