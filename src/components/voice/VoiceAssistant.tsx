@@ -16,9 +16,11 @@ import {
   Calendar,
   Pill,
   FileText,
-  HelpCircle
+  HelpCircle,
+  Settings
 } from 'lucide-react';
 import { useVoiceAssistant } from '@/hooks/useVoiceAssistant';
+import VoiceSettings from './VoiceSettings';
 import { cn } from '@/lib/utils';
 
 interface VoiceAssistantProps {
@@ -48,6 +50,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onNavigate, className }
   } = useVoiceAssistant();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
 
   const languages = Object.entries(supportedLanguages);
@@ -113,7 +116,21 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onNavigate, className }
   const handleLanguageChange = (language: string) => {
     setLanguage(language);
     const langData = supportedLanguages[language];
-    speak(`${langData.nom} - ${languages.find(([key]) => key === language)?.[1].nom}`);
+    speak(`${langData.nom} - Assistant vocal sénégalais activé`);
+  };
+
+  const handleVoiceTest = async (voiceId: string, text: string) => {
+    // Cette fonction sera gérée par le service vocal amélioré
+    try {
+      await speak(text);
+    } catch (err) {
+      console.error('Erreur test vocal:', err);
+    }
+  };
+
+  const handleGenderChange = (gender: 'female' | 'male') => {
+    // Informer le service vocal du changement de genre
+    console.log('Changement de genre vocal:', gender);
   };
 
   const getStatusIcon = () => {
@@ -163,22 +180,32 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onNavigate, className }
       </div>
 
       {/* Interface étendue */}
-      {isExpanded && (
+      {isExpanded && !showSettings && (
         <div className="absolute bottom-20 right-0 w-80 bg-white border rounded-lg shadow-xl p-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-lg">
                 <span className="flex items-center gap-2">
                   <Languages className="w-5 h-5" />
-                  Assistant Vocal
+                  Assistant Vocal Sénégalais
                 </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setIsExpanded(false)}
-                >
-                  ×
-                </Button>
+                <div className="flex gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setShowSettings(true)}
+                    title="Paramètres vocaux"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setIsExpanded(false)}
+                  >
+                    ×
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
 
@@ -313,7 +340,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onNavigate, className }
                 <Button
                   variant="destructive"
                   className="w-full"
-                  onClick={() => speak("URGENCE ! Appelez le 15 immédiatement !")}
+                  onClick={() => speak("URGENCE ! Wutewu 15 bu gaaw gaaw ! Appelez le 15 immédiatement !")}
                 >
                   <Phone className="w-4 h-4 mr-2" />
                   Urgence - 15
@@ -321,6 +348,30 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onNavigate, className }
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Paramètres vocaux */}
+      {isExpanded && showSettings && (
+        <div className="absolute bottom-20 right-0 w-96 bg-white border rounded-lg shadow-xl p-1">
+          <div className="flex items-center justify-between p-3 border-b">
+            <h3 className="font-medium">Paramètres Vocaux</h3>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setShowSettings(false)}
+            >
+              ← Retour
+            </Button>
+          </div>
+          <div className="p-3">
+            <VoiceSettings
+              currentLanguage={currentLanguage}
+              onVoiceTest={handleVoiceTest}
+              onGenderChange={handleGenderChange}
+              isElevenLabsEnabled={true} // TODO: Détecter si ElevenLabs est activé
+            />
+          </div>
         </div>
       )}
     </div>

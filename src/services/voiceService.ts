@@ -1,4 +1,6 @@
-// Service de reconnaissance et synthèse vocale multilingue
+// Service de reconnaissance et synthèse vocale multilingue avec ElevenLabs
+import { ElevenLabsVoiceService } from './elevenLabsVoiceService';
+
 export interface SupportedLanguage {
   code: string;
   nom: string;
@@ -167,11 +169,14 @@ export interface VoiceIntent {
 export class VoiceService {
   private recognition: any = null;
   private synthesis: SpeechSynthesis | null = null;
+  private elevenLabsService: ElevenLabsVoiceService | null = null;
   private currentLanguage: string = 'francais';
   private isListening: boolean = false;
+  private useElevenLabs: boolean = false;
 
   constructor() {
     this.initializeServices();
+    this.initializeElevenLabs();
   }
 
   private initializeServices() {
@@ -184,10 +189,29 @@ export class VoiceService {
       this.recognition.maxAlternatives = 3;
     }
 
-    // Initialiser la synthèse vocale
+    // Initialiser la synthèse vocale (fallback)
     if ('speechSynthesis' in window) {
       this.synthesis = window.speechSynthesis;
     }
+  }
+
+  private initializeElevenLabs() {
+    // Vérifier si la clé API ElevenLabs est disponible
+    const apiKey = this.getElevenLabsApiKey();
+    if (apiKey) {
+      this.elevenLabsService = new ElevenLabsVoiceService(apiKey);
+      this.useElevenLabs = true;
+      console.log('ElevenLabs activé pour une voix naturelle africaine');
+    } else {
+      console.log('ElevenLabs non disponible, utilisation de la synthèse navigateur');
+    }
+  }
+
+  private getElevenLabsApiKey(): string | null {
+    // Récupérer la clé depuis l'environnement ou le stockage local
+    return process.env.ELEVENLABS_API_KEY || 
+           localStorage.getItem('elevenlabs_api_key') || 
+           null;
   }
 
   setLanguage(language: string) {
@@ -195,6 +219,9 @@ export class VoiceService {
     if (this.recognition) {
       const langCode = LANGUES_SUPPORTEES[language]?.code || 'fr-FR';
       this.recognition.lang = langCode;
+    }
+    if (this.elevenLabsService) {
+      this.elevenLabsService.setLanguage(language);
     }
   }
 
@@ -242,6 +269,22 @@ export class VoiceService {
   }
 
   async speak(text: string): Promise<void> {
+    // Priorité à ElevenLabs pour une voix naturelle africaine
+    if (this.useElevenLabs && this.elevenLabsService) {
+      try {
+        await this.elevenLabsService.speak(text);
+        return;
+      } catch (error) {
+        console.error('Erreur ElevenLabs, fallback vers synthèse navigateur:', error);
+        // Continuer avec la synthèse du navigateur en cas d'erreur
+      }
+    }
+
+    // Fallback vers synthèse vocale du navigateur
+    return this.speakWithBrowserSynthesis(text);
+  }
+
+  private async speakWithBrowserSynthesis(text: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.synthesis) {
         reject(new Error('Synthèse vocale non supportée'));
@@ -250,8 +293,8 @@ export class VoiceService {
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = LANGUES_SUPPORTEES[this.currentLanguage]?.code || 'fr-FR';
-      utterance.rate = 0.9; // Légèrement plus lent pour clarté
-      utterance.pitch = 1.0;
+      utterance.rate = 0.85; // Plus lent pour clarté avec accent africain
+      utterance.pitch = 1.1; // Légèrement plus aigu pour chaleur
       utterance.volume = 1.0;
 
       utterance.onend = () => resolve();
@@ -335,5 +378,37 @@ export class VoiceService {
 
   isCurrentlyListening() {
     return this.isListening;
+  }
+
+  // Méthodes pour ElevenLabs
+  setVoiceGender(gender: 'female' | 'male') {
+    if (this.elevenLabsService) {
+      this.elevenLabsService.setGenderPreference(gender);
+    }
+  }
+
+  async testAfricanVoice(voiceId: string, text: string) {
+    if (this.elevenLabsService) {
+      await this.elevenLabsService.testVoice(voiceId, text);
+    }
+  }
+
+  getVoiceInfo() {
+    if (this.elevenLabsService) {
+      return {
+        provider: 'ElevenLabs',
+        voice: this.elevenLabsService.getCurrentVoiceInfo(),
+        quality: 'Premium - Voix naturelle africaine'
+      };
+    }
+    return {
+      provider: 'Navigateur',
+      voice: { name: 'Synthèse système' },
+      quality: 'Standard'
+    };
+  }
+
+  isElevenLabsEnabled() {
+    return this.useElevenLabs;
   }
 }
