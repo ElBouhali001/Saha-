@@ -10,11 +10,16 @@ import TeleconsultationModule from './TeleconsultationModule';
 import PatientGuardianship from './PatientGuardianship';
 import PrimaryDoctorRequest from './PrimaryDoctorRequest';
 import LabRequirements from './LabRequirements';
+import VoiceAssistant from '../voice/VoiceAssistant';
 import { useMockPrescriptions } from '@/hooks/useMockPrescriptions';
 
 const PatientInterface = () => {
   const [activeTab, setActiveTab] = useState('appointments');
   const { data: prescriptions = [] } = useMockPrescriptions();
+
+  const handleVoiceNavigation = (route: string) => {
+    setActiveTab(route);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -83,6 +88,9 @@ const PatientInterface = () => {
           <LabRequirements />
         </TabsContent>
       </Tabs>
+
+      {/* Assistant Vocal */}
+      <VoiceAssistant onNavigate={handleVoiceNavigation} />
     </div>
   );
 };

@@ -11,12 +11,17 @@ import PrescriptionHistory from '../patient/PrescriptionHistory';
 import PatientGuardianship from '../patient/PatientGuardianship';
 import PrimaryDoctorRequest from '../patient/PrimaryDoctorRequest';
 import LabRequirements from '../patient/LabRequirements';
+import VoiceAssistant from '../voice/VoiceAssistant';
 import { useMockPrescriptions } from '@/hooks/useMockPrescriptions';
 
 const MobilePatientInterface = () => {
   const [activeTab, setActiveTab] = useState('appointments');
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: prescriptions = [] } = useMockPrescriptions();
+
+  const handleVoiceNavigation = (route: string) => {
+    setActiveTab(route);
+  };
 
   const tabs = [
     { id: 'appointments', label: 'Rendez-vous', icon: Calendar },
@@ -116,6 +121,9 @@ const MobilePatientInterface = () => {
           })}
         </div>
       </div>
+
+      {/* Assistant Vocal - adapté mobile */}
+      <VoiceAssistant onNavigate={handleVoiceNavigation} className="bottom-24 right-4" />
     </div>
   );
 };
