@@ -208,10 +208,8 @@ export class VoiceService {
   }
 
   private getElevenLabsApiKey(): string | null {
-    // Récupérer la clé depuis l'environnement ou le stockage local
-    return process.env.ELEVENLABS_API_KEY || 
-           localStorage.getItem('elevenlabs_api_key') || 
-           null;
+    // Récupérer la clé depuis le stockage local
+    return localStorage.getItem('elevenlabs_api_key') || null;
   }
 
   setLanguage(language: string) {
