@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import LoginForm from './auth/LoginForm';
 import MainLayout from './layout/MainLayout';
 import { Loader2 } from 'lucide-react';
 
 const MainApp = () => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useSupabaseAuth();
 
   if (isLoading) {
     return (

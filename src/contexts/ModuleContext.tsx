@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ModuleConfig, ModuleId, ModuleSettings, MODULE_DEFINITIONS, CORE_MODULES } from '@/types/modules';
-import { useAuth } from './AuthContext';
+import { useSupabaseAuth } from './SupabaseAuthContext';
 
 interface ModuleContextType {
   modules: Record<ModuleId, ModuleConfig>;
@@ -23,7 +23,7 @@ export const useModules = () => {
 };
 
 export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [modules, setModules] = useState<Record<ModuleId, ModuleConfig>>({} as Record<ModuleId, ModuleConfig>);
 
   // Initialiser les modules par défaut

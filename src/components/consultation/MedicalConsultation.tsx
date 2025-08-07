@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MedicalRecord, Prescription } from '@/types/patient';
 import { FileText, Pill, Send, Shield, Brain } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { usePermissions } from '@/utils/permissions';
 import { generateSecureTicket, generateSecureToken } from '@/utils/security';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -14,7 +14,7 @@ import PrescriptionManager from './PrescriptionManager';
 import ClinicalDiagnosticPanel from './ClinicalDiagnosticPanel';
 
 const MedicalConsultation = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const permissions = usePermissions(user);
   const [patient, setPatient] = useState<any>(null);
   const [accessGranted, setAccessGranted] = useState(false);
@@ -50,7 +50,7 @@ const MedicalConsultation = () => {
       patientId: patient.id,
       date: new Date().toISOString(),
       doctorId: user?.id || '',
-      doctorName: `${user?.firstName} ${user?.lastName}`,
+      doctorName: `${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name}`,
       diagnosis: consultation.diagnosis,
       symptoms: consultation.symptoms,
       treatment: consultation.treatment,
@@ -59,7 +59,7 @@ const MedicalConsultation = () => {
     };
 
     // Audit log complet
-    console.log(`[AUDIT] Consultation sauvegardée - Patient: ${patient.firstName} ${patient.lastName} - Doctor: ${user?.firstName} ${user?.lastName} - Diagnosis: ${consultation.diagnosis} - Time: ${new Date().toISOString()}`);
+    console.log(`[AUDIT] Consultation sauvegardée - Patient: ${patient.firstName} ${patient.lastName} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Diagnosis: ${consultation.diagnosis} - Time: ${new Date().toISOString()}`);
     
     // Reset sécurisé
     setConsultation({ symptoms: '', diagnosis: '', treatment: '', notes: '' });
@@ -80,7 +80,7 @@ const MedicalConsultation = () => {
     const expiryTime = new Date(Date.now() + (24 * 60 * 60 * 1000)).toLocaleString('fr-FR');
     
     // Audit log
-    console.log(`[AUDIT] Code transmission généré - Code: ${code} - Patient: ${patient?.firstName} ${patient?.lastName} - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+    console.log(`[AUDIT] Code transmission généré - Code: ${code} - Patient: ${patient?.firstName} ${patient?.lastName} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
     
     alert(`Code de transmission sécurisé généré:\n${code}\n\nValable jusqu'au: ${expiryTime}\nAccès sécurisé avec traçabilité complète.`);
   };
@@ -92,7 +92,7 @@ const MedicalConsultation = () => {
           <h1 className="text-2xl font-bold text-gray-900">Consultation Médicale Sécurisée</h1>
           <div className="flex items-center space-x-2 text-sm text-green-600">
             <Shield className="w-4 h-4" />
-            <span>Accès sécurisé - {user?.firstName} {user?.lastName}</span>
+            <span>Accès sécurisé - {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}</span>
           </div>
         </div>
 

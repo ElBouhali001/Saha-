@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { hasPermission, Permission } from '@/utils/permissions';
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredPermission, 
   fallback 
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useSupabaseAuth();
 
   if (!isAuthenticated) {
     return fallback || (

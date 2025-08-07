@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,7 +11,7 @@ import BillingHistory from './BillingHistory';
 import { Receipt, CreditCard, History, TrendingUp, AlertCircle, DollarSign } from 'lucide-react';
 
 const BillingModule = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Vérifier les permissions d'accès

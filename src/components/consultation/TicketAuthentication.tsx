@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { QrCode, Shield } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { usePermissions } from '@/utils/permissions';
 
 interface TicketAuthenticationProps {
@@ -13,7 +13,7 @@ interface TicketAuthenticationProps {
 }
 
 const TicketAuthentication: React.FC<TicketAuthenticationProps> = ({ onPatientAuthenticated }) => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const permissions = usePermissions(user);
   const [ticketCode, setTicketCode] = useState('');
 
@@ -49,7 +49,7 @@ const TicketAuthentication: React.FC<TicketAuthenticationProps> = ({ onPatientAu
       onPatientAuthenticated(foundPatient);
       
       // Audit log
-      console.log(`[AUDIT] Accès consultation - Patient: ${foundPatient.firstName} ${foundPatient.lastName} - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+      console.log(`[AUDIT] Accès consultation - Patient: ${foundPatient.firstName} ${foundPatient.lastName} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
       
     } else {
       alert('Code ticket invalide ou expiré');

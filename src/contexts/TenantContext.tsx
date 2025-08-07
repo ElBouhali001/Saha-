@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './AuthContext';
+import { useSupabaseAuth } from './SupabaseAuthContext';
 
 interface Tenant {
   id: string;
@@ -59,7 +59,7 @@ export const useTenant = () => {
 };
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [currentTenant, setCurrentTenantState] = useState<Tenant | null>(null);
   const [tenantConfig, setTenantConfig] = useState<TenantSecurityConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);

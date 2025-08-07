@@ -1,5 +1,5 @@
 
-import { User } from '@/types/user';
+import { User } from '@supabase/supabase-js';
 
 export type Permission = 
   | 'view_all_patients'
@@ -127,7 +127,10 @@ export const restrictedData: Record<string, string[]> = {
 export const hasPermission = (user: User | null, permission: Permission): boolean => {
   if (!user) return false;
   
-  const userPermissions = rolePermissions[user.role] || [];
+  const userRole = user.user_metadata?.role;
+  if (!userRole) return false;
+  
+  const userPermissions = rolePermissions[userRole] || [];
   return userPermissions.includes(permission);
 };
 
@@ -141,12 +144,15 @@ export const requirePermission = (user: User | null, permission: Permission): bo
 export const canAccessPatientData = (user: User | null, dataField: string): boolean => {
   if (!user) return false;
   
+  const userRole = user.user_metadata?.role;
+  if (!userRole) return false;
+  
   // Médecins et admins ont accès à tout
-  if (['doctor', 'admin'].includes(user.role)) return true;
+  if (['doctor', 'admin'].includes(userRole)) return true;
   
   // Vérifier si le champ est dans les données autorisées
-  const allowedData = dataAccess[user.role] || [];
-  const forbiddenData = restrictedData[user.role] || [];
+  const allowedData = dataAccess[userRole] || [];
+  const forbiddenData = restrictedData[userRole] || [];
   
   return allowedData.includes(dataField) && !forbiddenData.includes(dataField);
 };
@@ -168,7 +174,7 @@ export const usePermissions = (user: User | null) => {
     hasPermission: (permission: Permission) => hasPermission(user, permission),
     requirePermission: (permission: Permission) => requirePermission(user, permission),
     canAccessPatientData: (dataField: string) => canAccessPatientData(user, dataField),
-    getRestrictedMessage: () => getRestrictedMessage(user?.role || ''),
+    getRestrictedMessage: () => getRestrictedMessage(user?.user_metadata?.role || ''),
     canViewMedicalData: () => hasPermission(user, 'view_medical_records'),
     canCreateConsultation: () => hasPermission(user, 'create_consultation'),
     canManageBilling: () => hasPermission(user, 'manage_billing'),

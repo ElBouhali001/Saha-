@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Prescription } from '@/types/patient';
 import { Plus, Shield, Trash2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { usePermissions } from '@/utils/permissions';
 import { generateSecureToken } from '@/utils/security';
 
@@ -22,7 +22,7 @@ const PrescriptionManager: React.FC<PrescriptionManagerProps> = ({
   onPrescriptionsChange, 
   patientName 
 }) => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const permissions = usePermissions(user);
   const [isAddPrescriptionOpen, setIsAddPrescriptionOpen] = useState(false);
   const [newPrescription, setNewPrescription] = useState({
@@ -68,7 +68,7 @@ const PrescriptionManager: React.FC<PrescriptionManagerProps> = ({
     setIsAddPrescriptionOpen(false);
     
     // Audit log
-    console.log(`[AUDIT] Prescription ajoutée - Patient: ${patientName} - Medication: ${prescription.medicationName} - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+    console.log(`[AUDIT] Prescription ajoutée - Patient: ${patientName} - Medication: ${prescription.medicationName} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
   };
 
   const handleRemovePrescription = (prescriptionId: string) => {
@@ -80,7 +80,7 @@ const PrescriptionManager: React.FC<PrescriptionManagerProps> = ({
     const updatedPrescriptions = prescriptions.filter(p => p.id !== prescriptionId);
     onPrescriptionsChange(updatedPrescriptions);
     
-    console.log(`[AUDIT] Prescription supprimée - Patient: ${patientName} - ID: ${prescriptionId} - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+    console.log(`[AUDIT] Prescription supprimée - Patient: ${patientName} - ID: ${prescriptionId} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
   };
 
   const isFormValid = newPrescription.medicationName.trim() && newPrescription.dosage.trim();

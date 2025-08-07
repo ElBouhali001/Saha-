@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +8,7 @@ import { Users, Calendar, FileText, Settings, Package, BarChart3 } from 'lucide-
 import ModuleManager from '../admin/ModuleManager';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
   const stats = [
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
             Tableau de Bord Administrateur
           </h1>
           <p className="text-gray-600">
-            Bienvenue, {user?.firstName} {user?.lastName}
+            Bienvenue, {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
           </p>
         </div>
         <Button variant="outline">

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Brain, Pill, Settings, Key, Shield } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { usePermissions } from '@/utils/permissions';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DiagnosticAssistant from './DiagnosticAssistant';
@@ -15,7 +15,7 @@ import TreatmentSuggestions from './TreatmentSuggestions';
 import { aiService, DiagnosticSuggestion, TreatmentSuggestion } from '@/utils/aiService';
 
 const AIModule = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const permissions = usePermissions(user);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState('');
   const [apiKey, setApiKey] = useState('');
@@ -25,7 +25,7 @@ const AIModule = () => {
   const handleDiagnosticSuggestion = (suggestion: DiagnosticSuggestion) => {
     setSelectedDiagnosis(suggestion.condition);
     // Audit log
-    console.log(`[AUDIT] Suggestion diagnostique sélectionnée - Condition: ${suggestion.condition} - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+    console.log(`[AUDIT] Suggestion diagnostique sélectionnée - Condition: ${suggestion.condition} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
   };
 
   const handleTreatmentSuggestion = (treatment: TreatmentSuggestion) => {
@@ -33,7 +33,7 @@ const AIModule = () => {
       setCurrentMedications([...currentMedications, treatment.medication]);
     }
     // Audit log
-    console.log(`[AUDIT] Suggestion traitement sélectionnée - Medication: ${treatment.medication} - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+    console.log(`[AUDIT] Suggestion traitement sélectionnée - Medication: ${treatment.medication} - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
   };
 
   const handleApiKeySubmit = () => {
@@ -41,7 +41,7 @@ const AIModule = () => {
       aiService.setApiKey(apiKey);
       setApiConfigured(true);
       // Don't log the actual API key for security
-      console.log(`[AUDIT] Clé API IA configurée - Doctor: ${user?.firstName} ${user?.lastName} - Time: ${new Date().toISOString()}`);
+      console.log(`[AUDIT] Clé API IA configurée - Doctor: ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} - Time: ${new Date().toISOString()}`);
     }
   };
 
@@ -59,7 +59,7 @@ const AIModule = () => {
           </div>
           <div className="flex items-center space-x-2 text-sm text-purple-600">
             <Shield className="w-4 h-4" />
-            <span>Accès sécurisé - {user?.firstName} {user?.lastName}</span>
+            <span>Accès sécurisé - {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}</span>
           </div>
         </div>
 
