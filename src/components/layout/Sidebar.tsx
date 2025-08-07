@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
@@ -16,10 +16,10 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useSupabaseAuth();
 
   const getRoleColor = () => {
-    switch (user?.role) {
+    switch (user?.user_metadata?.role) {
       case 'admin': return 'text-purple-600';
       case 'doctor': return 'text-blue-600';
       case 'agent': return 'text-green-600';
@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
   };
 
   const getRoleLabel = () => {
-    switch (user?.role) {
+    switch (user?.user_metadata?.role) {
       case 'admin': return 'Administrateur';
       case 'doctor': return 'Médecin';
       case 'agent': return 'Agent/Secrétaire';
@@ -66,7 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {user?.firstName} {user?.lastName}
+              {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
             </p>
             <p className={cn("text-xs font-medium", getRoleColor())}>
               {getRoleLabel()}
@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
         <Button
           variant="ghost"
           className="w-full justify-start space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={logout}
+          onClick={signOut}
         >
           <LogOut className="w-4 h-4" />
           <span>Déconnexion</span>

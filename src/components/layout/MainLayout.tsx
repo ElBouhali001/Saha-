@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import Sidebar from './Sidebar';
 import ModuleComponent from '@/modules/ModuleLoader';
 import AdminDashboard from '../dashboard/AdminDashboard';
@@ -10,14 +10,14 @@ import PatientDashboard from '../dashboard/PatientDashboard';
 import { useModuleAccess } from '@/hooks/useModuleAccess';
 
 const MainLayout = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const { canAccessModule } = useModuleAccess();
 
   const renderPageContent = () => {
     switch (currentPage) {
       case 'dashboard':
-        switch (user?.role) {
+        switch (user?.user_metadata?.role || 'patient') {
           case 'admin':
             return <AdminDashboard />;
           case 'doctor':

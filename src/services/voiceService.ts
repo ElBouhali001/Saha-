@@ -208,8 +208,50 @@ export class VoiceService {
   }
 
   private getElevenLabsApiKey(): string | null {
-    // Récupérer la clé depuis le stockage local
-    return localStorage.getItem('elevenlabs_api_key') || null;
+    // Récupérer la clé depuis le stockage local de manière sécurisée
+    const encryptedKey = localStorage.getItem('elevenlabs_api_key_encrypted');
+    if (encryptedKey) {
+      try {
+        return this.decryptData(encryptedKey);
+      } catch (error) {
+        console.error('Erreur lors du déchiffrement de la clé API:', error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  setElevenLabsApiKey(apiKey: string): void {
+    // Chiffrer et stocker la clé de manière sécurisée
+    const encryptedKey = this.encryptData(apiKey);
+    localStorage.setItem('elevenlabs_api_key_encrypted', encryptedKey);
+    // Supprimer l'ancienne clé non chiffrée si elle existe
+    localStorage.removeItem('elevenlabs_api_key');
+  }
+
+  private encryptData(data: string): string {
+    // Utiliser le même système de chiffrement que security.ts
+    const CryptoJS = require('crypto-js');
+    const key = this.getStorageEncryptionKey();
+    return CryptoJS.AES.encrypt(data, key).toString();
+  }
+
+  private decryptData(encryptedData: string): string {
+    const CryptoJS = require('crypto-js');
+    const key = this.getStorageEncryptionKey();
+    const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  }
+
+  private getStorageEncryptionKey(): string {
+    let key = localStorage.getItem('voice_service_key');
+    if (!key) {
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      key = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+      localStorage.setItem('voice_service_key', key);
+    }
+    return key;
   }
 
   setLanguage(language: string) {

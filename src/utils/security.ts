@@ -1,8 +1,19 @@
 
 import CryptoJS from 'crypto-js';
 
-// Clé de chiffrement - En production, utiliser une variable d'environnement
-const ENCRYPTION_KEY = 'MediPatient_SecureKey_2024';
+// Clé de chiffrement - Utilise une clé générée de manière sécurisée
+const getEncryptionKey = (): string => {
+  // En production, cette clé devrait être générée de manière sécurisée et stockée de manière appropriée
+  let key = localStorage.getItem('app_encryption_key');
+  if (!key) {
+    // Générer une nouvelle clé sécurisée
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    key = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    localStorage.setItem('app_encryption_key', key);
+  }
+  return key;
+};
 
 export interface SecurityUtils {
   hashPassword: (password: string) => string;
@@ -40,13 +51,13 @@ export const verifyPassword = (password: string, hash: string): boolean => {
 
 // Chiffrement des données sensibles
 export const encryptData = (data: string): string => {
-  return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
+  return CryptoJS.AES.encrypt(data, getEncryptionKey()).toString();
 };
 
 // Déchiffrement des données
 export const decryptData = (encryptedData: string): string => {
   try {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+    const bytes = CryptoJS.AES.decrypt(encryptedData, getEncryptionKey());
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch (error) {
     return '';
