@@ -1,11 +1,11 @@
 
 import { useModules } from '@/contexts/ModuleContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { ModuleId } from '@/types/modules';
 
 export const useModuleAccess = () => {
-  const { isModuleEnabled, hasModulePermission } = useModules();
-  const { user } = useAuth();
+  const { modules, isModuleEnabled, hasModulePermission } = useModules();
+  const { user } = useSupabaseAuth();
 
   const canAccessModule = (moduleId: ModuleId): boolean => {
     return isModuleEnabled(moduleId);
@@ -13,10 +13,9 @@ export const useModuleAccess = () => {
 
   const canAccessRoute = (route: string): boolean => {
     if (!user) return false;
-    
+
     // Vérifier si la route fait partie d'un module activé
-    const { modules } = useModules();
-    return Object.values(modules).some(module => 
+    return Object.values(modules || {}).some((module) =>
       module.isEnabled && module.routes.includes(route)
     );
   };
@@ -30,9 +29,7 @@ export const useModuleAccess = () => {
 
   const getModulePermissions = (moduleId: ModuleId): string[] => {
     if (!isModuleEnabled(moduleId)) return [];
-    
-    const { modules } = useModules();
-    return modules[moduleId]?.permissions || [];
+    return modules?.[moduleId]?.permissions || [];
   };
 
   return {
@@ -41,6 +38,6 @@ export const useModuleAccess = () => {
     requireModule,
     hasModulePermission,
     getModulePermissions,
-    isModuleEnabled
+    isModuleEnabled,
   };
 };
