@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import TransmissionAccess from "./pages/TransmissionAccess";
 import SupabaseAuth from "./pages/SupabaseAuth";
 import PatientProfile from "./pages/PatientProfile";
+import ClaimPatient from "./pages/ClaimPatient";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
                 <Route path="/supabase" element={<SupabaseAuth />} />
                 <Route path="/transmission" element={<TransmissionAccess />} />
                 <Route path="/patient" element={<PatientProfile />} />
+                <Route path="/claim" element={<ClaimPatient />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

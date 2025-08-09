@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Users, DollarSign, Clock, Plus, Search, ChevronRight } from 'lucide-react';
 import PatientClaimQRCode from '@/components/patient/PatientClaimQRCode';
+import { supabase } from '@/integrations/supabase/client';
+import { IS_DEMO } from '@/config/app';
 
 const AgentDashboard = () => {
   const todayAppointments = [
@@ -12,12 +14,34 @@ const AgentDashboard = () => {
     { time: '10:00', patient: 'Mme Bamba Mariam', doctor: 'Dr. Traoré', status: 'confirmed' },
     { time: '11:30', patient: 'M. Ouattara Ali', doctor: 'Dr. Kouamé', status: 'confirmed' },
   ];
-  const demoPatients = [
+  const fallbackDemoPatients = [
     { name: 'Marie Dubois', token: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' },
     { name: 'Pierre Martin', token: '7c9e6679-7425-40de-944b-e07fc1f90ae7' },
     { name: 'Sophie Rousseau', token: '123e4567-e89b-12d3-a456-426614174000' },
   ];
+  const [qrPatients, setQrPatients] = useState<{ name: string; token: string }[]>(IS_DEMO ? fallbackDemoPatients : []);
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+
+  useEffect(() => {
+    const loadRealTokens = async () => {
+      if (IS_DEMO) return;
+      const { data: patients, error } = await supabase
+        .from('patients')
+        .select('id')
+        .limit(3);
+      if (error || !patients) return;
+
+      const items: { name: string; token: string }[] = [];
+      for (const [idx, p] of patients.entries()) {
+        const { data: tok, error: rpcError } = await (supabase as any).rpc('create_patient_claim_token', { p_patient_id: p.id });
+        if (!rpcError && tok && tok.token) {
+          items.push({ name: `Patient #${idx + 1}`, token: tok.token });
+        }
+      }
+      if (items.length) setQrPatients(items);
+    };
+    loadRealTokens();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -137,7 +161,7 @@ const AgentDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {demoPatients.map((p) => (
+            {qrPatients.map((p) => (
               <PatientClaimQRCode
                 key={p.token}
                 patientName={p.name}
