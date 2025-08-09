@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Users, DollarSign, Clock, Plus, Search, ChevronRight } from 'lucide-react';
+import PatientClaimQRCode from '@/components/patient/PatientClaimQRCode';
 
 const AgentDashboard = () => {
   const todayAppointments = [
@@ -11,6 +12,12 @@ const AgentDashboard = () => {
     { time: '10:00', patient: 'Mme Bamba Mariam', doctor: 'Dr. Traoré', status: 'confirmed' },
     { time: '11:30', patient: 'M. Ouattara Ali', doctor: 'Dr. Kouamé', status: 'confirmed' },
   ];
+  const demoPatients = [
+    { name: 'Marie Dubois', token: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' },
+    { name: 'Pierre Martin', token: '7c9e6679-7425-40de-944b-e07fc1f90ae7' },
+    { name: 'Sophie Rousseau', token: '123e4567-e89b-12d3-a456-426614174000' },
+  ];
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -118,6 +125,25 @@ const AgentDashboard = () => {
               <Users className="w-6 h-6" />
               <span>Nouveau Patient</span>
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* QR d'activation patients (démo) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>QR d'activation patients (démo)</CardTitle>
+          <CardDescription>Partagez le QR d'activation aux patients nouvellement créés</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {demoPatients.map((p) => (
+              <PatientClaimQRCode
+                key={p.token}
+                patientName={p.name}
+                claimUrl={`${baseUrl}/claim?token=${p.token}`}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>
