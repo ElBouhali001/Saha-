@@ -6,6 +6,7 @@ import { Calendar, Users, FileText, Clock, Bell, ChevronRight } from 'lucide-rea
 import PatientClaimQRCode from '@/components/patient/PatientClaimQRCode';
 import { supabase } from '@/integrations/supabase/client';
 import { IS_DEMO } from '@/config/app';
+import AppStoreQRCodes from '@/components/shared/AppStoreQRCodes';
 
 const DoctorDashboard = () => {
   const todayAppointments = [
@@ -143,6 +144,10 @@ const DoctorDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {IS_DEMO && (
+        <AppStoreQRCodes />
+      )}
 
       {/* Today's Schedule and Notifications */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

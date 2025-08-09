@@ -6,6 +6,7 @@ import { Calendar, Users, DollarSign, Clock, Plus, Search, ChevronRight } from '
 import PatientClaimQRCode from '@/components/patient/PatientClaimQRCode';
 import { supabase } from '@/integrations/supabase/client';
 import { IS_DEMO } from '@/config/app';
+import AppStoreQRCodes from '@/components/shared/AppStoreQRCodes';
 
 const AgentDashboard = () => {
   const todayAppointments = [
@@ -171,6 +172,10 @@ const AgentDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {IS_DEMO && (
+        <AppStoreQRCodes />
+      )}
 
       {/* Today's Appointments and Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
