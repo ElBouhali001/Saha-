@@ -72,7 +72,7 @@ const MainLayout = () => {
       // AI Assistant Module
       case 'ai-assistant':
         return canAccessModule('ai-assistant') ? 
-          <ModuleComponent moduleId="ai-assistant" componentName="AIModule" /> : 
+          <ModuleComponent moduleId="ai-assistant" componentName="DocumentsModule" /> : 
           <div className="p-6">Module assistant IA non disponible</div>;
 
       // Billing Module

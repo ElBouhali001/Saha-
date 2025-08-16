@@ -130,7 +130,7 @@ export const MODULE_DEFINITIONS: Record<ModuleId, Omit<ModuleConfig, 'isEnabled'
     dependencies: ['auth', 'medical-consultation'],
     permissions: ['ai:use', 'ai:diagnostics'],
     routes: ['/ai-assistant'],
-    components: ['AIModule', 'DiagnosticAssistant', 'TreatmentSuggestions']
+    components: ['DocumentsModule', 'AIModule', 'DiagnosticAssistant', 'TreatmentSuggestions', 'DocumentGenerator', 'AdvancedDocumentGenerator']
   },
   'transmission-referrals': {
     id: 'transmission-referrals',
