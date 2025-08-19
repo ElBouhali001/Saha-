@@ -47,6 +47,9 @@ const moduleComponents = {
     AIModule: lazy(() => import('./ai-assistant').then(m => ({ default: m.AIModule }))),
     DiagnosticAssistant: lazy(() => import('./ai-assistant').then(m => ({ default: m.DiagnosticAssistant }))),
     TreatmentSuggestions: lazy(() => import('./ai-assistant').then(m => ({ default: m.TreatmentSuggestions }))),
+    DocumentsModule: lazy(() => import('./ai-assistant').then(m => ({ default: m.DocumentsModule }))),
+    DocumentGenerator: lazy(() => import('./ai-assistant').then(m => ({ default: m.DocumentGenerator }))),
+    AdvancedDocumentGenerator: lazy(() => import('./ai-assistant').then(m => ({ default: m.AdvancedDocumentGenerator }))),
   },
   'transmission-referrals': {
     SecureTransmissionModal: lazy(() => import('./transmission-referrals').then(m => ({ default: m.SecureTransmissionModal }))),
