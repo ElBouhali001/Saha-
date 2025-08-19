@@ -7,8 +7,10 @@ import PatientClaimQRCode from '@/components/patient/PatientClaimQRCode';
 import { supabase } from '@/integrations/supabase/client';
 import { IS_DEMO } from '@/config/app';
 import AppStoreQRCodes from '@/components/shared/AppStoreQRCodes';
+import { useQRDisplay } from '@/contexts/QRDisplayContext';
 
 const DoctorDashboard = () => {
+  const { settings } = useQRDisplay();
   const todayAppointments = [
     { time: '09:00', patient: 'Mme Diabaté Aïcha', type: 'Consultation', status: 'confirmed' },
     { time: '10:30', patient: 'M. Koné Ibrahim', type: 'Suivi', status: 'waiting' },
@@ -127,25 +129,27 @@ const DoctorDashboard = () => {
       </div>
 
       {/* QR d'activation patients (démo) */}
-      <Card>
-        <CardHeader>
-          <CardTitle>QR d'activation patients (démo)</CardTitle>
-          <CardDescription>Partagez le QR d'activation aux patients nouvellement créés</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {qrPatients.map((p) => (
-              <PatientClaimQRCode
-                key={p.token}
-                patientName={p.name}
-                claimUrl={`${baseUrl}/claim?token=${p.token}`}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {settings.showPatientClaimQR && (
+        <Card>
+          <CardHeader>
+            <CardTitle>QR d'activation patients (démo)</CardTitle>
+            <CardDescription>Partagez le QR d'activation aux patients nouvellement créés</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {qrPatients.map((p) => (
+                <PatientClaimQRCode
+                  key={p.token}
+                  patientName={p.name}
+                  claimUrl={`${baseUrl}/claim?token=${p.token}`}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {IS_DEMO && (
+      {IS_DEMO && settings.showAppStoreQR && (
         <AppStoreQRCodes />
       )}
 

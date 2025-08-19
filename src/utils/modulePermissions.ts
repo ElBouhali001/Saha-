@@ -42,7 +42,10 @@ export type ModulePermission =
   // Transmission
   | 'transmission:create'
   | 'transmission:view'
-  | 'transmission:access';
+  | 'transmission:access'
+  // Admin
+  | 'admin:settings'
+  | 'admin:qr_manage';
 
 // Permissions par rôle et module
 export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermission[]>> = {
@@ -56,7 +59,8 @@ export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermis
     'laboratory-integration': ['lab:view', 'lab:manage', 'lab:results'],
     'pharmacy-integration': ['pharmacy:view', 'pharmacy:manage'],
     'ai-assistant': ['ai:use', 'ai:diagnostics'],
-    'transmission-referrals': ['transmission:create', 'transmission:view', 'transmission:access']
+    'transmission-referrals': ['transmission:create', 'transmission:view', 'transmission:access'],
+    'admin': ['admin:settings', 'admin:qr_manage']
   },
   doctor: {
     'auth': ['auth:login', 'auth:view_profiles'],
@@ -68,7 +72,8 @@ export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermis
     'laboratory-integration': ['lab:view', 'lab:manage', 'lab:results'],
     'pharmacy-integration': ['pharmacy:view'],
     'ai-assistant': ['ai:use', 'ai:diagnostics'],
-    'transmission-referrals': ['transmission:create', 'transmission:view']
+    'transmission-referrals': ['transmission:create', 'transmission:view'],
+    'admin': ['admin:settings', 'admin:qr_manage']
   },
   agent: {
     'auth': ['auth:login', 'auth:view_profiles'],
@@ -80,7 +85,8 @@ export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermis
     'laboratory-integration': [],
     'pharmacy-integration': [],
     'ai-assistant': [],
-    'transmission-referrals': []
+    'transmission-referrals': [],
+    'admin': []
   },
   patient: {
     'auth': ['auth:login', 'auth:view_profiles'],
@@ -92,7 +98,8 @@ export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermis
     'laboratory-integration': ['lab:view', 'lab:results'],
     'pharmacy-integration': ['pharmacy:view'],
     'ai-assistant': [],
-    'transmission-referrals': []
+    'transmission-referrals': [],
+    'admin': []
   },
   lab_technician: {
     'auth': ['auth:login', 'auth:view_profiles'],
@@ -104,7 +111,8 @@ export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermis
     'laboratory-integration': ['lab:view', 'lab:manage', 'lab:results'],
     'pharmacy-integration': [],
     'ai-assistant': [],
-    'transmission-referrals': []
+    'transmission-referrals': [],
+    'admin': []
   },
   pharmacist: {
     'auth': ['auth:login', 'auth:view_profiles'],
@@ -116,7 +124,8 @@ export const moduleRolePermissions: Record<string, Record<ModuleId, ModulePermis
     'laboratory-integration': [],
     'pharmacy-integration': ['pharmacy:view', 'pharmacy:manage'],
     'ai-assistant': [],
-    'transmission-referrals': []
+    'transmission-referrals': [],
+    'admin': []
   }
 };
 

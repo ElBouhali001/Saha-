@@ -6,6 +6,12 @@ import { Loader2 } from 'lucide-react';
 
 // Lazy loading des modules
 const moduleComponents = {
+  'admin': {
+    ModuleManager: lazy(() => import('./admin').then(m => ({ default: m.ModuleManager }))),
+    TenantSettings: lazy(() => import('./admin').then(m => ({ default: m.TenantSettings }))),
+    AdminDashboard: lazy(() => import('./admin').then(m => ({ default: m.AdminDashboard }))),
+    QRDisplaySettings: lazy(() => import('./admin').then(m => ({ default: m.QRDisplaySettings }))),
+  },
   'auth': {
     LoginForm: lazy(() => import('./auth').then(m => ({ default: m.LoginForm }))),
     AuthComponent: lazy(() => import('./auth').then(m => ({ default: m.AuthComponent }))),

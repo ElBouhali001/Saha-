@@ -23,7 +23,8 @@ import {
   CalendarDays,
   FlaskConical,
   UserCheck,
-  CreditCard
+  CreditCard,
+  QrCode
 } from 'lucide-react';
 
 interface ModularNavigationProps {
@@ -129,8 +130,14 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
+    // Paramètres QR
+    if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role)) {
+      moduleBasedItems.push({ id: 'qr-settings', label: 'Paramètres QR', icon: QrCode, module: 'admin' });
+    }
+
     // Filtrer les éléments selon les routes disponibles
     const filteredItems = moduleBasedItems.filter(item => 
+      item.id === 'qr-settings' || // Exception pour les paramètres QR qui ne sont pas dans les routes modulaires
       availableRoutes.includes(`/${item.id}`) || 
       availableRoutes.includes(`/${item.id.replace('-', '')}`)
     );

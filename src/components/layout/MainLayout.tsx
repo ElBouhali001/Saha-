@@ -8,6 +8,7 @@ import DoctorDashboard from '../dashboard/DoctorDashboard';
 import AgentDashboard from '../dashboard/AgentDashboard';
 import PatientDashboard from '../dashboard/PatientDashboard';
 import { useModuleAccess } from '@/hooks/useModuleAccess';
+import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
 
 const MainLayout = () => {
   const { user } = useSupabaseAuth();
@@ -108,6 +109,10 @@ const MainLayout = () => {
         return canAccessModule('transmission-referrals') ? 
           <ModuleComponent moduleId="transmission-referrals" componentName="SecureTransmissionModal" /> : 
           <div className="p-6">Module transmission non disponible</div>;
+
+      // QR Display Settings
+      case 'qr-settings':
+        return <QRDisplaySettings />;
 
       default:
         return (

@@ -17,26 +17,31 @@ import AppDownload from "./pages/AppDownload";
 
 const queryClient = new QueryClient();
 
+import { QRDisplayProvider } from '@/contexts/QRDisplayContext';
+import MainLayout from './components/layout/MainLayout';
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <SupabaseAuthProvider>
         <TenantProvider>
           <ModuleProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/supabase" element={<SupabaseAuth />} />
-                <Route path="/transmission" element={<TransmissionAccess />} />
-                <Route path="/patient" element={<PatientProfile />} />
-                <Route path="/claim" element={<ClaimPatient />} />
-                <Route path="/download" element={<AppDownload />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <QRDisplayProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/supabase" element={<SupabaseAuth />} />
+                  <Route path="/transmission" element={<TransmissionAccess />} />
+                  <Route path="/patient" element={<PatientProfile />} />
+                  <Route path="/claim" element={<ClaimPatient />} />
+                  <Route path="/download" element={<AppDownload />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </QRDisplayProvider>
           </ModuleProvider>
         </TenantProvider>
       </SupabaseAuthProvider>

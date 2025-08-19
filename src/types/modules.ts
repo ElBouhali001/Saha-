@@ -1,15 +1,16 @@
 
 export type ModuleId = 
-  | 'auth'
-  | 'patient-management'
-  | 'appointment-scheduling'
-  | 'medical-consultation'
-  | 'billing-invoicing'
-  | 'inventory-management'
-  | 'laboratory-integration'
+  | 'auth' 
+  | 'patient-management' 
+  | 'appointment-scheduling' 
+  | 'medical-consultation' 
+  | 'billing-invoicing' 
+  | 'inventory-management' 
+  | 'laboratory-integration' 
   | 'pharmacy-integration'
   | 'ai-assistant'
-  | 'transmission-referrals';
+  | 'transmission-referrals'
+  | 'admin';
 
 export interface ModuleConfig {
   id: ModuleId;
@@ -142,5 +143,16 @@ export const MODULE_DEFINITIONS: Record<ModuleId, Omit<ModuleConfig, 'isEnabled'
     permissions: ['transmission:create', 'transmission:view', 'transmission:access'],
     routes: ['/transmission'],
     components: ['SecureTransmissionModal', 'AccessTransmissionForm']
+  },
+  'admin': {
+    id: 'admin',
+    name: 'Administration',
+    description: 'Paramètres et configuration du système',
+    version: '1.0.0',
+    isCore: false,
+    dependencies: ['auth'],
+    permissions: ['admin:settings', 'admin:qr_manage'],
+    routes: ['/qr-settings'],
+    components: ['QRDisplaySettings', 'ModuleManager', 'TenantSettings', 'AdminDashboard']
   }
 };
