@@ -3,6 +3,7 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useInsuranceCompanies } from '@/hooks/useInsurances';
 
 interface PatientInfo {
   name: string;
@@ -10,6 +11,7 @@ interface PatientInfo {
   email: string;
   address: string;
   coverage: string;
+  insuranceId?: string;
 }
 
 interface PatientInfoSectionProps {
@@ -27,9 +29,15 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
   dueDate,
   onDueDateChange
 }) => {
+  const { data: insurances = [], isLoading: insurancesLoading } = useInsuranceCompanies();
+  
   const handleCoverageChange = (value: string) => {
     onUpdate('coverage', value);
     onCoverageChange(value);
+    // Réinitialiser l'assurance sélectionnée quand on change de type de prise en charge
+    if (value !== 'mutuelle' && value !== 'tiers-payant') {
+      onUpdate('insuranceId', '');
+    }
   };
 
   return (
@@ -75,6 +83,34 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
           onChange={(e) => onDueDateChange(e.target.value)}
         />
       </div>
+      
+      {/* Sélection d'assurance pour Tranche A et B */}
+      {(patientInfo.coverage === 'mutuelle' || patientInfo.coverage === 'tiers-payant') && (
+        <div className="space-y-2 col-span-1 md:col-span-2">
+          <Label htmlFor="insurance-select">
+            {patientInfo.coverage === 'mutuelle' ? 'Mutuelle/Assurance *' : 'Assurance Tiers Payant *'}
+          </Label>
+          <Select 
+            value={patientInfo.insuranceId || ''} 
+            onValueChange={(value) => onUpdate('insuranceId', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner une assurance..." />
+            </SelectTrigger>
+            <SelectContent>
+              {insurancesLoading ? (
+                <SelectItem value="" disabled>Chargement...</SelectItem>
+              ) : (
+                insurances.map((insurance) => (
+                  <SelectItem key={insurance.id} value={insurance.id}>
+                    {insurance.name} - {insurance.coverage_rate}% de couverture
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   );
 };
