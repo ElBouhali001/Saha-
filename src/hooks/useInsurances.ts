@@ -8,10 +8,9 @@ export const useInsuranceCompanies = () => {
   return useQuery({
     queryKey: ['insurance-companies'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from('insurance_companies')
+      const { data, error } = await supabase
+        .from('insurances')
         .select('*')
-        .eq('is_active', true)
         .order('name');
 
       if (error) throw error;
