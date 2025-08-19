@@ -347,14 +347,19 @@ export default function AdvancedDocumentGenerator({
                     <div>
                       <Label>Ton du document</Label>
                       <div className="space-y-2 mt-2">
-                        {['professional', 'compassionate', 'clinical', 'detailed'].map(tone => (
-                          <label key={tone} className="flex items-center space-x-2">
+                        {[
+                          { value: 'professional', label: 'Professionnel' },
+                          { value: 'compassionate', label: 'Bienveillant' },
+                          { value: 'clinical', label: 'Clinique' },
+                          { value: 'detailed', label: 'Détaillé' }
+                        ].map(tone => (
+                          <label key={tone.value} className="flex items-center space-x-2">
                             <input
                               type="radio"
-                              checked={settings.tone === tone}
-                              onChange={() => setSettings(prev => ({ ...prev, tone: tone as any }))}
+                              checked={settings.tone === tone.value}
+                              onChange={() => setSettings(prev => ({ ...prev, tone: tone.value as any }))}
                             />
-                            <span className="capitalize">{tone}</span>
+                            <span>{tone.label}</span>
                           </label>
                         ))}
                       </div>
@@ -363,7 +368,7 @@ export default function AdvancedDocumentGenerator({
                     <div>
                       <Label>Langue</Label>
                       <div className="space-y-2 mt-2">
-                        {[{ code: 'fr', name: 'Français' }, { code: 'en', name: 'English' }, { code: 'es', name: 'Español' }].map(lang => (
+                        {[{ code: 'fr', name: 'Français' }, { code: 'en', name: 'Anglais' }, { code: 'es', name: 'Espagnol' }].map(lang => (
                           <label key={lang.code} className="flex items-center space-x-2">
                             <input
                               type="radio"
