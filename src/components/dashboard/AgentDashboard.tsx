@@ -156,30 +156,6 @@ const AgentDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* QR d'activation patients (démo) */}
-      {settings.showPatientClaimQR && (
-        <Card>
-          <CardHeader>
-            <CardTitle>QR d'activation patients (démo)</CardTitle>
-            <CardDescription>Partagez le QR d'activation aux patients nouvellement créés</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {qrPatients.map((p) => (
-                <PatientClaimQRCode
-                  key={p.token}
-                  patientName={p.name}
-                  claimUrl={`${baseUrl}/claim?token=${p.token}`}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {IS_DEMO && settings.showAppStoreQR && (
-        <AppStoreQRCodes />
-      )}
 
       {/* Today's Appointments and Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

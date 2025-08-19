@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,29 @@ import { Separator } from '@/components/ui/separator';
 import { QrCode, Smartphone, RotateCcw } from 'lucide-react';
 import { useQRDisplay } from '@/contexts/QRDisplayContext';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import PatientClaimQRCode from '@/components/patient/PatientClaimQRCode';
+import AppStoreQRCodes from '@/components/shared/AppStoreQRCodes';
+import { IS_DEMO } from '@/config/app';
 
 const QRDisplaySettings: React.FC = () => {
   const { settings, updateSettings, resetToDefaults } = useQRDisplay();
   const { toast } = useToast();
+  const [qrPatients, setQrPatients] = useState<Array<{ name: string; token: string }>>([]);
+
+  const baseUrl = window.location.origin;
+
+  // Données démo par défaut
+  const demoPatients = [
+    { name: 'Aminata Traoré', token: 'demo-aminata-traore' },
+    { name: 'Moussa Koné', token: 'demo-moussa-kone' },
+    { name: 'Fatoumata Diallo', token: 'demo-fatoumata-diallo' }
+  ];
+
+  useEffect(() => {
+    // Utiliser les données démo pour éviter les erreurs Supabase
+    setQrPatients(demoPatients);
+  }, []);
 
   const handleReset = () => {
     resetToDefaults();
@@ -91,6 +110,34 @@ const QRDisplaySettings: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* QR d'activation patients */}
+      {settings.showPatientClaimQR && (
+        <Card>
+          <CardHeader>
+            <CardTitle>QR d'activation patients</CardTitle>
+            <CardDescription>
+              {IS_DEMO ? 'Partagez le QR d\'activation aux patients nouvellement créés (démo)' : 'Partagez le QR d\'activation aux patients nouvellement créés'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {qrPatients.map((p) => (
+                <PatientClaimQRCode
+                  key={p.token}
+                  patientName={p.name}
+                  claimUrl={`${baseUrl}/claim?token=${p.token}`}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* QR de téléchargement d'app */}
+      {IS_DEMO && settings.showAppStoreQR && (
+        <AppStoreQRCodes />
+      )}
 
       <Card className="bg-muted/50">
         <CardHeader>
