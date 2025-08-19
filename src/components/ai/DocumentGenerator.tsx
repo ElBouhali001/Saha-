@@ -6,8 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, FileText, Download, Copy, Sparkles } from 'lucide-react';
+import { Loader2, FileText, Download, Copy, Sparkles, Bot, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AIDocumentService, PatientData, ConsultationData } from '@/services/aiDocumentService';
 
 interface DocumentTemplate {
   id: string;
@@ -66,12 +67,14 @@ const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
 
 interface DocumentGeneratorProps {
   patientId?: string;
-  consultationData?: any;
+  patientData?: PatientData;
+  consultationData?: ConsultationData;
   onDocumentGenerated?: (document: GeneratedDocument) => void;
 }
 
 export default function DocumentGenerator({ 
   patientId, 
+  patientData,
   consultationData, 
   onDocumentGenerated 
 }: DocumentGeneratorProps) {
@@ -81,6 +84,8 @@ export default function DocumentGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedDocuments, setGeneratedDocuments] = useState<GeneratedDocument[]>([]);
   const [customPrompt, setCustomPrompt] = useState('');
+  const [useAI, setUseAI] = useState(true);
+  const [aiTone, setAiTone] = useState<'professional' | 'compassionate' | 'clinical' | 'detailed'>('professional');
 
   useEffect(() => {
     if (consultationData && selectedTemplate) {
@@ -88,7 +93,7 @@ export default function DocumentGenerator({
       const prefilled: Record<string, string> = {};
       if (consultationData.symptoms) prefilled.chief_complaint = consultationData.symptoms;
       if (consultationData.diagnosis) prefilled.diagnosis = consultationData.diagnosis;
-      if (consultationData.treatment_plan) prefilled.treatment_plan = consultationData.treatment_plan;
+      if (consultationData.treatmentPlan) prefilled.treatment_plan = consultationData.treatmentPlan;
       
       setFormData(prefilled);
     }
@@ -114,33 +119,43 @@ export default function DocumentGenerator({
     setIsGenerating(true);
     
     try {
-      // Construire le prompt pour l'IA
-      const prompt = `
-        Générez un ${selectedTemplate.name} professionnel en français pour un patient.
-        
-        Type de document: ${selectedTemplate.description}
-        
-        Données du patient et de la consultation:
-        ${Object.entries(formData).map(([key, value]) => `${key}: ${value}`).join('\n')}
-        
-        Instructions supplémentaires: ${customPrompt}
-        
-        Veuillez générer un document médical complet, structuré et professionnel en français.
-        Utilisez un langage médical approprié et suivez les standards de documentation médicale.
-        Incluez tous les éléments nécessaires selon le type de document demandé.
-      `;
-
-      // TODO: Appeler le service d'IA (OpenAI, Claude, etc.)
-      // Pour l'instant, simuler une génération
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let content: string;
       
-      const mockContent = generateMockDocument(selectedTemplate, formData);
-      setGeneratedContent(mockContent);
+      if (useAI && patientData && consultationData) {
+        // Génération IA avec données réelles
+        console.log('Generating with AI using real data');
+        
+        const aiRequest = {
+          documentType: selectedTemplate.type,
+          patientData,
+          consultationData,
+          tone: aiTone,
+          language: 'fr' as const,
+          customInstructions: customPrompt
+        };
+        
+        const response = await AIDocumentService.generateDocument(aiRequest);
+        
+        if (response.success && response.content) {
+          content = response.content;
+          toast.success('Document généré par IA avec succès');
+        } else {
+          throw new Error(response.error || 'Erreur lors de la génération IA');
+        }
+      } else {
+        // Génération mock pour les cas sans données complètes
+        console.log('Generating mock document');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        content = generateMockDocument(selectedTemplate, formData);
+        toast.success('Document généré avec des données de démonstration');
+      }
+      
+      setGeneratedContent(content);
       
       const newDocument: GeneratedDocument = {
         id: Date.now().toString(),
         title: selectedTemplate.name,
-        content: mockContent,
+        content,
         type: selectedTemplate.type,
         createdAt: new Date(),
         patientId
@@ -149,10 +164,14 @@ export default function DocumentGenerator({
       setGeneratedDocuments(prev => [newDocument, ...prev]);
       onDocumentGenerated?.(newDocument);
       
-      toast.success('Document généré avec succès');
     } catch (error) {
-      toast.error('Erreur lors de la génération du document');
-      console.error('Error generating document:', error);
+      console.error('Document generation error:', error);
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de la génération du document');
+      
+      // Fallback vers la génération mock
+      const mockContent = generateMockDocument(selectedTemplate, formData);
+      setGeneratedContent(mockContent);
+      toast.success('Document généré en mode de secours');
     } finally {
       setIsGenerating(false);
     }
@@ -270,9 +289,86 @@ Dr. [Nom du médecin]`;
 
           {selectedTemplate && (
             <>
+              {/* Options IA */}
+              {patientData && consultationData && (
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Bot className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium text-blue-900">Génération IA avec données patient</span>
+                      </div>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        {patientData.name}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Ton du document</Label>
+                        <Select value={aiTone} onValueChange={(value: any) => setAiTone(value)}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="professional">Professionnel</SelectItem>
+                            <SelectItem value="compassionate">Bienveillant</SelectItem>
+                            <SelectItem value="clinical">Clinique</SelectItem>
+                            <SelectItem value="detailed">Détaillé</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label>Mode de génération</Label>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Button
+                            variant={useAI ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setUseAI(true)}
+                            className="flex-1"
+                          >
+                            <Wand2 className="h-4 w-4 mr-2" />
+                            IA Automatique
+                          </Button>
+                          <Button
+                            variant={!useAI ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setUseAI(false)}
+                            className="flex-1"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Manuel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {useAI && (
+                      <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="text-sm text-green-800">
+                          <strong>Données disponibles:</strong>
+                          <ul className="mt-1 list-disc list-inside space-y-1">
+                            <li>Diagnostic: {consultationData.diagnosis}</li>
+                            <li>Symptômes: {consultationData.symptoms.substring(0, 50)}...</li>
+                            <li>Traitement: {consultationData.treatmentPlan?.substring(0, 50)}...</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
               <div className="grid gap-4">
-                <h3 className="font-medium">Informations requises</h3>
-                {selectedTemplate.fields.map(field => (
+                <h3 className="font-medium">
+                  {useAI && patientData && consultationData 
+                    ? 'Instructions supplémentaires (optionnel)' 
+                    : 'Informations requises'
+                  }
+                </h3>
+                
+                {(!useAI || !patientData || !consultationData) && selectedTemplate.fields.map(field => (
                   <div key={field}>
                     <Label htmlFor={field}>
                       {field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -307,12 +403,24 @@ Dr. [Nom du médecin]`;
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Génération en cours...
+                    {useAI && patientData && consultationData 
+                      ? 'Génération IA en cours...' 
+                      : 'Génération en cours...'
+                    }
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Générer le document
+                    {useAI && patientData && consultationData ? (
+                      <>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        Générer avec IA médicale
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Générer le document
+                      </>
+                    )}
                   </>
                 )}
               </Button>

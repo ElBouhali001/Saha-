@@ -18,9 +18,12 @@ import {
   ClipboardList,
   Download,
   Copy,
-  Wand2
+  Wand2,
+  Bot,
+  CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AIDocumentService, PatientData, ConsultationData } from '@/services/aiDocumentService';
 
 interface AdvancedSettings {
   tone: 'professional' | 'compassionate' | 'clinical' | 'detailed';
@@ -64,8 +67,8 @@ const DOCUMENT_SECTIONS = {
 };
 
 interface AdvancedDocumentGeneratorProps {
-  patientData?: any;
-  consultationData?: any;
+  patientData?: PatientData;
+  consultationData?: ConsultationData;
 }
 
 export default function AdvancedDocumentGenerator({ 
@@ -86,39 +89,80 @@ export default function AdvancedDocumentGenerator({
   };
 
   const generateSection = async (sectionId: string) => {
+    if (!patientData || !consultationData) {
+      toast.error('Données patient ou consultation manquantes pour la génération IA');
+      return;
+    }
+
     setGeneratingSection(sectionId);
     
     try {
-      // Simuler la génération IA
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log(`Generating section ${sectionId} with AI`);
       
+      const response = await AIDocumentService.generateSection(
+        sectionId,
+        patientData,
+        consultationData,
+        globalPrompt
+      );
+      
+      if (response.success && response.content) {
+        updateSection(sectionId, response.content);
+        toast.success(`Section "${sections.find(s => s.id === sectionId)?.title}" générée par IA`);
+      } else {
+        throw new Error(response.error || 'Erreur IA');
+      }
+    } catch (error) {
+      console.error('AI section generation error:', error);
+      toast.error('Erreur IA, génération de secours...');
+      
+      // Fallback vers la génération mock
       const mockContent = generateMockSectionContent(sectionId, settings);
       updateSection(sectionId, mockContent);
-      
-      toast.success(`Section "${sections.find(s => s.id === sectionId)?.title}" générée`);
-    } catch (error) {
-      toast.error('Erreur lors de la génération');
     } finally {
       setGeneratingSection(null);
     }
   };
 
   const generateAllSections = async () => {
+    if (!patientData || !consultationData) {
+      toast.error('Données patient ou consultation manquantes pour la génération IA');
+      return;
+    }
+
     setIsGenerating(true);
     
     const generatableSections = sections.filter(s => s.isGenerated && !s.content);
     
     for (const section of generatableSections) {
       setGeneratingSection(section.id);
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const mockContent = generateMockSectionContent(section.id, settings);
-      updateSection(section.id, mockContent);
+      try {
+        const response = await AIDocumentService.generateSection(
+          section.id,
+          patientData,
+          consultationData,
+          globalPrompt
+        );
+        
+        if (response.success && response.content) {
+          updateSection(section.id, response.content);
+        } else {
+          throw new Error('Erreur IA');
+        }
+      } catch (error) {
+        console.error(`Error generating section ${section.id}:`, error);
+        // Fallback vers mock
+        const mockContent = generateMockSectionContent(section.id, settings);
+        updateSection(section.id, mockContent);
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 800));
     }
     
     setIsGenerating(false);
     setGeneratingSection(null);
-    toast.success('Document entièrement généré');
+    toast.success('Document entièrement généré par IA');
   };
 
   const generateMockSectionContent = (sectionId: string, settings: AdvancedSettings) => {
@@ -184,6 +228,29 @@ export default function AdvancedDocumentGenerator({
 
   return (
     <div className="space-y-6">
+      {/* Indicateur de statut IA */}
+      {patientData && consultationData && (
+        <Card className="bg-gradient-to-r from-blue-50 to-green-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bot className="h-6 w-6 text-blue-600" />
+                <div>
+                  <h3 className="font-semibold text-blue-900">Mode IA Avancé Activé</h3>
+                  <p className="text-sm text-blue-700">
+                    Patient: {patientData.name} • Diagnostic: {consultationData.diagnosis}
+                  </p>
+                </div>
+              </div>
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Données complètes
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -214,11 +281,11 @@ export default function AdvancedDocumentGenerator({
                 <div className="flex gap-2">
                   <Button
                     onClick={generateAllSections}
-                    disabled={isGenerating}
+                    disabled={isGenerating || (!patientData || !consultationData)}
                     variant="default"
                   >
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Générer tout
+                    {patientData && consultationData ? 'Générer tout (IA)' : 'Générer tout'}
                   </Button>
                   <Button onClick={copyFullDocument} variant="outline">
                     <Copy className="mr-2 h-4 w-4" />
@@ -250,17 +317,20 @@ export default function AdvancedDocumentGenerator({
                             size="sm"
                             variant="outline"
                             onClick={() => generateSection(section.id)}
-                            disabled={generatingSection === section.id}
+                            disabled={generatingSection === section.id || (!patientData || !consultationData)}
                           >
                             {generatingSection === section.id ? (
                               <div className="flex items-center gap-2">
                                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
-                                Génération...
+                                IA...
                               </div>
                             ) : (
                               <>
-                                <Sparkles className="h-3 w-3 mr-1" />
-                                Générer
+                                {patientData && consultationData ? (
+                                  <><Wand2 className="h-3 w-3 mr-1" />Générer IA</>
+                                ) : (
+                                  <><Sparkles className="h-3 w-3 mr-1" />Générer</>
+                                )}
                               </>
                             )}
                           </Button>

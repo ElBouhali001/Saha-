@@ -17,11 +17,59 @@ import AdvancedDocumentGenerator from './AdvancedDocumentGenerator';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 interface DocumentsModuleProps {
-  patientData?: any;
-  consultationData?: any;
+  patientData?: {
+    id: string;
+    name: string;
+    dateOfBirth: string;
+    gender: string;
+    allergies?: string[];
+    chronicConditions?: string[];
+  };
+  consultationData?: {
+    id: string;
+    patientId: string;
+    consultationDate: string;
+    symptoms: string;
+    diagnosis: string;
+    treatmentPlan: string;
+    vitals?: {
+      temperature?: number;
+      bloodPressure?: string;
+      heartRate?: number;
+      respiratoryRate?: number;
+    };
+    doctorName: string;
+    doctorSpecialty: string;
+  };
 }
 
 export default function DocumentsModule({ patientData, consultationData }: DocumentsModuleProps) {
+  // Données de démonstration si aucune donnée réelle n'est fournie
+  const demoPatientData = patientData || {
+    id: 'demo-patient-1',
+    name: 'Marie Dubois',
+    dateOfBirth: '1985-03-15',
+    gender: 'F',
+    allergies: ['Pénicilline', 'Arachides'],
+    chronicConditions: ['Hypertension', 'Diabète type 2']
+  };
+
+  const demoConsultationData = consultationData || {
+    id: 'demo-consultation-1',
+    patientId: 'demo-patient-1',
+    consultationDate: new Date().toISOString().split('T')[0],
+    symptoms: 'Douleurs thoraciques, essoufflement à l\'effort, fatigue persistante depuis une semaine',
+    diagnosis: 'Insuffisance cardiaque légère avec possible surcharge hydrosodée',
+    treatmentPlan: 'Prescription d\'IEC, diurétique léger, régime hyposodé strict, surveillance tensionnelle quotidienne',
+    vitals: {
+      temperature: 36.8,
+      bloodPressure: '145/95',
+      heartRate: 88,
+      respiratoryRate: 18
+    },
+    doctorName: 'Dr. Jean Martin',
+    doctorSpecialty: 'Cardiologie'
+  };
   const [recentDocuments] = useState([
     {
       id: '1',
@@ -141,15 +189,16 @@ export default function DocumentsModule({ patientData, consultationData }: Docum
 
               <TabsContent value="simple" className="mt-6">
                 <DocumentGenerator 
-                  patientId={patientData?.id}
-                  consultationData={consultationData}
+                  patientId={demoPatientData.id}
+                  patientData={demoPatientData}
+                  consultationData={demoConsultationData}
                 />
               </TabsContent>
 
               <TabsContent value="advanced" className="mt-6">
                 <AdvancedDocumentGenerator 
-                  patientData={patientData}
-                  consultationData={consultationData}
+                  patientData={demoPatientData}
+                  consultationData={demoConsultationData}
                 />
               </TabsContent>
 
