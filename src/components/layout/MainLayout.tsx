@@ -144,6 +144,7 @@ const MainLayout = () => {
 
       // Plan Management (Admin only)
       case 'plan-management':
+      case 'plans-upgrade':
         return (
           <PlanGuard requiredPlan="freemium" feature="Gestion des plans">
             <ModuleComponent moduleId="admin" componentName="PlanManagement" />
