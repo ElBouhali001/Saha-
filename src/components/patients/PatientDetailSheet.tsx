@@ -23,6 +23,7 @@ import {
 import { DemoPatient } from '@/hooks/useDemoPatients';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AppointmentBookingModal from '@/components/appointments/AppointmentBookingModal';
+import PatientAppointments from './PatientAppointments';
 
 interface PatientDetailSheetProps {
   patient: DemoPatient | null;
@@ -260,53 +261,56 @@ const PatientDetailSheet: React.FC<PatientDetailSheetProps> = ({
                   </CardContent>
                 </Card>
               </>
-            )}
+                )}
 
-            {/* Informations de suivi - pour agents */}
-            {isAgent && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Activity className="w-4 h-4" />
-                    <span>Informations de Suivi</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-blue-50 rounded-lg text-center">
-                      <FileText className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                      <div className="text-lg font-semibold text-blue-700">{patient.consultations}</div>
-                      <div className="text-xs text-blue-600">Total consultations</div>
-                    </div>
-                    <div className="p-3 bg-green-50 rounded-lg text-center">
-                      <Clock className="w-6 h-6 text-green-600 mx-auto mb-1" />
-                      <div className="text-lg font-semibold text-green-700">
-                        {new Date(patient.lastVisit).toLocaleDateString('fr-FR')}
+                {/* Informations de suivi - pour agents */}
+                {isAgent && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Activity className="w-4 h-4" />
+                        <span>Informations de Suivi</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-blue-50 rounded-lg text-center">
+                          <FileText className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+                          <div className="text-lg font-semibold text-blue-700">{patient.consultations}</div>
+                          <div className="text-xs text-blue-600">Total consultations</div>
+                        </div>
+                        <div className="p-3 bg-green-50 rounded-lg text-center">
+                          <Clock className="w-6 h-6 text-green-600 mx-auto mb-1" />
+                          <div className="text-lg font-semibold text-green-700">
+                            {new Date(patient.lastVisit).toLocaleDateString('fr-FR')}
+                          </div>
+                          <div className="text-xs text-green-600">Dernière visite</div>
+                        </div>
                       </div>
-                      <div className="text-xs text-green-600">Dernière visite</div>
-                    </div>
-                  </div>
-                  
-                  {patient.primaryDoctor && (
-                    <div className="mt-4 p-3 bg-purple-50 rounded-lg">
-                      <div className="flex items-center space-x-2">
-                        <UserCheck className="w-4 h-4 text-purple-600" />
-                        <span className="font-medium">Médecin traitant: {patient.primaryDoctor}</span>
-                      </div>
-                    </div>
-                  )}
+                      
+                      {patient.primaryDoctor && (
+                        <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <UserCheck className="w-4 h-4 text-purple-600" />
+                            <span className="font-medium">Médecin traitant: {patient.primaryDoctor}</span>
+                          </div>
+                        </div>
+                      )}
 
-                  {patient.insurance && (
-                    <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-2">
-                        <Shield className="w-4 h-4 text-gray-600" />
-                        <span className="font-medium">Assurance: {patient.insurance}</span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                      {patient.insurance && (
+                        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <Shield className="w-4 h-4 text-gray-600" />
+                            <span className="font-medium">Assurance: {patient.insurance}</span>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Rendez-vous du patient */}
+                <PatientAppointments patient={patient} />
           </div>
         </ScrollArea>
 

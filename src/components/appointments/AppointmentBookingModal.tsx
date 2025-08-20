@@ -13,6 +13,7 @@ import { CalendarIcon, Clock, User, FileText, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { DemoPatient } from '@/hooks/useDemoPatients';
+import { useAppointments } from '@/contexts/AppointmentContext';
 
 interface AppointmentBookingModalProps {
   patient: DemoPatient;
@@ -25,12 +26,14 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const { addAppointment } = useAppointments();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [appointmentType, setAppointmentType] = useState('');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Horaires disponibles (simulation)
   const availableSlots = [
@@ -55,7 +58,7 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
     { value: 'specialist', label: 'Consultation spécialisée' }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedDate || !selectedTime || !selectedDoctor || !appointmentType || !reason) {
@@ -67,36 +70,39 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
       return;
     }
 
-    // Simulation de la création du RDV
-    const appointmentData = {
-      patientId: patient.id,
-      patientName: `${patient.firstName} ${patient.lastName}`,
-      doctorId: selectedDoctor,
-      doctorName: availableDoctors.find(d => d.id === selectedDoctor)?.name,
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      time: selectedTime,
-      type: appointmentType,
-      reason,
-      notes,
-      status: 'scheduled'
-    };
+    setIsSubmitting(true);
 
-    console.log('Nouveau RDV:', appointmentData);
+    try {
+      const selectedDoctorData = availableDoctors.find(d => d.id === selectedDoctor);
+      
+      await addAppointment({
+        patientId: patient.id,
+        patientName: `${patient.firstName} ${patient.lastName}`,
+        doctorId: selectedDoctor,
+        doctorName: selectedDoctorData?.name || '',
+        doctorSpecialty: selectedDoctorData?.specialty,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        time: selectedTime,
+        type: appointmentType as any,
+        reason,
+        notes,
+        status: 'scheduled'
+      });
 
-    toast({
-      title: "Rendez-vous créé",
-      description: `RDV programmé le ${format(selectedDate, 'dd MMMM yyyy', { locale: fr })} à ${selectedTime} avec ${appointmentData.doctorName}`,
-    });
-
-    // Reset form
-    setSelectedDate(undefined);
-    setSelectedTime('');
-    setSelectedDoctor('');
-    setAppointmentType('');
-    setReason('');
-    setNotes('');
-    
-    onClose();
+      // Reset form
+      setSelectedDate(undefined);
+      setSelectedTime('');
+      setSelectedDoctor('');
+      setAppointmentType('');
+      setReason('');
+      setNotes('');
+      
+      onClose();
+    } catch (error) {
+      // L'erreur est déjà gérée dans le contexte
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isWeekend = (date: Date) => {
@@ -260,12 +266,12 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
 
           {/* Actions */}
           <div className="flex justify-end space-x-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Annuler
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
               <CalendarIcon className="w-4 h-4 mr-2" />
-              Programmer le RDV
+              {isSubmitting ? 'Programmation...' : 'Programmer le RDV'}
             </Button>
           </div>
         </form>

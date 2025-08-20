@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SupabaseAuthProvider } from "@/contexts/SupabaseAuthContext";
 import { ModuleProvider } from "@/contexts/ModuleContext";
 import { TenantProvider } from "@/contexts/TenantContext";
+import { AppointmentProvider } from "@/contexts/AppointmentContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TransmissionAccess from "./pages/TransmissionAccess";
@@ -26,22 +27,24 @@ const App = () => (
       <SupabaseAuthProvider>
         <TenantProvider>
           <ModuleProvider>
-            <QRDisplayProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/supabase" element={<SupabaseAuth />} />
-                  <Route path="/transmission" element={<TransmissionAccess />} />
-                  <Route path="/patient" element={<PatientProfile />} />
-                  <Route path="/claim" element={<ClaimPatient />} />
-                  <Route path="/download" element={<AppDownload />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </QRDisplayProvider>
+            <AppointmentProvider>
+              <QRDisplayProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/supabase" element={<SupabaseAuth />} />
+                    <Route path="/transmission" element={<TransmissionAccess />} />
+                    <Route path="/patient" element={<PatientProfile />} />
+                    <Route path="/claim" element={<ClaimPatient />} />
+                    <Route path="/download" element={<AppDownload />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </QRDisplayProvider>
+            </AppointmentProvider>
           </ModuleProvider>
         </TenantProvider>
       </SupabaseAuthProvider>
