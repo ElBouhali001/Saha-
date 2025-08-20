@@ -63,6 +63,18 @@ const AppointmentScheduling = () => {
     setSelectedSpecialty('');
   };
 
+  const handleTimeSlotClick = (time: string) => {
+    const status = getSlotStatus(time);
+    if (status === 'available') {
+      setNewAppointment({
+        ...newAppointment,
+        date: selectedDate,
+        time: time
+      });
+      setIsAddDialogOpen(true);
+    }
+  };
+
   const timeSlots = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
     '11:00', '11:30', '14:00', '14:30', '15:00', '15:30',
@@ -118,7 +130,7 @@ const AppointmentScheduling = () => {
       setSelectedSpecialty('');
       setIsAddDialogOpen(false);
       
-      toast.success('Rendez-vous programmé avec succès');
+      toast.success(`Rendez-vous programmé pour ${selectedPatient.firstName} ${selectedPatient.lastName} le ${newAppointment.date} à ${newAppointment.time}`);
     } catch (error) {
       toast.error('Erreur lors de la programmation du rendez-vous');
     }
@@ -307,6 +319,11 @@ const AppointmentScheduling = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                💡 <strong>Astuce :</strong> Cliquez sur un créneau libre (vert) pour créer directement un rendez-vous à cette heure.
+              </p>
+            </div>
             <div className="grid grid-cols-4 gap-2">
               {timeSlots.map((time) => {
                 const status = getSlotStatus(time);
@@ -317,16 +334,21 @@ const AppointmentScheduling = () => {
                 return (
                   <div
                     key={time}
-                    className={`p-3 rounded-lg border text-center text-sm ${
+                    onClick={() => handleTimeSlotClick(time)}
+                    className={`p-3 rounded-lg border text-center text-sm transition-all ${
                       status === 'available' 
-                        ? 'bg-green-50 border-green-200 text-green-700'
-                        : 'bg-red-50 border-red-200 text-red-700'
+                        ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 cursor-pointer hover:scale-105'
+                        : 'bg-red-50 border-red-200 text-red-700 cursor-not-allowed'
                     }`}
                   >
                     <div className="font-medium">{time}</div>
-                    {appointment && (
+                    {appointment ? (
                       <div className="text-xs mt-1 truncate">
                         {appointment.patientName}
+                      </div>
+                    ) : status === 'available' && (
+                      <div className="text-xs mt-1 text-green-600 opacity-75">
+                        Cliquer pour réserver
                       </div>
                     )}
                   </div>
