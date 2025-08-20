@@ -136,10 +136,10 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
     // Paramètres QR et gestion des plans
     if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role) && isModuleEnabled('admin')) {
       moduleBasedItems.push({ id: 'qr-settings', label: 'Paramètres QR', icon: QrCode, module: 'admin' });
-      if (user?.user_metadata?.role === 'admin') {
-        moduleBasedItems.push({ id: 'plan-management', label: 'Gestion des Plans', icon: Crown, module: 'admin' });
-      }
     }
+
+    // Gestion des plans accessible à tous pour les tests
+    moduleBasedItems.push({ id: 'plan-management', label: 'Plans & Upgrade', icon: Crown, module: 'admin' });
 
     // Filtrer les éléments selon les routes disponibles
     const filteredItems = moduleBasedItems.filter(item => 
