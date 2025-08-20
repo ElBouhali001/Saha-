@@ -6,24 +6,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Appointment, Doctor } from '@/types/patient';
 import { Calendar, Clock, Plus, User, Phone, Filter } from 'lucide-react';
 import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
 import FilterModeSelector from '@/components/patient/appointment/FilterModeSelector';
+import PatientSelector from './PatientSelector';
+import { DemoPatient } from '@/hooks/useDemoPatients';
+import { useAppointments, Appointment } from '@/contexts/AppointmentContext';
+import { toast } from 'sonner';
 
 const AppointmentScheduling = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [filterMode, setFilterMode] = useState<'specialty' | 'doctor'>('specialty');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState<DemoPatient | null>(null);
   const [newAppointment, setNewAppointment] = useState({
-    patientName: '',
     doctorId: '',
     date: '',
     time: '',
     type: 'consultation'
   });
+
+  const { appointments, addAppointment } = useAppointments();
 
   const { data: doctors = [], isLoading: loadingDoctors } = useAvailableDoctors(selectedDate);
   const { data: specialties = [] } = useSpecialties();
@@ -80,33 +84,72 @@ const AppointmentScheduling = () => {
     return 'TK-' + Date.now().toString().slice(-6);
   };
 
-  const handleScheduleAppointment = () => {
-    const appointment: Appointment = {
-      id: Date.now().toString(),
-      patientId: Date.now().toString(),
-      patientName: newAppointment.patientName,
+  const handleScheduleAppointment = async () => {
+    if (!selectedPatient) {
+      toast.error('Veuillez sélectionner un patient');
+      return;
+    }
+
+    const appointmentData = {
+      patientId: selectedPatient.id,
+      patientName: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
       doctorId: newAppointment.doctorId,
       doctorName: doctors.find(d => d.id === newAppointment.doctorId)?.profile?.first_name + ' ' + 
                   doctors.find(d => d.id === newAppointment.doctorId)?.profile?.last_name || '',
       date: newAppointment.date,
       time: newAppointment.time,
       duration: 30,
-      status: 'scheduled',
-      type: newAppointment.type as 'consultation' | 'follow-up' | 'emergency',
-      ticketCode: generateTicketCode(),
-      createdAt: new Date().toISOString()
+      status: 'scheduled' as const,
+      type: newAppointment.type as 'consultation' | 'follow-up' | 'urgent' | 'preventive' | 'specialist',
+      reason: 'Consultation programmée depuis le planning'
     };
 
-    setAppointments([...appointments, appointment]);
-    setNewAppointment({
-      patientName: '',
-      doctorId: '',
-      date: '',
-      time: '',
-      type: 'consultation'
-    });
-    setSelectedSpecialty('');
-    setIsAddDialogOpen(false);
+    try {
+      await addAppointment(appointmentData);
+      
+      // Reset form
+      setSelectedPatient(null);
+      setNewAppointment({
+        doctorId: '',
+        date: '',
+        time: '',
+        type: 'consultation'
+      });
+      setSelectedSpecialty('');
+      setIsAddDialogOpen(false);
+      
+      toast.success('Rendez-vous programmé avec succès');
+    } catch (error) {
+      toast.error('Erreur lors de la programmation du rendez-vous');
+    }
+  };
+
+  const handlePatientCreate = (patientData: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email?: string;
+    address: string;
+  }) => {
+    // Create a temporary patient object for display
+    const tempPatient: DemoPatient = {
+      id: `temp-${Date.now()}`,
+      firstName: patientData.firstName,
+      lastName: patientData.lastName,
+      phone: patientData.phone,
+      email: patientData.email,
+      address: patientData.address,
+      dateOfBirth: '',
+      emergencyContact: { name: '', phone: '', relationship: '' },
+      consultations: 0,
+      lastVisit: '',
+      medicalHistory: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    setSelectedPatient(tempPatient);
+    toast.success('Patient créé et sélectionné');
   };
 
   const todayAppointments = appointments.filter(apt => apt.date === selectedDate);
@@ -127,15 +170,11 @@ const AppointmentScheduling = () => {
               <DialogTitle>Planifier un Rendez-Vous</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="patientName">Patient</Label>
-                <Input
-                  id="patientName"
-                  placeholder="Nom du patient"
-                  value={newAppointment.patientName}
-                  onChange={(e) => setNewAppointment({...newAppointment, patientName: e.target.value})}
-                />
-              </div>
+              <PatientSelector
+                selectedPatient={selectedPatient}
+                onPatientSelect={setSelectedPatient}
+                onPatientCreate={handlePatientCreate}
+              />
 
               <FilterModeSelector 
                 filterMode={filterMode}
@@ -238,7 +277,11 @@ const AppointmentScheduling = () => {
                   </Select>
                 </div>
               </div>
-              <Button onClick={handleScheduleAppointment} className="w-full">
+              <Button 
+                onClick={handleScheduleAppointment} 
+                className="w-full"
+                disabled={!selectedPatient || !newAppointment.doctorId || !newAppointment.date || !newAppointment.time}
+              >
                 Confirmer le RDV
               </Button>
             </div>
@@ -325,9 +368,9 @@ const AppointmentScheduling = () => {
                   <div className="text-sm text-gray-600">
                     Dr. {appointment.doctorName}
                   </div>
-                  {appointment.ticketCode && (
+                  {appointment.type && (
                     <div className="text-xs text-blue-600 mt-2">
-                      Ticket: {appointment.ticketCode}
+                      Type: {appointment.type}
                     </div>
                   )}
                 </div>
