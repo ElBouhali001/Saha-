@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Calendar, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Appointment } from '@/contexts/AppointmentContext';
 
 interface PlanningViewProps {
@@ -31,6 +32,75 @@ const PlanningView: React.FC<PlanningViewProps> = ({
   formatDateHeader,
   blockedSlots
 }) => {
+  // Navigation functions
+  const navigatePrevious = () => {
+    const currentDate = new Date(selectedDate);
+    let newDate: Date;
+
+    switch (viewMode) {
+      case 'day':
+        newDate = new Date(currentDate);
+        newDate.setDate(currentDate.getDate() - 1);
+        break;
+      case 'week':
+        newDate = new Date(currentDate);
+        newDate.setDate(currentDate.getDate() - 7);
+        break;
+      case 'month':
+        newDate = new Date(currentDate);
+        newDate.setMonth(currentDate.getMonth() - 1);
+        break;
+      default:
+        return;
+    }
+    
+    setSelectedDate(newDate.toISOString().split('T')[0]);
+  };
+
+  const navigateNext = () => {
+    const currentDate = new Date(selectedDate);
+    let newDate: Date;
+
+    switch (viewMode) {
+      case 'day':
+        newDate = new Date(currentDate);
+        newDate.setDate(currentDate.getDate() + 1);
+        break;
+      case 'week':
+        newDate = new Date(currentDate);
+        newDate.setDate(currentDate.getDate() + 7);
+        break;
+      case 'month':
+        newDate = new Date(currentDate);
+        newDate.setMonth(currentDate.getMonth() + 1);
+        break;
+      default:
+        return;
+    }
+    
+    setSelectedDate(newDate.toISOString().split('T')[0]);
+  };
+
+  const renderNavigationButtons = () => (
+    <div className="flex items-center gap-2">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={navigatePrevious}
+        className="h-8 w-8 p-0"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={navigateNext}
+        className="h-8 w-8 p-0"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  );
   const renderDayView = () => (
     <Card className="lg:col-span-2">
       <CardHeader>
@@ -39,12 +109,15 @@ const PlanningView: React.FC<PlanningViewProps> = ({
             <Calendar className="w-5 h-5 mr-2" />
             Planning du {new Date(selectedDate).toLocaleDateString('fr-FR')}
           </span>
-          <Input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-40"
-          />
+          <div className="flex items-center gap-3">
+            {renderNavigationButtons()}
+            <Input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-40"
+            />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -110,12 +183,15 @@ const PlanningView: React.FC<PlanningViewProps> = ({
               <Calendar className="w-5 h-5 mr-2" />
               Semaine du {new Date(weekDates[0]).toLocaleDateString('fr-FR')} au {new Date(weekDates[6]).toLocaleDateString('fr-FR')}
             </span>
-            <Input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-40"
-            />
+            <div className="flex items-center gap-3">
+              {renderNavigationButtons()}
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-40"
+              />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -194,12 +270,15 @@ const PlanningView: React.FC<PlanningViewProps> = ({
               <Calendar className="w-5 h-5 mr-2" />
               {monthName}
             </span>
-            <Input
-              type="month"
-              value={selectedDate.substring(0, 7)}
-              onChange={(e) => setSelectedDate(e.target.value + '-01')}
-              className="w-40"
-            />
+            <div className="flex items-center gap-3">
+              {renderNavigationButtons()}
+              <Input
+                type="month"
+                value={selectedDate.substring(0, 7)}
+                onChange={(e) => setSelectedDate(e.target.value + '-01')}
+                className="w-40"
+              />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
