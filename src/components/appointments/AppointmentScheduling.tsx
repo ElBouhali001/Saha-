@@ -42,7 +42,7 @@ const AppointmentScheduling = () => {
   const filteredDoctors = useMemo(() => {
     if (filterMode === 'specialty' && selectedSpecialty) {
       return doctors.filter(doctor => 
-        doctor.doctor_specialties?.some((ds: any) => ds.specialty_id === selectedSpecialty)
+        doctor.doctor_specialties?.some((ds: any) => ds.specialty?.id === selectedSpecialty)
       );
     }
     return doctors;
