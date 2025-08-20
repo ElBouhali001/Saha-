@@ -175,10 +175,11 @@ const AppointmentScheduling = () => {
       return appointment.status === 'cancelled' ? 'available' : 'occupied';
     }
     
-    // Check for blocked slots
-    if (doctorId) {
+    // Check for blocked slots only if a specific doctor is selected
+    if (doctorId || selectedDoctorForBlocking) {
+      const targetDoctorId = doctorId || selectedDoctorForBlocking;
       const isBlocked = blockedSlots.some(slot => 
-        slot.doctor_id === doctorId && 
+        slot.doctor_id === targetDoctorId && 
         slot.date === targetDate && 
         slot.time === time
       );
@@ -315,8 +316,10 @@ const AppointmentScheduling = () => {
             <span>
               {selectedDoctorForBlocking && selectedDoctorForBlocking.startsWith('mock-') ? (
                 <>🏥 Mode démonstration - La fonctionnalité de blocage n'est pas disponible avec les données de test</>
-              ) : (
+              ) : selectedDoctorForBlocking ? (
                 <>Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux</>
+              ) : (
+                <>Sélectionnez un médecin pour utiliser la fonctionnalité de blocage des créneaux</>
               )}
             </span>
           </div>
@@ -326,9 +329,10 @@ const AppointmentScheduling = () => {
             <Label htmlFor="doctor-blocking" className="text-sm whitespace-nowrap">Médecin :</Label>
             <Select value={selectedDoctorForBlocking} onValueChange={setSelectedDoctorForBlocking}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Sélectionner un médecin" />
+                <SelectValue placeholder="Tous les médecins" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
+                <SelectItem value="">Tous les médecins</SelectItem>
                 {doctors.map((doctor) => (
                   <SelectItem key={doctor.id} value={doctor.id}>
                     Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}

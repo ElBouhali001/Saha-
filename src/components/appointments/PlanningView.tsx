@@ -135,12 +135,12 @@ const PlanningView: React.FC<PlanningViewProps> = ({
               🔒 Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs mx-1">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux.
             </p>
           </div>
-          <div className="grid grid-cols-4 gap-2">
-            {timeSlots.map((time) => {
-              const status = getSlotStatus(time, selectedDate, selectedDoctorForBlocking);
-              const appointment = appointments.find(apt => 
-                apt.date === selectedDate && apt.time === time
-              );
+        <div className="grid grid-cols-4 gap-2">
+          {timeSlots.map((time) => {
+            const status = getSlotStatus(time, selectedDate, selectedDoctorForBlocking || undefined);
+            const appointment = appointments.find(apt => 
+              apt.date === selectedDate && apt.time === time
+            );
               
               return (
                 <div
@@ -240,11 +240,11 @@ const PlanningView: React.FC<PlanningViewProps> = ({
                   <div className="p-2 text-xs text-gray-500 text-center font-medium">
                     {time}
                   </div>
-                  {weekDates.map((date) => {
-                    const status = getSlotStatus(time, date, selectedDoctorForBlocking);
-                    const appointment = appointments.find(apt => 
-                      apt.date === date && apt.time === time
-                    );
+                   {weekDates.map((date) => {
+                     const status = getSlotStatus(time, date, selectedDoctorForBlocking || undefined);
+                     const appointment = appointments.find(apt => 
+                       apt.date === date && apt.time === time
+                     );
                     const isPastDate = date < today;
                     
                     return (
