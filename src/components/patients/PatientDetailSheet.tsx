@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 import { DemoPatient } from '@/hooks/useDemoPatients';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import AppointmentBookingModal from '@/components/appointments/AppointmentBookingModal';
 
 interface PatientDetailSheetProps {
   patient: DemoPatient | null;
@@ -37,6 +39,7 @@ const PatientDetailSheet: React.FC<PatientDetailSheetProps> = ({
   const userRole = user?.user_metadata?.role;
   const isDoctor = userRole === 'doctor';
   const isAgent = userRole === 'agent';
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
 
   if (!patient) return null;
 
@@ -66,13 +69,26 @@ const PatientDetailSheet: React.FC<PatientDetailSheetProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-2xl">
         <SheetHeader>
-          <SheetTitle className="flex items-center space-x-2">
-            <User className="w-5 h-5" />
-            <span>{patient.firstName} {patient.lastName}</span>
-          </SheetTitle>
-          <SheetDescription>
-            {isDoctor ? 'Dossier médical complet' : 'Informations patient'}
-          </SheetDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <SheetTitle className="flex items-center space-x-2">
+                <User className="w-5 h-5" />
+                <span>{patient.firstName} {patient.lastName}</span>
+              </SheetTitle>
+              <SheetDescription>
+                {isDoctor ? 'Dossier médical complet' : 'Informations patient'}
+              </SheetDescription>
+            </div>
+            {(isDoctor || isAgent) && (
+              <Button 
+                onClick={() => setIsAppointmentModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Prendre RDV
+              </Button>
+            )}
+          </div>
         </SheetHeader>
 
         <ScrollArea className="h-[calc(100vh-100px)] mt-6">
@@ -293,6 +309,15 @@ const PatientDetailSheet: React.FC<PatientDetailSheetProps> = ({
             )}
           </div>
         </ScrollArea>
+
+        {/* Modal de prise de rendez-vous */}
+        {patient && (
+          <AppointmentBookingModal
+            patient={patient}
+            isOpen={isAppointmentModalOpen}
+            onClose={() => setIsAppointmentModalOpen(false)}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );
