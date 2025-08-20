@@ -138,12 +138,13 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       moduleBasedItems.push({ id: 'qr-settings', label: 'Paramètres QR', icon: QrCode, module: 'admin' });
     }
 
-    // Gestion des plans accessible à tous pour les tests
+    // Gestion des plans accessible à tous pour les tests (toujours visible)
     moduleBasedItems.push({ id: 'plan-management', label: 'Plans & Upgrade', icon: Crown, module: 'admin' });
 
     // Filtrer les éléments selon les routes disponibles
     const filteredItems = moduleBasedItems.filter(item => 
-      ['qr-settings', 'plan-management'].includes(item.id) || // Exception pour les paramètres admin qui ne sont pas dans les routes modulaires
+      item.id === 'plan-management' || // Plans & Upgrade toujours visible
+      ['qr-settings'].includes(item.id) || // Exception pour les paramètres admin qui ne sont pas dans les routes modulaires
       availableRoutes.includes(`/${item.id}`) || 
       availableRoutes.includes(`/${item.id.replace('-', '')}`)
     );
