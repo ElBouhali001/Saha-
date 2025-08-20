@@ -12,11 +12,12 @@ interface PlanningViewProps {
   appointments: Appointment[];
   timeSlots: string[];
   getSlotStatus: (time: string, date?: string, doctorId?: string) => string;
-  handleTimeSlotClick: (time: string, date?: string, doctorId?: string) => void;
+  handleTimeSlotClick: (time: string, date?: string, doctorId?: string, event?: React.MouseEvent) => void;
   getWeekDates: (date: string) => string[];
   getMonthDates: (date: string) => string[];
   formatDateHeader: (date: string) => { day: string; date: number; isToday: boolean };
   blockedSlots: any[];
+  selectedDoctorForBlocking: string;
 }
 
 const PlanningView: React.FC<PlanningViewProps> = ({
@@ -30,7 +31,8 @@ const PlanningView: React.FC<PlanningViewProps> = ({
   getWeekDates,
   getMonthDates,
   formatDateHeader,
-  blockedSlots
+  blockedSlots,
+  selectedDoctorForBlocking
 }) => {
   // Navigation functions
   const navigatePrevious = () => {
@@ -130,7 +132,7 @@ const PlanningView: React.FC<PlanningViewProps> = ({
         </div>
         <div className="grid grid-cols-4 gap-2">
           {timeSlots.map((time) => {
-            const status = getSlotStatus(time);
+            const status = getSlotStatus(time, selectedDate, selectedDoctorForBlocking);
             const appointment = appointments.find(apt => 
               apt.date === selectedDate && apt.time === time
             );
@@ -138,7 +140,7 @@ const PlanningView: React.FC<PlanningViewProps> = ({
             return (
               <div
                 key={time}
-                onClick={(e) => handleTimeSlotClick(time, selectedDate, undefined)}
+                onClick={(e) => handleTimeSlotClick(time, selectedDate, undefined, e)}
                 className={`p-3 rounded-lg border text-center text-sm transition-all ${
                   status === 'available' 
                     ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 cursor-pointer hover:scale-105'
@@ -220,16 +222,16 @@ const PlanningView: React.FC<PlanningViewProps> = ({
                   <div className="p-2 text-xs text-gray-500 text-center font-medium">
                     {time}
                   </div>
-                  {weekDates.map((date) => {
-                    const status = getSlotStatus(time, date);
-                    const appointment = appointments.find(apt => 
-                      apt.date === date && apt.time === time
-                    );
+                   {weekDates.map((date) => {
+                     const status = getSlotStatus(time, date, selectedDoctorForBlocking);
+                     const appointment = appointments.find(apt => 
+                       apt.date === date && apt.time === time
+                     );
                     
                     return (
                       <div
                         key={`${date}-${time}`}
-                        onClick={(e) => handleTimeSlotClick(time, date, undefined)}
+                        onClick={(e) => handleTimeSlotClick(time, date, undefined, e)}
                         className={`p-1 text-xs border rounded cursor-pointer transition-all ${
                           status === 'available' 
                             ? 'bg-green-50 border-green-200 hover:bg-green-100'

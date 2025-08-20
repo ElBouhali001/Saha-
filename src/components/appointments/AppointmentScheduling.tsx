@@ -124,19 +124,23 @@ const AppointmentScheduling = () => {
     };
   };
 
-  const handleTimeSlotClick = (time: string, date?: string, doctorId?: string) => {
+  const handleTimeSlotClick = (time: string, date?: string, doctorId?: string, event?: React.MouseEvent) => {
     const targetDate = date || selectedDate;
-    const status = getSlotStatus(time, targetDate, doctorId);
+    const targetDoctorId = doctorId || selectedDoctorForBlocking;
+    const status = getSlotStatus(time, targetDate, targetDoctorId);
     
-    // Si c'est un médecin et qu'il clique sur un créneau avec Ctrl/Alt, ouvrir le modal de blocage
-    if ((window as any).event?.ctrlKey || (window as any).event?.altKey) {
-      if (doctorId) {
+    // Si c'est un Ctrl+clic et qu'un médecin est sélectionné, gérer le blocage/déblocage
+    if (event && (event.ctrlKey || event.altKey)) {
+      if (targetDoctorId) {
         setSelectedSlotForBlocking({
           time,
           date: targetDate,
-          doctorId
+          doctorId: targetDoctorId
         });
         setIsBlockSlotModalOpen(true);
+        return;
+      } else {
+        toast.info('Veuillez sélectionner un médecin pour bloquer/débloquer des créneaux.');
         return;
       }
     }
@@ -311,6 +315,23 @@ const AppointmentScheduling = () => {
             <span>Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux</span>
           </div>
 
+          {/* Sélecteur de médecin pour le blocage */}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="doctor-blocking" className="text-sm whitespace-nowrap">Médecin :</Label>
+            <Select value={selectedDoctorForBlocking} onValueChange={setSelectedDoctorForBlocking}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Sélectionner un médecin" />
+              </SelectTrigger>
+              <SelectContent>
+                {doctors.map((doctor) => (
+                  <SelectItem key={doctor.id} value={doctor.id}>
+                    Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-green-600 hover:bg-green-700">
@@ -452,6 +473,7 @@ const AppointmentScheduling = () => {
           timeSlots={timeSlots}
           getSlotStatus={getSlotStatus}
           handleTimeSlotClick={handleTimeSlotClick}
+          selectedDoctorForBlocking={selectedDoctorForBlocking}
           getWeekDates={getWeekDates}
           getMonthDates={getMonthDates}
           formatDateHeader={formatDateHeader}
