@@ -11,6 +11,7 @@ const moduleComponents = {
     TenantSettings: lazy(() => import('./admin').then(m => ({ default: m.TenantSettings }))),
     AdminDashboard: lazy(() => import('./admin').then(m => ({ default: m.AdminDashboard }))),
     QRDisplaySettings: lazy(() => import('./admin').then(m => ({ default: m.QRDisplaySettings }))),
+    PlanManagement: lazy(() => import('./admin').then(m => ({ default: m.PlanManagement }))),
   },
   'auth': {
     LoginForm: lazy(() => import('./auth').then(m => ({ default: m.LoginForm }))),
