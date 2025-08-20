@@ -29,7 +29,7 @@ export interface ConsultationData {
 }
 
 export interface DocumentGenerationRequest {
-  documentType: 'consultation_report' | 'discharge_summary' | 'referral_letter' | 'medical_certificate' | 'prescription_note' | 'care_plan';
+  documentType: 'consultation_report' | 'discharge_summary' | 'referral_letter' | 'medical_certificate' | 'prescription_note' | 'care_plan' | 'lab_report';
   patientData: PatientData;
   consultationData: ConsultationData;
   additionalData?: {
@@ -38,6 +38,14 @@ export interface DocumentGenerationRequest {
     certificateType?: string;
     workRestrictions?: string;
     careGoals?: string[];
+    selectedAnalyses?: Array<{
+      id: string;
+      name: string;
+      code: string;
+      category: string;
+      isUrgent: boolean;
+      customInstructions?: string;
+    }>;
   };
   language?: 'fr' | 'en';
   tone?: 'professional' | 'compassionate' | 'clinical' | 'detailed';

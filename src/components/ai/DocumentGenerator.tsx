@@ -6,15 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, FileText, Download, Copy, Sparkles, Bot, Wand2 } from 'lucide-react';
+import { Loader2, FileText, Download, Copy, Sparkles, Bot, Wand2, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { AIDocumentService, PatientData, ConsultationData } from '@/services/aiDocumentService';
+import LabAnalysisSelector, { SelectedAnalysis } from './LabAnalysisSelector';
 
 interface DocumentTemplate {
   id: string;
   name: string;
   description: string;
-  type: 'consultation_report' | 'discharge_summary' | 'prescription_note' | 'referral_letter' | 'medical_certificate' | 'care_plan';
+  type: 'consultation_report' | 'discharge_summary' | 'prescription_note' | 'referral_letter' | 'medical_certificate' | 'care_plan' | 'lab_report';
   fields: string[];
 }
 
@@ -62,6 +63,13 @@ const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     description: 'Programme de soins personnalisé',
     type: 'care_plan',
     fields: ['patient_info', 'current_condition', 'goals', 'interventions', 'timeline']
+  },
+  {
+    id: 'lab-report',
+    name: 'Bulletin d\'analyses',
+    description: 'Prescription d\'analyses de laboratoire',
+    type: 'lab_report',
+    fields: ['patient_info', 'clinical_indication', 'requested_analyses']
   }
 ];
 
@@ -86,6 +94,7 @@ export default function DocumentGenerator({
   const [customPrompt, setCustomPrompt] = useState('');
   const [useAI, setUseAI] = useState(true);
   const [aiTone, setAiTone] = useState<'professional' | 'compassionate' | 'clinical' | 'detailed'>('professional');
+  const [selectedAnalyses, setSelectedAnalyses] = useState<SelectedAnalysis[]>([]);
 
   useEffect(() => {
     if (consultationData && selectedTemplate) {
@@ -104,6 +113,7 @@ export default function DocumentGenerator({
     setSelectedTemplate(template || null);
     setFormData({});
     setGeneratedContent('');
+    setSelectedAnalyses([]); // Reset analyses when changing template
   };
 
   const handleFieldChange = (field: string, value: string) => {
@@ -131,7 +141,17 @@ export default function DocumentGenerator({
           consultationData,
           tone: aiTone,
           language: 'fr' as const,
-          customInstructions: customPrompt
+          customInstructions: customPrompt,
+          additionalData: selectedTemplate.type === 'lab_report' ? {
+            selectedAnalyses: selectedAnalyses.map(analysis => ({
+              id: analysis.id,
+              name: analysis.name,
+              code: analysis.code,
+              category: analysis.category,
+              isUrgent: analysis.isUrgent,
+              customInstructions: analysis.customInstructions
+            }))
+          } : undefined
         };
         
         const response = await AIDocumentService.generateDocument(aiRequest);
@@ -182,6 +202,43 @@ export default function DocumentGenerator({
     const date = new Date().toLocaleDateString('fr-FR');
     
     switch (template.type) {
+      case 'lab_report':
+        const analysesText = selectedAnalyses.length > 0 
+          ? selectedAnalyses.map(analysis => {
+              let analysisLine = `☐ ${analysis.name} (${analysis.code})`;
+              if (analysis.isUrgent) analysisLine += ' - URGENT';
+              if (analysis.customInstructions) analysisLine += ` - ${analysis.customInstructions}`;
+              if (analysis.normalRange) analysisLine += ` [Valeurs normales: ${analysis.normalRange}]`;
+              return analysisLine;
+            }).join('\n')
+          : '[Sélectionnez les analyses à prescrire]';
+          
+        return `BULLETIN D'ANALYSES DE LABORATOIRE
+
+Date: ${date}
+Patient: ${patientName}
+
+INDICATION CLINIQUE:
+${data.clinical_indication || '[Indication clinique pour les analyses]'}
+
+ANALYSES DEMANDÉES:
+${analysesText}
+
+INSTRUCTIONS GÉNÉRALES:
+- Analyses à effectuer à jeun (sauf indication contraire)
+- Résultats à transmettre au médecin prescripteur
+- En cas de valeurs anormales, contacter le médecin
+
+MÉDECIN PRESCRIPTEUR:
+Dr. [Nom du médecin]
+[Spécialité]
+[Coordonnées]
+
+LABORATOIRE:
+[Nom du laboratoire]
+[Adresse]
+[Téléphone]`;
+
       case 'consultation_report':
         return `COMPTE-RENDU DE CONSULTATION MÉDICALE
 
@@ -287,9 +344,17 @@ Dr. [Nom du médecin]`;
             </Select>
           </div>
 
-          {selectedTemplate && (
-            <>
-              {/* Options IA */}
+              {selectedTemplate && (
+                <>
+                  {/* Sélecteur d'analyses pour les bulletins de laboratoire */}
+                  {selectedTemplate.type === 'lab_report' && (
+                    <LabAnalysisSelector
+                      selectedAnalyses={selectedAnalyses}
+                      onAnalysesChange={setSelectedAnalyses}
+                    />
+                  )}
+
+                  {/* Options IA */}
               {patientData && consultationData && (
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-4">
@@ -397,7 +462,7 @@ Dr. [Nom du médecin]`;
 
               <Button 
                 onClick={generateDocument} 
-                disabled={isGenerating}
+                disabled={isGenerating || (selectedTemplate?.type === 'lab_report' && selectedAnalyses.length === 0)}
                 className="w-full"
               >
                 {isGenerating ? (
@@ -410,7 +475,12 @@ Dr. [Nom du médecin]`;
                   </>
                 ) : (
                   <>
-                    {useAI && patientData && consultationData ? (
+                    {selectedTemplate?.type === 'lab_report' ? (
+                      <>
+                        <FlaskConical className="mr-2 h-4 w-4" />
+                        Générer le bulletin ({selectedAnalyses.length} analyse{selectedAnalyses.length > 1 ? 's' : ''})
+                      </>
+                    ) : useAI && patientData && consultationData ? (
                       <>
                         <Wand2 className="mr-2 h-4 w-4" />
                         Générer avec IA médicale
