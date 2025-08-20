@@ -1,16 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePlan } from '@/contexts/PlanContext';
 import { useTenant } from '@/contexts/TenantContext';
+import { usePlanTesting } from '@/hooks/usePlanTesting';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PlanBadge from '@/components/shared/PlanBadge';
 import { PLAN_DEFINITIONS, SubscriptionPlan } from '@/types/plans';
-import { Crown, Zap, Gift, Check, X, ArrowUp } from 'lucide-react';
+import { Crown, Zap, Gift, Check, X, ArrowUp, Settings, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 const PlanManagement: React.FC = () => {
   const { currentPlan, planFeatures, canUpgrade } = usePlan();
   const { currentTenant } = useTenant();
+  const { testPlan, setTestingPlan, clearTestingPlan, isTestingMode } = usePlanTesting();
+  const [selectedPlan, setSelectedPlan] = useState(currentPlan);
+
+  const handlePlanChange = (newPlan: SubscriptionPlan) => {
+    setSelectedPlan(newPlan);
+    setTestingPlan(newPlan);
+    toast.success(`Plan ${PLAN_DEFINITIONS[newPlan].name} activé pour test!`, {
+      description: 'Les fonctionnalités sont maintenant disponibles selon ce plan.'
+    });
+  };
+
+  const handleResetToOriginal = () => {
+    clearTestingPlan();
+    setSelectedPlan(currentPlan);
+    toast.info('Plan restauré à la configuration originale');
+  };
+
+  const simulateUpgrade = (targetPlan: SubscriptionPlan) => {
+    toast.success(`Simulation d'upgrade vers le plan ${PLAN_DEFINITIONS[targetPlan].name}`);
+  };
 
   const getPlanIcon = (plan: SubscriptionPlan) => {
     switch (plan) {
@@ -60,9 +82,27 @@ const PlanManagement: React.FC = () => {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Plans</h1>
-        <p className="text-gray-600">
-          Gérez votre abonnement et découvrez les fonctionnalités disponibles selon votre plan.
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-gray-600">
+            Gérez votre abonnement et découvrez les fonctionnalités disponibles selon votre plan.
+          </p>
+          {isTestingMode && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                Mode Test Actif
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetToOriginal}
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Restaurer plan original
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Plan actuel */}
@@ -81,8 +121,19 @@ const PlanManagement: React.FC = () => {
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               Plan actif
             </Badge>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => toast.info('Fonctionnalité de test - Plans configurables')}
+            >
+              <Settings className="w-4 h-4" />
+              Configurer
+            </Button>
             {canUpgrade && (
-              <Button className="flex items-center gap-2">
+              <Button 
+                className="flex items-center gap-2"
+                onClick={() => simulateUpgrade('enterprise')}
+              >
                 <ArrowUp className="w-4 h-4" />
                 Mettre à niveau
               </Button>
@@ -136,19 +187,51 @@ const PlanManagement: React.FC = () => {
                   })}
                 </div>
                 
-                {planId !== currentPlan && (
-                  <Button 
-                    className="w-full" 
-                    variant={planId === 'enterprise' ? 'default' : 'outline'}
-                  >
-                    {planId === 'freemium' ? 'Rétrograder' : 'Mettre à niveau'}
-                  </Button>
-                )}
+                <Button 
+                  className="w-full" 
+                  variant={planId === currentPlan ? 'secondary' : (planId === 'enterprise' ? 'default' : 'outline')}
+                  onClick={() => handlePlanChange(planId as SubscriptionPlan)}
+                >
+                  {planId === currentPlan && !isTestingMode ? 'Plan actuel' : 
+                   (planId === 'freemium' ? 'Activer Freemium' : 
+                    planId === 'pro' ? 'Activer Pro' : 'Activer Enterprise')}
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
+
+      {/* Informations de test */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Mode Test - Fonctionnalités
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-semibold text-blue-900 mb-2">Plan sélectionné</h4>
+              <p className="text-blue-700">{PLAN_DEFINITIONS[selectedPlan].name}</p>
+            </div>
+            <div className="p-4 bg-green-50 rounded-lg">
+              <h4 className="font-semibold text-green-900 mb-2">Modules disponibles</h4>
+              <p className="text-green-700">{PLAN_DEFINITIONS[selectedPlan].modules.length} modules</p>
+            </div>
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <h4 className="font-semibold text-purple-900 mb-2">IA activée</h4>
+              <p className="text-purple-700">{PLAN_DEFINITIONS[selectedPlan].aiFeatures ? 'Oui' : 'Non'}</p>
+            </div>
+          </div>
+          <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <p className="text-yellow-800 text-sm">
+              <strong>Note :</strong> Ceci est un environnement de test. Les changements de plan simulent les fonctionnalités disponibles.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Informations du tenant */}
       {currentTenant && (
@@ -160,21 +243,21 @@ const PlanManagement: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-600">Organisation</p>
-                <p className="text-lg font-semibold">{currentTenant.name}</p>
+                <p className="text-lg font-semibold">{currentTenant.name || 'MediPatient Demo'}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Nombre d'utilisateurs</p>
                 <p className="text-lg font-semibold">
-                  {currentTenant.subscription_seats}
+                  {currentTenant.subscription_seats || 1}
                   {planFeatures.maxUsers && ` / ${planFeatures.maxUsers}`}
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Statut</p>
                 <Badge 
-                  variant={currentTenant.subscription_status === 'active' ? 'default' : 'destructive'}
+                  variant={currentTenant.subscription_status === 'active' ? 'default' : 'secondary'}
                 >
-                  {currentTenant.subscription_status === 'active' ? 'Actif' : 'Inactif'}
+                  {currentTenant.subscription_status === 'active' ? 'Actif' : 'Demo'}
                 </Badge>
               </div>
               <div>

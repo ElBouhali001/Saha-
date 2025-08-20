@@ -2,6 +2,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { useTenant } from './TenantContext';
 import { SubscriptionPlan, PLAN_DEFINITIONS, getModulesForPlan, isModuleAvailableInPlan, getAIAvailability } from '@/types/plans';
 import { ModuleId } from '@/types/modules';
+import { usePlanTesting } from '@/hooks/usePlanTesting';
 
 interface PlanContextType {
   currentPlan: SubscriptionPlan;
@@ -31,8 +32,14 @@ export const usePlan = () => {
 
 export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentTenant } = useTenant();
+  const { testPlan, isTestingMode } = usePlanTesting();
 
   const currentPlan: SubscriptionPlan = useMemo(() => {
+    // Si on est en mode test, utiliser le plan de test
+    if (isTestingMode && testPlan) {
+      return testPlan;
+    }
+
     if (!currentTenant) return 'freemium';
     
     // Mapper les anciens plans vers les nouveaux
@@ -46,7 +53,7 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
       default:
         return 'freemium';
     }
-  }, [currentTenant]);
+  }, [currentTenant, testPlan, isTestingMode]);
 
   const planFeatures = PLAN_DEFINITIONS[currentPlan];
   const availableModules = getModulesForPlan(currentPlan);
