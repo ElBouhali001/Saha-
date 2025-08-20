@@ -327,12 +327,12 @@ const AppointmentScheduling = () => {
           {/* Sélecteur de médecin pour le blocage */}
           <div className="flex items-center gap-2">
             <Label htmlFor="doctor-blocking" className="text-sm whitespace-nowrap">Médecin :</Label>
-            <Select value={selectedDoctorForBlocking} onValueChange={setSelectedDoctorForBlocking}>
+            <Select value={selectedDoctorForBlocking || "all"} onValueChange={(value) => setSelectedDoctorForBlocking(value === "all" ? "" : value)}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Tous les médecins" />
               </SelectTrigger>
               <SelectContent className="bg-white z-50">
-                <SelectItem value="">Tous les médecins</SelectItem>
+                <SelectItem value="all">Tous les médecins</SelectItem>
                 {doctors.map((doctor) => (
                   <SelectItem key={doctor.id} value={doctor.id}>
                     Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
