@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1573,9 +1573,9 @@ export type Database = {
     Functions: {
       calculate_patient_unique_hash: {
         Args: {
+          p_birth_date: string
           p_first_name: string
           p_last_name: string
-          p_birth_date: string
           p_ssn: string
         }
         Returns: string
