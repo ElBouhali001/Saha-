@@ -56,21 +56,21 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentTenant, testPlan, isTestingMode]);
 
   const planFeatures = PLAN_DEFINITIONS[currentPlan];
-  const availableModules = getModulesForPlan(currentPlan);
-  const isAIEnabled = getAIAvailability(currentPlan);
+  const availableModules = ['auth', 'patient-management', 'appointment-scheduling', 'medical-consultation', 'billing-invoicing', 'inventory-management', 'laboratory-integration', 'pharmacy-integration', 'ai-assistant', 'transmission-referrals'];
+  const isAIEnabled = true;
 
   const isModuleEnabled = (moduleId: ModuleId): boolean => {
-    return isModuleAvailableInPlan(currentPlan, moduleId);
+    return true; // Tous les modules sont maintenant disponibles
   };
 
-  const canUpgrade = currentPlan !== 'enterprise';
+  const canUpgrade = false; // Désactiver l'upgrade
 
   const planLimitations = {
-    maxUsers: planFeatures.maxUsers,
-    hasAI: isAIEnabled,
-    hasBilling: availableModules.includes('billing-invoicing'),
-    hasInventory: availableModules.includes('inventory-management'),
-    hasAdvancedFeatures: currentPlan === 'enterprise'
+    maxUsers: undefined,
+    hasAI: true,
+    hasBilling: true,
+    hasInventory: true,
+    hasAdvancedFeatures: true
   };
 
   const value: PlanContextType = {
