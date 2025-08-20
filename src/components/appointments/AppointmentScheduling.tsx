@@ -5,13 +5,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Calendar, Clock, Plus, User, Phone, Filter, CalendarDays, CalendarRange, View } from 'lucide-react';
+import { Calendar, Clock, Plus, User, Phone, Filter, CalendarDays, CalendarRange, View, Lock } from 'lucide-react';
 import { useAvailableDoctors, useSpecialties } from '@/hooks/useDoctors';
 import FilterModeSelector from '@/components/patient/appointment/FilterModeSelector';
 import PatientSelector from './PatientSelector';
 import PlanningView from './PlanningView';
+import BlockSlotModal from './BlockSlotModal';
 import { DemoPatient } from '@/hooks/useDemoPatients';
 import { useAppointments, Appointment } from '@/contexts/AppointmentContext';
+import { useBlockedSlots, useBlockSlot, useUnblockSlot } from '@/hooks/useBlockedSlots';
 import { toast } from 'sonner';
 
 const AppointmentScheduling = () => {
@@ -21,6 +23,13 @@ const AppointmentScheduling = () => {
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<DemoPatient | null>(null);
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
+  const [selectedDoctorForBlocking, setSelectedDoctorForBlocking] = useState('');
+  const [isBlockSlotModalOpen, setIsBlockSlotModalOpen] = useState(false);
+  const [selectedSlotForBlocking, setSelectedSlotForBlocking] = useState<{
+    time: string;
+    date: string;
+    doctorId: string;
+  } | null>(null);
   const [newAppointment, setNewAppointment] = useState({
     doctorId: '',
     date: '',
@@ -29,6 +38,9 @@ const AppointmentScheduling = () => {
   });
 
   const { appointments, addAppointment } = useAppointments();
+  const { data: blockedSlots = [] } = useBlockedSlots(selectedDoctorForBlocking, selectedDate);
+  const blockSlotMutation = useBlockSlot();
+  const unblockSlotMutation = useUnblockSlot();
 
   const { data: doctors = [], isLoading: loadingDoctors } = useAvailableDoctors(selectedDate);
   const { data: specialties = [] } = useSpecialties();
@@ -112,9 +124,23 @@ const AppointmentScheduling = () => {
     };
   };
 
-  const handleTimeSlotClick = (time: string, date?: string) => {
+  const handleTimeSlotClick = (time: string, date?: string, doctorId?: string) => {
     const targetDate = date || selectedDate;
-    const status = getSlotStatus(time, targetDate);
+    const status = getSlotStatus(time, targetDate, doctorId);
+    
+    // Si c'est un médecin et qu'il clique sur un créneau avec Ctrl/Alt, ouvrir le modal de blocage
+    if ((window as any).event?.ctrlKey || (window as any).event?.altKey) {
+      if (doctorId) {
+        setSelectedSlotForBlocking({
+          time,
+          date: targetDate,
+          doctorId
+        });
+        setIsBlockSlotModalOpen(true);
+        return;
+      }
+    }
+    
     if (status === 'available') {
       setNewAppointment({
         ...newAppointment,
@@ -122,6 +148,8 @@ const AppointmentScheduling = () => {
         time: time
       });
       setIsAddDialogOpen(true);
+    } else if (status === 'blocked') {
+      toast.info('Ce créneau est bloqué. Maintenez Ctrl + clic pour le débloquer.');
     }
   };
 
@@ -131,8 +159,10 @@ const AppointmentScheduling = () => {
     '16:00', '16:30', '17:00', '17:30'
   ];
 
-  const getSlotStatus = (time: string, date?: string) => {
+  const getSlotStatus = (time: string, date?: string, doctorId?: string) => {
     const targetDate = date || selectedDate;
+    
+    // Check for appointments
     const appointment = appointments.find(apt => 
       apt.date === targetDate && apt.time === time
     );
@@ -140,6 +170,20 @@ const AppointmentScheduling = () => {
     if (appointment) {
       return appointment.status === 'cancelled' ? 'available' : 'occupied';
     }
+    
+    // Check for blocked slots
+    if (doctorId) {
+      const isBlocked = blockedSlots.some(slot => 
+        slot.doctor_id === doctorId && 
+        slot.date === targetDate && 
+        slot.time === time
+      );
+      
+      if (isBlocked) {
+        return 'blocked';
+      }
+    }
+    
     return 'available';
   };
 
@@ -211,6 +255,14 @@ const AppointmentScheduling = () => {
     toast.success('Patient créé et sélectionné');
   };
 
+  const handleBlockSlot = (doctorId: string, date: string, time: string, reason?: string) => {
+    blockSlotMutation.mutate({ doctorId, date, time, reason });
+  };
+
+  const handleUnblockSlot = (doctorId: string, date: string, time: string) => {
+    unblockSlotMutation.mutate({ doctorId, date, time });
+  };
+
   const todayAppointments = appointments.filter(apt => apt.date === selectedDate);
 
   return (
@@ -253,6 +305,12 @@ const AppointmentScheduling = () => {
               Mois
             </button>
           </div>
+          
+          <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg">
+            <Lock className="w-4 h-4" />
+            <span>Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux</span>
+          </div>
+
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-green-600 hover:bg-green-700">
@@ -397,6 +455,7 @@ const AppointmentScheduling = () => {
           getWeekDates={getWeekDates}
           getMonthDates={getMonthDates}
           formatDateHeader={formatDateHeader}
+          blockedSlots={blockedSlots}
         />
 
         {/* Today's Appointments - Only show in day view */}
@@ -444,6 +503,21 @@ const AppointmentScheduling = () => {
           </Card>
         )}
       </div>
+
+      <BlockSlotModal
+        isOpen={isBlockSlotModalOpen}
+        onClose={() => setIsBlockSlotModalOpen(false)}
+        selectedTime={selectedSlotForBlocking?.time || ''}
+        selectedDate={selectedSlotForBlocking?.date || ''}
+        doctorId={selectedSlotForBlocking?.doctorId || ''}
+        isBlocked={selectedSlotForBlocking ? blockedSlots.some(slot =>
+          slot.doctor_id === selectedSlotForBlocking.doctorId &&
+          slot.date === selectedSlotForBlocking.date &&
+          slot.time === selectedSlotForBlocking.time
+        ) : false}
+        onBlock={handleBlockSlot}
+        onUnblock={handleUnblockSlot}
+      />
     </div>
   );
 };

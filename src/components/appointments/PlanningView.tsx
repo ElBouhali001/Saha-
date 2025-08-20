@@ -10,11 +10,12 @@ interface PlanningViewProps {
   setSelectedDate: (date: string) => void;
   appointments: Appointment[];
   timeSlots: string[];
-  getSlotStatus: (time: string, date?: string) => string;
-  handleTimeSlotClick: (time: string, date?: string) => void;
+  getSlotStatus: (time: string, date?: string, doctorId?: string) => string;
+  handleTimeSlotClick: (time: string, date?: string, doctorId?: string) => void;
   getWeekDates: (date: string) => string[];
   getMonthDates: (date: string) => string[];
   formatDateHeader: (date: string) => { day: string; date: number; isToday: boolean };
+  blockedSlots: any[];
 }
 
 const PlanningView: React.FC<PlanningViewProps> = ({
@@ -27,7 +28,8 @@ const PlanningView: React.FC<PlanningViewProps> = ({
   handleTimeSlotClick,
   getWeekDates,
   getMonthDates,
-  formatDateHeader
+  formatDateHeader,
+  blockedSlots
 }) => {
   const renderDayView = () => (
     <Card className="lg:col-span-2">
@@ -49,6 +51,8 @@ const PlanningView: React.FC<PlanningViewProps> = ({
         <div className="mb-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-700">
             💡 <strong>Astuce :</strong> Cliquez sur un créneau libre (vert) pour créer directement un rendez-vous à cette heure.
+            <br />
+            🔒 Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs mx-1">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux.
           </p>
         </div>
         <div className="grid grid-cols-4 gap-2">
@@ -61,23 +65,32 @@ const PlanningView: React.FC<PlanningViewProps> = ({
             return (
               <div
                 key={time}
-                onClick={() => handleTimeSlotClick(time)}
+                onClick={(e) => handleTimeSlotClick(time, selectedDate, undefined)}
                 className={`p-3 rounded-lg border text-center text-sm transition-all ${
                   status === 'available' 
                     ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 cursor-pointer hover:scale-105'
+                    : status === 'blocked'
+                    ? 'bg-orange-50 border-orange-200 text-orange-700 cursor-pointer hover:bg-orange-100'
                     : 'bg-red-50 border-red-200 text-red-700 cursor-not-allowed'
                 }`}
               >
-                <div className="font-medium">{time}</div>
+                <div className="font-medium flex items-center justify-center gap-1">
+                  {time}
+                  {status === 'blocked' && <span>🔒</span>}
+                </div>
                 {appointment ? (
                   <div className="text-xs mt-1 truncate">
                     {appointment.patientName}
                   </div>
-                ) : status === 'available' && (
+                ) : status === 'available' ? (
                   <div className="text-xs mt-1 text-green-600 opacity-75">
                     Cliquer pour réserver
                   </div>
-                )}
+                ) : status === 'blocked' ? (
+                  <div className="text-xs mt-1 text-orange-600 opacity-75">
+                    Créneau bloqué
+                  </div>
+                ) : null}
               </div>
             );
           })}
@@ -140,18 +153,22 @@ const PlanningView: React.FC<PlanningViewProps> = ({
                     return (
                       <div
                         key={`${date}-${time}`}
-                        onClick={() => handleTimeSlotClick(time, date)}
+                        onClick={(e) => handleTimeSlotClick(time, date, undefined)}
                         className={`p-1 text-xs border rounded cursor-pointer transition-all ${
                           status === 'available' 
                             ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                            : status === 'blocked'
+                            ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
                             : 'bg-red-50 border-red-200 cursor-not-allowed'
                         }`}
                       >
-                        {appointment && (
+                        {appointment ? (
                           <div className="truncate text-center">
                             {appointment.patientName}
                           </div>
-                        )}
+                        ) : status === 'blocked' ? (
+                          <div className="text-center text-orange-600">🔒</div>
+                        ) : null}
                       </div>
                     );
                   })}

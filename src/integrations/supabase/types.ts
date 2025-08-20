@@ -87,6 +87,54 @@ export type Database = {
           },
         ]
       }
+      blocked_time_slots: {
+        Row: {
+          blocked_by: string | null
+          created_at: string
+          date: string
+          doctor_id: string | null
+          id: string
+          reason: string | null
+          time: string
+          updated_at: string
+        }
+        Insert: {
+          blocked_by?: string | null
+          created_at?: string
+          date: string
+          doctor_id?: string | null
+          id?: string
+          reason?: string | null
+          time: string
+          updated_at?: string
+        }
+        Update: {
+          blocked_by?: string | null
+          created_at?: string
+          date?: string
+          doctor_id?: string | null
+          id?: string
+          reason?: string | null
+          time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocked_time_slots_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocked_time_slots_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultations: {
         Row: {
           appointment_id: string | null
