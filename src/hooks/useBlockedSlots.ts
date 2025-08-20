@@ -17,6 +17,11 @@ export const useBlockedSlots = (doctorId?: string, date?: string) => {
   return useQuery({
     queryKey: ['blocked-slots', doctorId, date],
     queryFn: async () => {
+      // Si c'est un médecin mocké, retourner un tableau vide
+      if (doctorId && doctorId.startsWith('mock-')) {
+        return [];
+      }
+
       let query = supabase
         .from('blocked_time_slots')
         .select('*');
@@ -53,6 +58,11 @@ export const useBlockSlot = () => {
       time: string;
       reason?: string;
     }) => {
+      // Si c'est un médecin mocké, afficher un message d'info
+      if (doctorId.startsWith('mock-')) {
+        throw new Error('La fonctionnalité de blocage n\'est pas disponible pour les données de démonstration.');
+      }
+
       const { data, error } = await supabase
         .from('blocked_time_slots')
         .insert({
@@ -73,7 +83,9 @@ export const useBlockSlot = () => {
       toast.success('Créneau bloqué avec succès');
     },
     onError: (error: any) => {
-      if (error.code === '23505') {
+      if (error.message.includes('données de démonstration')) {
+        toast.info(error.message);
+      } else if (error.code === '23505') {
         toast.error('Ce créneau est déjà bloqué');
       } else {
         toast.error('Erreur lors du blocage du créneau');
@@ -95,6 +107,11 @@ export const useUnblockSlot = () => {
       date: string;
       time: string;
     }) => {
+      // Si c'est un médecin mocké, afficher un message d'info
+      if (doctorId.startsWith('mock-')) {
+        throw new Error('La fonctionnalité de déblocage n\'est pas disponible pour les données de démonstration.');
+      }
+
       const { error } = await supabase
         .from('blocked_time_slots')
         .delete()
@@ -108,8 +125,12 @@ export const useUnblockSlot = () => {
       queryClient.invalidateQueries({ queryKey: ['blocked-slots'] });
       toast.success('Créneau débloqué avec succès');
     },
-    onError: () => {
-      toast.error('Erreur lors du déblocage du créneau');
+    onError: (error: any) => {
+      if (error.message.includes('données de démonstration')) {
+        toast.info(error.message);
+      } else {
+        toast.error('Erreur lors du déblocage du créneau');
+      }
     },
   });
 };

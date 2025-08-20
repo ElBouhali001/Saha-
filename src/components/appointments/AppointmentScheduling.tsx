@@ -312,7 +312,13 @@ const AppointmentScheduling = () => {
           
           <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg">
             <Lock className="w-4 h-4" />
-            <span>Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux</span>
+            <span>
+              {selectedDoctorForBlocking && selectedDoctorForBlocking.startsWith('mock-') ? (
+                <>🏥 Mode démonstration - La fonctionnalité de blocage n'est pas disponible avec les données de test</>
+              ) : (
+                <>Maintenez <kbd className="px-2 py-1 bg-white border rounded text-xs">Ctrl</kbd> + clic pour bloquer/débloquer des créneaux</>
+              )}
+            </span>
           </div>
 
           {/* Sélecteur de médecin pour le blocage */}
