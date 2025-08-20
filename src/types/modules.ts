@@ -152,7 +152,7 @@ export const MODULE_DEFINITIONS: Record<ModuleId, Omit<ModuleConfig, 'isEnabled'
     isCore: false,
     dependencies: ['auth'],
     permissions: ['admin:settings', 'admin:qr_manage'],
-    routes: ['/qr-settings'],
-    components: ['QRDisplaySettings', 'ModuleManager', 'TenantSettings', 'AdminDashboard']
+    routes: ['/qr-settings', '/plan-management'],
+    components: ['QRDisplaySettings', 'ModuleManager', 'TenantSettings', 'AdminDashboard', 'PlanManagement']
   }
 };

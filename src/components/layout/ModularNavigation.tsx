@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useModules } from '@/contexts/ModuleContext';
+import { usePlan } from '@/contexts/PlanContext';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,8 @@ import {
   FlaskConical,
   UserCheck,
   CreditCard,
-  QrCode
+  QrCode,
+  Crown
 } from 'lucide-react';
 
 interface ModularNavigationProps {
@@ -38,6 +40,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
 }) => {
   const { user } = useSupabaseAuth();
   const { getEnabledModules, getAvailableRoutes } = useModules();
+  const { isModuleEnabled } = usePlan();
 
   const enabledModules = getEnabledModules();
   const availableRoutes = getAvailableRoutes();
@@ -50,7 +53,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
     const moduleBasedItems = [];
 
     // Ajouter les éléments selon les modules activés et le rôle de l'utilisateur
-    if (enabledModules.find(m => m.id === 'patient-management')) {
+    if (enabledModules.find(m => m.id === 'patient-management') && isModuleEnabled('patient-management')) {
       if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role)) {
         moduleBasedItems.push({ id: 'patients', label: 'Patients', icon: Users, module: 'patient-management' });
       }
@@ -59,7 +62,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
-    if (enabledModules.find(m => m.id === 'appointment-scheduling')) {
+    if (enabledModules.find(m => m.id === 'appointment-scheduling') && isModuleEnabled('appointment-scheduling')) {
       if (['admin', 'agent'].includes(user?.user_metadata?.role)) {
         moduleBasedItems.push({ id: 'appointments', label: 'Rendez-vous', icon: Calendar, module: 'appointment-scheduling' });
       }
@@ -74,7 +77,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
-    if (enabledModules.find(m => m.id === 'medical-consultation')) {
+    if (enabledModules.find(m => m.id === 'medical-consultation') && isModuleEnabled('medical-consultation')) {
       if (user?.user_metadata?.role === 'doctor') {
         moduleBasedItems.push({ id: 'consultations', label: 'Consultations', icon: FileText, module: 'medical-consultation' });
       }
@@ -84,19 +87,19 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
-    if (enabledModules.find(m => m.id === 'billing-invoicing')) {
+    if (enabledModules.find(m => m.id === 'billing-invoicing') && isModuleEnabled('billing-invoicing')) {
       if (['admin', 'agent'].includes(user?.user_metadata?.role)) {
         moduleBasedItems.push({ id: 'billing', label: 'Facturation', icon: DollarSign, module: 'billing-invoicing' });
       }
     }
 
-    if (enabledModules.find(m => m.id === 'inventory-management')) {
+    if (enabledModules.find(m => m.id === 'inventory-management') && isModuleEnabled('inventory-management')) {
       if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role)) {
         moduleBasedItems.push({ id: 'inventory', label: 'Stock', icon: Package, module: 'inventory-management' });
       }
     }
 
-    if (enabledModules.find(m => m.id === 'laboratory-integration')) {
+    if (enabledModules.find(m => m.id === 'laboratory-integration') && isModuleEnabled('laboratory-integration')) {
       if (user?.user_metadata?.role === 'lab_technician') {
         moduleBasedItems.push({ id: 'laboratory', label: 'Analyses', icon: FlaskConical, module: 'laboratory-integration' });
         moduleBasedItems.push({ id: 'lab-schedule', label: 'Planning', icon: Calendar, module: 'laboratory-integration' });
@@ -110,7 +113,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
-    if (enabledModules.find(m => m.id === 'pharmacy-integration')) {
+    if (enabledModules.find(m => m.id === 'pharmacy-integration') && isModuleEnabled('pharmacy-integration')) {
       if (user?.user_metadata?.role === 'pharmacist') {
         moduleBasedItems.push({ id: 'pharmacy', label: 'Ordonnances', icon: Pill, module: 'pharmacy-integration' });
         moduleBasedItems.push({ id: 'pharmacy-inventory', label: 'Stock Pharmacie', icon: Package, module: 'pharmacy-integration' });
@@ -118,26 +121,29 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
-    if (enabledModules.find(m => m.id === 'ai-assistant')) {
+    if (enabledModules.find(m => m.id === 'ai-assistant') && isModuleEnabled('ai-assistant')) {
       if (user?.user_metadata?.role === 'doctor') {
         moduleBasedItems.push({ id: 'ai-assistant', label: 'Assistant IA', icon: Brain, module: 'ai-assistant' });
       }
     }
 
-    if (enabledModules.find(m => m.id === 'transmission-referrals')) {
+    if (enabledModules.find(m => m.id === 'transmission-referrals') && isModuleEnabled('transmission-referrals')) {
       if (user?.user_metadata?.role === 'doctor') {
         moduleBasedItems.push({ id: 'transfers', label: 'Transmissions', icon: MessageSquare, module: 'transmission-referrals' });
       }
     }
 
-    // Paramètres QR
-    if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role)) {
+    // Paramètres QR et gestion des plans
+    if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role) && isModuleEnabled('admin')) {
       moduleBasedItems.push({ id: 'qr-settings', label: 'Paramètres QR', icon: QrCode, module: 'admin' });
+      if (user?.user_metadata?.role === 'admin') {
+        moduleBasedItems.push({ id: 'plan-management', label: 'Gestion des Plans', icon: Crown, module: 'admin' });
+      }
     }
 
     // Filtrer les éléments selon les routes disponibles
     const filteredItems = moduleBasedItems.filter(item => 
-      item.id === 'qr-settings' || // Exception pour les paramètres QR qui ne sont pas dans les routes modulaires
+      ['qr-settings', 'plan-management'].includes(item.id) || // Exception pour les paramètres admin qui ne sont pas dans les routes modulaires
       availableRoutes.includes(`/${item.id}`) || 
       availableRoutes.includes(`/${item.id.replace('-', '')}`)
     );

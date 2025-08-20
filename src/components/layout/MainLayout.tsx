@@ -1,6 +1,9 @@
 
 import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { usePlan } from '@/contexts/PlanContext';
+import PlanGuard from '@/components/guards/PlanGuard';
+import PlanBadge from '@/components/shared/PlanBadge';
 import Sidebar from './Sidebar';
 import ModuleComponent from '@/modules/ModuleLoader';
 import AdminDashboard from '../dashboard/AdminDashboard';
@@ -12,6 +15,7 @@ import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
 
 const MainLayout = () => {
   const { user } = useSupabaseAuth();
+  const { isModuleEnabled } = usePlan();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const { canAccessModule } = useModuleAccess();
 
@@ -72,47 +76,79 @@ const MainLayout = () => {
 
       // AI Assistant Module
       case 'ai-assistant':
-        return canAccessModule('ai-assistant') ? 
-          <ModuleComponent moduleId="ai-assistant" componentName="DocumentsModule" /> : 
-          <div className="p-6">Module assistant IA non disponible</div>;
+        return (
+          <PlanGuard requiredPlan="enterprise" feature="Assistant IA">
+            {canAccessModule('ai-assistant') ? 
+              <ModuleComponent moduleId="ai-assistant" componentName="DocumentsModule" /> : 
+              <div className="p-6">Module assistant IA non disponible</div>}
+          </PlanGuard>
+        );
 
       // Billing Module
       case 'billing':
-        return canAccessModule('billing-invoicing') ? 
-          <ModuleComponent moduleId="billing-invoicing" componentName="BillingModule" /> : 
-          <div className="p-6">Module facturation non disponible</div>;
+        return (
+          <PlanGuard requiredPlan="pro" feature="Facturation">
+            {canAccessModule('billing-invoicing') ? 
+              <ModuleComponent moduleId="billing-invoicing" componentName="BillingModule" /> : 
+              <div className="p-6">Module facturation non disponible</div>}
+          </PlanGuard>
+        );
 
       // Inventory Module
       case 'inventory':
-        return canAccessModule('inventory-management') ? 
-          <ModuleComponent moduleId="inventory-management" componentName="InventoryModule" /> : 
-          <div className="p-6">Module stock non disponible</div>;
+        return (
+          <PlanGuard requiredPlan="enterprise" feature="Gestion des stocks">
+            {canAccessModule('inventory-management') ? 
+              <ModuleComponent moduleId="inventory-management" componentName="InventoryModule" /> : 
+              <div className="p-6">Module stock non disponible</div>}
+          </PlanGuard>
+        );
 
       // Laboratory Module
       case 'laboratory':
       case 'lab-schedule':
       case 'lab-results':
-        return canAccessModule('laboratory-integration') ? 
-          <ModuleComponent moduleId="laboratory-integration" componentName="LaboratoryDashboard" /> : 
-          <div className="p-6">Module laboratoire non disponible</div>;
+        return (
+          <PlanGuard requiredPlan="enterprise" feature="Intégration laboratoires">
+            {canAccessModule('laboratory-integration') ? 
+              <ModuleComponent moduleId="laboratory-integration" componentName="LaboratoryDashboard" /> : 
+              <div className="p-6">Module laboratoire non disponible</div>}
+          </PlanGuard>
+        );
 
       // Pharmacy Module
       case 'pharmacy':
       case 'pharmacy-inventory':
       case 'pharmacy-reports':
-        return canAccessModule('pharmacy-integration') ? 
-          <ModuleComponent moduleId="pharmacy-integration" componentName="PharmacyDashboard" /> : 
-          <div className="p-6">Module pharmacie non disponible</div>;
+        return (
+          <PlanGuard requiredPlan="enterprise" feature="Intégration pharmacies">
+            {canAccessModule('pharmacy-integration') ? 
+              <ModuleComponent moduleId="pharmacy-integration" componentName="PharmacyDashboard" /> : 
+              <div className="p-6">Module pharmacie non disponible</div>}
+          </PlanGuard>
+        );
 
       // Transmission Module
       case 'transfers':
-        return canAccessModule('transmission-referrals') ? 
-          <ModuleComponent moduleId="transmission-referrals" componentName="SecureTransmissionModal" /> : 
-          <div className="p-6">Module transmission non disponible</div>;
+        return (
+          <PlanGuard requiredPlan="enterprise" feature="Transmissions sécurisées">
+            {canAccessModule('transmission-referrals') ? 
+              <ModuleComponent moduleId="transmission-referrals" componentName="SecureTransmissionModal" /> : 
+              <div className="p-6">Module transmission non disponible</div>}
+          </PlanGuard>
+        );
 
       // QR Display Settings
       case 'qr-settings':
         return <QRDisplaySettings />;
+
+      // Plan Management (Admin only)
+      case 'plan-management':
+        return (
+          <PlanGuard requiredPlan="freemium" feature="Gestion des plans">
+            <ModuleComponent moduleId="admin" componentName="PlanManagement" />
+          </PlanGuard>
+        );
 
       default:
         return (
@@ -134,6 +170,13 @@ const MainLayout = () => {
     <div className="flex h-screen bg-gray-50">
       <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
       <main className="flex-1 overflow-auto">
+        <div className="p-4 border-b bg-white flex justify-between items-center">
+          <h1 className="text-lg font-semibold text-gray-900">
+            {currentPage === 'dashboard' ? 'Tableau de bord' : 
+             currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
+          </h1>
+          <PlanBadge showUpgrade={true} compact={true} />
+        </div>
         {renderPageContent()}
       </main>
     </div>
