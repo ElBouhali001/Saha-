@@ -99,7 +99,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
             </SelectTrigger>
             <SelectContent>
               {insurancesLoading ? (
-                <SelectItem value="loading" disabled>Chargement...</SelectItem>
+                <SelectItem value="" disabled>Chargement...</SelectItem>
               ) : (
                 insurances.map((insurance) => (
                   <SelectItem key={insurance.id} value={insurance.id}>

@@ -1,35 +1,9 @@
 
 import React from 'react';
-import { SupabaseAuthProvider } from '@/contexts/SupabaseAuthContext';
-import { TenantProvider } from '@/contexts/TenantContext';
-import { PlanProvider } from '@/contexts/PlanContext';
-import { ModuleProvider } from '@/contexts/ModuleContext';
-import { AppointmentProvider } from '@/contexts/AppointmentContext';
-import { QRDisplayProvider } from '@/contexts/QRDisplayContext';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import LoginForm from './auth/LoginForm';
 import MainLayout from './layout/MainLayout';
 import { Loader2 } from 'lucide-react';
-import { Toaster } from '@/components/ui/sonner';
-
-const AppWrapper = () => {
-  return (
-    <SupabaseAuthProvider>
-      <TenantProvider>
-        <PlanProvider>
-          <ModuleProvider>
-            <AppointmentProvider>
-              <QRDisplayProvider>
-                <MainApp />
-                <Toaster />
-              </QRDisplayProvider>
-            </AppointmentProvider>
-          </ModuleProvider>
-        </PlanProvider>
-      </TenantProvider>
-    </SupabaseAuthProvider>
-  );
-};
 
 const MainApp = () => {
   const { user, isAuthenticated, isLoading } = useSupabaseAuth();
@@ -52,4 +26,4 @@ const MainApp = () => {
   return <MainLayout />;
 };
 
-export default AppWrapper;
+export default MainApp;
