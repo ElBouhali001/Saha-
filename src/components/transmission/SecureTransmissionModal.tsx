@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -143,16 +144,20 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="recipient-type">Type de destinataire</Label>
-                <Select value={recipientType} onValueChange={(value: any) => setRecipientType(value)} disabled={specialistMode}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="specialist">Spécialiste</SelectItem>
-                    {!specialistMode && <SelectItem value="laboratory">Laboratoire</SelectItem>}
-                    {!specialistMode && <SelectItem value="doctor">Médecin</SelectItem>}
-                  </SelectContent>
-                </Select>
+                {specialistMode ? (
+                  <Input value="Spécialiste" readOnly />
+                ) : (
+                  <Select value={recipientType} onValueChange={(value: any) => setRecipientType(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="specialist">Spécialiste</SelectItem>
+                      <SelectItem value="laboratory">Laboratoire</SelectItem>
+                      <SelectItem value="doctor">Médecin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div>
