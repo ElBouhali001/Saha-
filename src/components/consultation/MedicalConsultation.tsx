@@ -127,7 +127,10 @@ const MedicalConsultation = () => {
                 <div className="lg:col-span-2 space-y-6">
                   <ConsultationForm 
                     consultation={consultation} 
-                    onConsultationChange={setConsultation} 
+                    onConsultationChange={setConsultation}
+                    consultationId={generateSecureToken()}
+                    patientName={`${patient.firstName} ${patient.lastName}`}
+                    patientId={patient.id}
                   />
                   
                   <div className="bg-white p-6 rounded-lg border">
@@ -149,18 +152,10 @@ const MedicalConsultation = () => {
                       patientName={`${patient.firstName} ${patient.lastName}`}
                     />
                     
-                    <div className="flex space-x-3 pt-4 border-t mt-6">
-                      <Button onClick={handleSaveConsultation} className="flex-1">
+                    <div className="flex justify-between items-center pt-4 border-t mt-6">
+                      <Button onClick={handleSaveConsultation}>
                         <FileText className="w-4 h-4 mr-2" />
-                        Sauvegarder
-                      </Button>
-                      <Button variant="outline" onClick={generateTransmissionCode} className="flex-1">
-                        <Send className="w-4 h-4 mr-2" />
-                        Transmettre
-                      </Button>
-                      <Button variant="outline" className="flex-1">
-                        <Pill className="w-4 h-4 mr-2" />
-                        Ordonnance PDF
+                        Sauvegarder la consultation
                       </Button>
                     </div>
                   </div>
