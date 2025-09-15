@@ -29,8 +29,8 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
   const [isTestingVoice, setIsTestingVoice] = useState<string | null>(null);
 
   const africanVoices = Object.entries(AFRICAN_VOICES);
-  const femaleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('Fatou') || voice.name.includes('Awa'));
-  const maleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('Moussa') || voice.name.includes('Mamadou'));
+  const femaleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('Maimouna'));
+  const maleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('Ibrahima'));
 
   const handleGenderChange = (gender: 'female' | 'male') => {
     setSelectedGender(gender);
@@ -43,11 +43,11 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
     setIsTestingVoice(voiceId);
     
     const testTexts = {
-      wolof: "Na nga def ? Dama def Fatou, sama assistant MediPatient.",
-      pulaar: "No feeñi ? Mi woni Awa, assistant maa MediPatient.",
-      serere: "No dem ? Man Fatou laa, assistant MediPatient.",
-      diola: "Kajimaat ? Emmit Awa, assistant MediPatient.",
-      francais: "Bonjour ! Je suis votre assistante MediPatient avec un accent sénégalais chaleureux."
+      wolof: "Na nga def ? Dama def Maimouna, sama assistant MediPatient.",
+      pulaar: "No feeñi ? Mi woni Maimouna, assistant maa MediPatient.",
+      serere: "No dem ? Man Maimouna laa, assistant MediPatient.",
+      diola: "Kajimaat ? Emmit Maimouna, assistant MediPatient.",
+      francais: "Bonjour ! Je suis Maimouna, votre assistante MediPatient avec un accent sénégalais chaleureux."
     };
 
     const testText = testTexts[currentLanguage as keyof typeof testTexts] || testTexts.francais;
@@ -102,7 +102,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
               />
               <Label htmlFor="female-voice" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Féminine (Fatou/Awa)
+                Féminine (Maimouna)
               </Label>
             </div>
             <div className="flex items-center space-x-2">
@@ -113,7 +113,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
               />
               <Label htmlFor="male-voice" className="flex items-center gap-2">
                 <UserCheck className="w-4 h-4" />
-                Masculine (Moussa/Mamadou)
+                Masculine (Ibrahima)
               </Label>
             </div>
           </div>
@@ -193,8 +193,8 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
             <div className="space-y-2">
               <p className="font-medium">Voix Contextuelles Sénégalaises</p>
               <ul className="text-sm space-y-1">
-                <li>• <strong>Fatou & Awa</strong> : Voix féminines chaleureuses avec accent francophone africain</li>
-                <li>• <strong>Moussa & Mamadou</strong> : Voix masculines rassurantes, contexte ouest-africain</li>
+                <li>• <strong>Maimouna</strong> : Voix féminine chaleureuse avec accent francophone africain</li>
+                <li>• <strong>Ibrahima</strong> : Voix masculine rassurante, contexte ouest-africain</li>
                 <li>• Adaptation automatique selon la langue (Wolof, Pulaar, Sérère, Diola)</li>
                 <li>• Prononciation optimisée pour les termes médicaux locaux</li>
               </ul>
