@@ -150,7 +150,7 @@ export const PHRASES_BASE = {
     help: "Aniou emmen a def ?"
   },
   francais: {
-    greeting: "Bonjour ! Je suis l'Assistant MediPatient. Comment puis-je vous aider ?",
+    greeting: "Bonjour, je suis Maimouna, votre assistant vocal Médipatient. Comment puis-je vous aider ?",
     understood: "D'accord, j'ai compris",
     notUnderstood: "Excusez-moi, je n'ai pas compris. Pouvez-vous répéter ?",
     processing: "Je réfléchis...",
@@ -405,7 +405,17 @@ export class VoiceService {
 
   getPhrase(key: keyof typeof PHRASES_BASE.francais): string {
     const phrases = PHRASES_BASE[this.currentLanguage] || PHRASES_BASE.francais;
-    return phrases[key] || phrases.help;
+    let phrase = phrases[key] || phrases.help;
+    
+    // Adapter le nom de l'assistant selon le genre de la voix
+    if (key === 'greeting' && this.currentLanguage === 'francais') {
+      const voiceGender = this.elevenLabsService?.getCurrentVoiceInfo()?.accent?.includes('female') || 
+                         localStorage.getItem('voice_gender_preference') === 'female' ? 'female' : 'male';
+      const assistantName = voiceGender === 'female' ? 'Maimouna' : 'Ibrahima';
+      phrase = `Bonjour, je suis ${assistantName}, votre assistant vocal Médipatient. Comment puis-je vous aider ?`;
+    }
+    
+    return phrase;
   }
 
   getSupportedLanguages() {
@@ -422,6 +432,9 @@ export class VoiceService {
 
   // Méthodes pour ElevenLabs
   setVoiceGender(gender: 'female' | 'male') {
+    // Sauvegarder la préférence de genre
+    localStorage.setItem('voice_gender_preference', gender);
+    
     if (this.elevenLabsService) {
       this.elevenLabsService.setGenderPreference(gender);
     }
