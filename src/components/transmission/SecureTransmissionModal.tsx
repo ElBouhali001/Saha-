@@ -17,6 +17,7 @@ interface SecureTransmissionModalProps {
   onClose: () => void;
   consultationId: string;
   patientName: string;
+  specialistMode?: boolean;
 }
 
 const transmissibleElements = [
@@ -32,10 +33,13 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
   isOpen,
   onClose,
   consultationId,
-  patientName
+  patientName,
+  specialistMode = false
 }) => {
   const [selectedRecipient, setSelectedRecipient] = useState('');
-  const [recipientType, setRecipientType] = useState<'specialist' | 'laboratory' | 'doctor'>('specialist');
+  const [recipientType, setRecipientType] = useState<'specialist' | 'laboratory' | 'doctor'>(
+    specialistMode ? 'specialist' : 'specialist'
+  );
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   const [reason, setReason] = useState('');
   const [validityHours, setValidityHours] = useState(48);
@@ -44,6 +48,16 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
 
   const { data: doctors } = useDoctors();
   const createTransmission = useCreateTransmission();
+
+  // Filtrer les médecins selon le mode
+  const availableDoctors = specialistMode 
+    ? doctors?.filter(doctor => {
+        const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
+        const specialtyName = primarySpecialty?.specialty?.name || '';
+        // Exclure "Médecine Générale" pour les spécialistes
+        return specialtyName && specialtyName !== 'Médecine Générale';
+      })
+    : doctors;
 
   const handleElementToggle = (elementId: string) => {
     setSelectedElements(prev => 
@@ -114,10 +128,13 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Send className="w-5 h-5 text-blue-600" />
-            <span>Transmission Sécurisée - {patientName}</span>
+            <span>{specialistMode ? 'Transmission vers un Spécialiste' : 'Transmission Sécurisée'} - {patientName}</span>
           </DialogTitle>
           <DialogDescription>
-            Générez un code d'accès sécurisé pour partager des éléments du dossier médical
+            {specialistMode 
+              ? 'Transmettez ce dossier médical à un médecin spécialiste avec un code d\'accès sécurisé'
+              : 'Générez un code d\'accès sécurisé pour partager des éléments du dossier médical'
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -126,14 +143,14 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="recipient-type">Type de destinataire</Label>
-                <Select value={recipientType} onValueChange={(value: any) => setRecipientType(value)}>
+                <Select value={recipientType} onValueChange={(value: any) => setRecipientType(value)} disabled={specialistMode}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner..." />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="specialist">Spécialiste</SelectItem>
-                    <SelectItem value="laboratory">Laboratoire</SelectItem>
-                    <SelectItem value="doctor">Médecin</SelectItem>
+                    {!specialistMode && <SelectItem value="laboratory">Laboratoire</SelectItem>}
+                    {!specialistMode && <SelectItem value="doctor">Médecin</SelectItem>}
                   </SelectContent>
                 </Select>
               </div>
@@ -145,7 +162,7 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
                     <SelectValue placeholder="Choisir le destinataire..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {doctors?.map((doctor) => (
+                    {availableDoctors?.map((doctor) => (
                       <SelectItem key={doctor.id} value={doctor.id}>
                         Dr. {doctor.profile?.first_name} {doctor.profile?.last_name} - {getPrimarySpecialty(doctor)}
                       </SelectItem>

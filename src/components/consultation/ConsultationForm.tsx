@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText } from 'lucide-react';
-import TransmissionButton from './TransmissionButton';
+import ConsultationActions from './ConsultationActions';
 
 interface ConsultationData {
   symptoms: string;
@@ -18,13 +18,15 @@ interface ConsultationFormProps {
   onConsultationChange: (consultation: ConsultationData) => void;
   consultationId?: string;
   patientName?: string;
+  patientId?: string;
 }
 
 const ConsultationForm: React.FC<ConsultationFormProps> = ({ 
   consultation, 
   onConsultationChange,
   consultationId,
-  patientName
+  patientName,
+  patientId
 }) => {
   const handleFieldChange = (field: keyof ConsultationData, value: string) => {
     onConsultationChange({
@@ -42,9 +44,10 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
             Consultation Médicale
           </CardTitle>
           {consultationId && patientName && (
-            <TransmissionButton 
+            <ConsultationActions 
               consultationId={consultationId}
               patientName={patientName}
+              patientId={patientId}
             />
           )}
         </div>
