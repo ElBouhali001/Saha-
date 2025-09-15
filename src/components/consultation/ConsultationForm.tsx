@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText } from 'lucide-react';
-import ConsultationActions from './ConsultationActions';
 
 interface ConsultationData {
   symptoms: string;
@@ -44,11 +44,13 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
             Consultation Médicale
           </CardTitle>
           {consultationId && patientName && (
-            <ConsultationActions 
-              consultationId={consultationId}
-              patientName={patientName}
-              patientId={patientId}
-            />
+            <Button 
+              variant="outline" 
+              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+              onClick={() => console.log('Actions à implémenter')}
+            >
+              Actions consultation
+            </Button>
           )}
         </div>
       </CardHeader>
