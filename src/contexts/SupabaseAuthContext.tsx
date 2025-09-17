@@ -30,6 +30,14 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         { id: '5', email: 'labo@medipatient.com', first_name: 'Sophie', last_name: 'Diabaté', role: 'lab_technician' },
         { id: '6', email: 'pharmacien@medipatient.com', first_name: 'Ahmed', last_name: 'Touré', role: 'pharmacist' },
         { id: '7', email: 'assurance@medipatient.com', first_name: 'Fatou', last_name: 'Sangaré', role: 'insurance_agent' },
+        // Médecins spécialistes
+        { id: '8', email: 'cardio.dubois@medipatient.com', first_name: 'Marie', last_name: 'Dubois', role: 'doctor', speciality: 'Cardiologie' },
+        { id: '9', email: 'dermato.moreau@medipatient.com', first_name: 'Pierre', last_name: 'Moreau', role: 'doctor', speciality: 'Dermatologie' },
+        { id: '10', email: 'pediatre.lemaire@medipatient.com', first_name: 'Sophie', last_name: 'Lemaire', role: 'doctor', speciality: 'Pédiatrie' },
+        { id: '11', email: 'gyneco.bernard@medipatient.com', first_name: 'Claire', last_name: 'Bernard', role: 'doctor', speciality: 'Gynécologie' },
+        { id: '12', email: 'neuro.rousseau@medipatient.com', first_name: 'Julien', last_name: 'Rousseau', role: 'doctor', speciality: 'Neurologie' },
+        { id: '13', email: 'ortho.girard@medipatient.com', first_name: 'Luc', last_name: 'Girard', role: 'doctor', speciality: 'Orthopédie' },
+        { id: '14', email: 'ophtalmo.leroy@medipatient.com', first_name: 'Anne', last_name: 'Leroy', role: 'doctor', speciality: 'Ophtalmologie' },
       ]
     : [];
 
@@ -68,6 +76,14 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         'labo@medipatient.com': 'labo123',
         'pharmacien@medipatient.com': 'pharma123',
         'assurance@medipatient.com': 'assurance123',
+        // Médecins spécialistes
+        'cardio.dubois@medipatient.com': 'cardio123',
+        'dermato.moreau@medipatient.com': 'dermato123',
+        'pediatre.lemaire@medipatient.com': 'pediatre123',
+        'gyneco.bernard@medipatient.com': 'gyneco123',
+        'neuro.rousseau@medipatient.com': 'neuro123',
+        'ortho.girard@medipatient.com': 'ortho123',
+        'ophtalmo.leroy@medipatient.com': 'ophtalmo123',
       };
 
       const demo = demoUsers.find((u) => u.email === email);
