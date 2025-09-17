@@ -157,6 +157,15 @@ const MedicalConsultation = () => {
                         <FileText className="w-4 h-4 mr-2" />
                         Sauvegarder la consultation
                       </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        onClick={generateTransmissionCode}
+                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Générer code transmission
+                      </Button>
                     </div>
                   </div>
                 </div>

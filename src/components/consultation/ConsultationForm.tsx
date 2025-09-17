@@ -43,15 +43,6 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
             <FileText className="w-5 h-5 mr-2" />
             Consultation Médicale
           </CardTitle>
-          {consultationId && patientName && (
-            <Button 
-              variant="outline" 
-              className="text-blue-600 border-blue-200 hover:bg-blue-50"
-              onClick={() => console.log('Actions à implémenter')}
-            >
-              Actions consultation
-            </Button>
-          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
