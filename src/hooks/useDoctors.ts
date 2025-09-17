@@ -42,7 +42,10 @@ export const useSpecialties = () => {
           { id: 'mock-spec-2', name: 'Cardiologie', description: 'Spécialiste des maladies cardiovasculaires' },
           { id: 'mock-spec-3', name: 'Dermatologie', description: 'Spécialiste des maladies de la peau' },
           { id: 'mock-spec-4', name: 'Pédiatrie', description: 'Spécialiste des soins aux enfants' },
-          { id: 'mock-spec-5', name: 'Gynécologie', description: 'Spécialiste de la santé féminine' }
+          { id: 'mock-spec-5', name: 'Gynécologie', description: 'Spécialiste de la santé féminine' },
+          { id: 'mock-spec-6', name: 'Neurologie', description: 'Spécialiste du système nerveux' },
+          { id: 'mock-spec-7', name: 'Orthopédie', description: 'Spécialiste des troubles musculo-squelettiques' },
+          { id: 'mock-spec-8', name: 'Ophtalmologie', description: 'Spécialiste des maladies des yeux' }
         ];
       }
       
@@ -367,6 +370,245 @@ export const useAvailableDoctors = (date?: string) => {
                 }
               }
             ]
+          },
+          // Médecins spécialistes supplémentaires
+          {
+            id: 'mock-doctor-cardio-1',
+            user_id: 'cardio1',
+            license_number: 'C001',
+            consultation_fee: 8000, // 80€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-2',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'cardio1',
+              first_name: 'Marie',
+              last_name: 'Dubois',
+              email: 'cardio.dubois@medipatient.com',
+              phone: '+33 1 45 67 89 01',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'cardio1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-2',
+                name: 'Cardiologie',
+                description: 'Spécialiste des maladies cardiovasculaires',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
+          },
+          {
+            id: 'mock-doctor-dermato-1',
+            user_id: 'dermato1',
+            license_number: 'D001',
+            consultation_fee: 7500, // 75€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-3',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'dermato1',
+              first_name: 'Pierre',
+              last_name: 'Moreau',
+              email: 'dermato.moreau@medipatient.com',
+              phone: '+33 1 45 67 89 02',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'dermato1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-3',
+                name: 'Dermatologie',
+                description: 'Spécialiste des maladies de la peau',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
+          },
+          {
+            id: 'mock-doctor-pediatre-1',
+            user_id: 'pediatre1',
+            license_number: 'P001',
+            consultation_fee: 6500, // 65€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-4',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'pediatre1',
+              first_name: 'Sophie',
+              last_name: 'Lemaire',
+              email: 'pediatre.lemaire@medipatient.com',
+              phone: '+33 1 45 67 89 03',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'pediatre1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-4',
+                name: 'Pédiatrie',
+                description: 'Spécialiste des soins aux enfants',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
+          },
+          {
+            id: 'mock-doctor-gyneco-1',
+            user_id: 'gyneco1',
+            license_number: 'G001',
+            consultation_fee: 7000, // 70€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-5',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'gyneco1',
+              first_name: 'Claire',
+              last_name: 'Bernard',
+              email: 'gyneco.bernard@medipatient.com',
+              phone: '+33 1 45 67 89 04',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'gyneco1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-5',
+                name: 'Gynécologie',
+                description: 'Spécialiste de la santé féminine',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
+          },
+          {
+            id: 'mock-doctor-neuro-1',
+            user_id: 'neuro1',
+            license_number: 'N001',
+            consultation_fee: 9000, // 90€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-6',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'neuro1',
+              first_name: 'Thomas',
+              last_name: 'Rousseau',
+              email: 'neuro.rousseau@medipatient.com',
+              phone: '+33 1 45 67 89 05',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'neuro1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-6',
+                name: 'Neurologie',
+                description: 'Spécialiste du système nerveux',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
+          },
+          {
+            id: 'mock-doctor-ortho-1',
+            user_id: 'ortho1',
+            license_number: 'O001',
+            consultation_fee: 8500, // 85€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-7',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'ortho1',
+              first_name: 'Lucas',
+              last_name: 'Girard',
+              email: 'ortho.girard@medipatient.com',
+              phone: '+33 1 45 67 89 06',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'ortho1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-7',
+                name: 'Orthopédie',
+                description: 'Spécialiste des troubles musculo-squelettiques',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
+          },
+          {
+            id: 'mock-doctor-ophtalmo-1',
+            user_id: 'ophtalmo1',
+            license_number: 'OP001',
+            consultation_fee: 7500, // 75€
+            availability_status: 'available',
+            tenant_id: 'mock-tenant',
+            specialty_id: 'mock-spec-8',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profile: {
+              id: 'ophtalmo1',
+              first_name: 'Emma',
+              last_name: 'Leroy',
+              email: 'ophtalmo.leroy@medipatient.com',
+              phone: '+33 1 45 67 89 07',
+              role: 'doctor',
+              tenant_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              structure_type: 'medical_center'
+            },
+            doctor_specialties: [{
+              id: 'ophtalmo1-spec',
+              is_primary: true,
+              specialty: {
+                id: 'mock-spec-8',
+                name: 'Ophtalmologie',
+                description: 'Spécialiste des maladies des yeux',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            }]
           }
         ];
         console.log('Using mock doctors:', mockDoctors);

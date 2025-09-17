@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText } from 'lucide-react';
 import ConsultationActions from './ConsultationActions';
+import SpecialtyConsultationSections from './SpecialtyConsultationSections';
 
 interface ConsultationData {
   symptoms: string;
@@ -19,6 +20,9 @@ interface ConsultationFormProps {
   consultationId?: string;
   patientName?: string;
   patientId?: string;
+  doctorSpecialty?: string;
+  specialtyData?: any;
+  onSpecialtyDataChange?: (data: any) => void;
 }
 
 const ConsultationForm: React.FC<ConsultationFormProps> = ({ 
@@ -26,7 +30,10 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
   onConsultationChange,
   consultationId,
   patientName,
-  patientId
+  patientId,
+  doctorSpecialty,
+  specialtyData = {},
+  onSpecialtyDataChange = () => {}
 }) => {
   const handleFieldChange = (field: keyof ConsultationData, value: string) => {
     onConsultationChange({
@@ -42,6 +49,9 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
           <CardTitle className="flex items-center">
             <FileText className="w-5 h-5 mr-2" />
             Consultation Médicale
+            {doctorSpecialty && doctorSpecialty !== 'Médecine Générale' && (
+              <span className="ml-2 text-sm text-muted-foreground">- {doctorSpecialty}</span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -83,6 +93,15 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Section spécialisée selon la spécialité du médecin */}
+      {doctorSpecialty && doctorSpecialty !== 'Médecine Générale' && (
+        <SpecialtyConsultationSections
+          specialty={doctorSpecialty}
+          specialtyData={specialtyData}
+          onSpecialtyDataChange={onSpecialtyDataChange}
+        />
+      )}
 
       {consultationId && patientName && patientId && (
         <ConsultationActions
