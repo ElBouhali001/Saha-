@@ -1,18 +1,11 @@
 
 import CryptoJS from 'crypto-js';
+import { supabase } from '@/integrations/supabase/client';
 
-// Clé de chiffrement - Utilise une clé générée de manière sécurisée
-const getEncryptionKey = (): string => {
-  // En production, cette clé devrait être générée de manière sécurisée et stockée de manière appropriée
-  let key = localStorage.getItem('app_encryption_key');
-  if (!key) {
-    // Générer une nouvelle clé sécurisée
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    key = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-    localStorage.setItem('app_encryption_key', key);
-  }
-  return key;
+// DEPRECATED: Client-side encryption removed for security
+// All encryption now handled server-side via secure Edge Functions
+const showDeprecationWarning = () => {
+  console.warn('⚠️ Client-side encryption is deprecated. Use server-side encryption service.');
 };
 
 export interface SecurityUtils {
@@ -49,17 +42,36 @@ export const verifyPassword = (password: string, hash: string): boolean => {
   }
 };
 
-// Chiffrement des données sensibles
-export const encryptData = (data: string): string => {
-  return CryptoJS.AES.encrypt(data, getEncryptionKey()).toString();
+// Secure server-side encryption via Edge Function
+export const encryptData = async (data: string): Promise<string> => {
+  showDeprecationWarning();
+  
+  try {
+    const { data: result, error } = await supabase.functions.invoke('secure-data-handler', {
+      body: { action: 'encrypt', data }
+    });
+
+    if (error) throw error;
+    return result.encrypted;
+  } catch (error) {
+    console.error('Encryption failed:', error);
+    throw new Error('Failed to encrypt data securely');
+  }
 };
 
-// Déchiffrement des données
-export const decryptData = (encryptedData: string): string => {
+// Secure server-side decryption via Edge Function  
+export const decryptData = async (encryptedData: string): Promise<string> => {
+  showDeprecationWarning();
+  
   try {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, getEncryptionKey());
-    return bytes.toString(CryptoJS.enc.Utf8);
+    const { data: result, error } = await supabase.functions.invoke('secure-data-handler', {
+      body: { action: 'decrypt', encryptedData }
+    });
+
+    if (error) throw error;
+    return result.decrypted;
   } catch (error) {
+    console.error('Decryption failed:', error);
     return '';
   }
 };
@@ -79,33 +91,36 @@ export const generateSecureTicket = (): string => {
   return `${prefix}-${timestamp}-${random}`;
 };
 
-// Vérification d'expiration des tokens (24h)
+// Vérification d'expiration des tokens (24h) - simplified for security
 export const isTokenExpired = (token: string): boolean => {
   try {
-    const tokenData = JSON.parse(decryptData(token));
-    const expirationTime = tokenData.timestamp + (24 * 60 * 60 * 1000); // 24h
+    // Simplified token validation without decryption for security
+    // In production, implement proper JWT validation
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    
+    const payload = JSON.parse(atob(parts[1]));
+    const expirationTime = payload.exp ? payload.exp * 1000 : payload.timestamp + (24 * 60 * 60 * 1000);
     return Date.now() > expirationTime;
   } catch (error) {
     return true;
   }
 };
 
-// Stockage sécurisé dans localStorage
+// Secure session storage (no longer uses client-side encryption)
 export const secureStorage = {
   setItem: (key: string, value: string) => {
-    const encryptedValue = encryptData(value);
-    localStorage.setItem(key, encryptedValue);
+    // Store directly without client-side encryption for non-sensitive data
+    // For sensitive data, use server-side encryption via Edge Functions
+    console.warn('⚠️ Use server-side encryption for sensitive data');
+    sessionStorage.setItem(key, value);
   },
   
   getItem: (key: string): string | null => {
-    const encryptedValue = localStorage.getItem(key);
-    if (!encryptedValue) return null;
-    
-    const decryptedValue = decryptData(encryptedValue);
-    return decryptedValue || null;
+    return sessionStorage.getItem(key);
   },
   
   removeItem: (key: string) => {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   }
 };
