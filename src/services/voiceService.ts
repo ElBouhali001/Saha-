@@ -178,6 +178,10 @@ export class VoiceService {
     this.initializeServices();
     // Initialisation async d'ElevenLabs
     this.initializeElevenLabs();
+    // S'assurer que la préférence féminine est définie par défaut
+    if (!localStorage.getItem('voice_gender_preference')) {
+      localStorage.setItem('voice_gender_preference', 'female');
+    }
   }
 
   private initializeServices() {
@@ -384,10 +388,11 @@ export class VoiceService {
     
     // Adapter le nom de l'assistant selon le genre de la voix
     if (key === 'greeting' && this.currentLanguage === 'francais') {
-      const voiceGender = this.elevenLabsService?.getCurrentVoiceInfo()?.accent?.includes('female') || 
-                         localStorage.getItem('voice_gender_preference') === 'female' ? 'female' : 'male';
+      // Par défaut utiliser mAIMOUNA (voix féminine)
+      const voiceGender = localStorage.getItem('voice_gender_preference') || 'female';
       const assistantName = voiceGender === 'female' ? 'mAIMOUNA' : 'Ibrahima';
-      phrase = `Bonjour, je suis ${assistantName}, votre assistante vocale Médipatient. Comment puis-je vous aider ?`;
+      const assistantRole = voiceGender === 'female' ? 'assistante' : 'assistant';
+      phrase = `Bonjour, je suis ${assistantName}, votre ${assistantRole} vocale Médipatient. Comment puis-je vous aider ?`;
     }
     
     return phrase;
@@ -413,6 +418,9 @@ export class VoiceService {
     if (this.elevenLabsService) {
       this.elevenLabsService.setGenderPreference(gender);
     }
+    
+    // Log pour débugger
+    console.log(`🎭 Genre de voix défini: ${gender} - Assistant: ${gender === 'female' ? 'mAIMOUNA' : 'Ibrahima'}`);
   }
 
   async testAfricanVoice(voiceId: string, text: string) {
