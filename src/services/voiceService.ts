@@ -198,34 +198,20 @@ export class VoiceService {
 
   private async initializeElevenLabs() {
     try {
-      // Récupérer la clé API depuis Supabase Edge Function
-      const response = await fetch('/functions/v1/get-elevenlabs-key', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('sb-access-token') || ''}`,
-        }
-      });
-      
-      if (response.ok) {
-        const { apiKey } = await response.json();
-        if (apiKey) {
-          this.elevenLabsService = new ElevenLabsVoiceService(apiKey);
-          this.elevenLabsService.setLanguage(this.currentLanguage);
-          this.useElevenLabs = true;
-          console.log('ElevenLabs activé avec succès pour voix africaines naturelles');
-          return;
-        }
-      }
-      
-      // Fallback: utiliser la clé directement si disponible
+      // Utiliser directement la clé API pour ElevenLabs
       const directKey = 'sk_15fdedc9f4016aaeaf8a35ac2573fbededb77432fd8c1c09';
       if (directKey) {
         this.elevenLabsService = new ElevenLabsVoiceService(directKey);
         this.elevenLabsService.setLanguage(this.currentLanguage);
         this.useElevenLabs = true;
-        console.log('ElevenLabs initialisé avec voix africaines premium');
+        console.log('🎤 ElevenLabs activé avec voix africaines premium (Maimouna & Ibrahima)');
+        return;
       }
+      
+      console.warn('⚠️  Clé ElevenLabs non disponible, utilisation synthèse navigateur');
+      this.useElevenLabs = false;
     } catch (error) {
-      console.warn('Initialisation ElevenLabs échouée, fallback vers synthèse navigateur:', error);
+      console.warn('❌ Initialisation ElevenLabs échouée:', error);
       this.useElevenLabs = false;
     }
   }
@@ -296,18 +282,20 @@ export class VoiceService {
   }
 
   async speak(text: string): Promise<void> {
-    // Priorité à ElevenLabs pour une voix naturelle africaine
+    // Priorité absolue à ElevenLabs pour une voix naturelle africaine
     if (this.useElevenLabs && this.elevenLabsService) {
       try {
+        console.log('🗣️  Utilisation voix ElevenLabs:', text.substring(0, 50) + '...');
         await this.elevenLabsService.speak(text);
         return;
       } catch (error) {
-        console.error('Erreur ElevenLabs, fallback vers synthèse navigateur:', error);
+        console.error('❌ Erreur ElevenLabs, fallback vers synthèse navigateur:', error);
         // Continuer avec la synthèse du navigateur en cas d'erreur
       }
     }
 
     // Fallback vers synthèse vocale du navigateur
+    console.log('🔊 Utilisation synthèse navigateur (fallback)');
     return this.speakWithBrowserSynthesis(text);
   }
 
@@ -434,17 +422,20 @@ export class VoiceService {
   }
 
   getVoiceInfo() {
-    if (this.elevenLabsService) {
+    if (this.useElevenLabs && this.elevenLabsService) {
+      const voiceInfo = this.elevenLabsService.getCurrentVoiceInfo();
       return {
-        provider: 'ElevenLabs',
-        voice: this.elevenLabsService.getCurrentVoiceInfo(),
-        quality: 'Premium - Voix naturelle africaine'
+        provider: 'ElevenLabs Premium',
+        voice: voiceInfo,
+        quality: `🇸🇳 Voix naturelle africaine - ${voiceInfo.name}`,
+        status: '✅ Activé'
       };
     }
     return {
-      provider: 'Navigateur',
+      provider: 'Navigateur (Standard)',
       voice: { name: 'Synthèse système' },
-      quality: 'Standard'
+      quality: '⚠️  Voix robotisée - Upgrade recommandé',
+      status: '❌ ElevenLabs non activé'
     };
   }
 
