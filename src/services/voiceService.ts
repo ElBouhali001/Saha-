@@ -176,6 +176,7 @@ export class VoiceService {
 
   constructor() {
     this.initializeServices();
+    // Initialisation async d'ElevenLabs
     this.initializeElevenLabs();
   }
 
@@ -195,63 +196,49 @@ export class VoiceService {
     }
   }
 
-  private initializeElevenLabs() {
-    // Vérifier si la clé API ElevenLabs est disponible
-    const apiKey = this.getElevenLabsApiKey();
-    if (apiKey) {
-      this.elevenLabsService = new ElevenLabsVoiceService(apiKey);
-      this.useElevenLabs = true;
-      console.log('ElevenLabs activé pour une voix naturelle africaine');
-    } else {
-      console.log('ElevenLabs non disponible, utilisation de la synthèse navigateur');
-    }
-  }
-
-  private getElevenLabsApiKey(): string | null {
-    // Récupérer la clé depuis le stockage local de manière sécurisée
-    const encryptedKey = localStorage.getItem('elevenlabs_api_key_encrypted');
-    if (encryptedKey) {
-      try {
-        return this.decryptData(encryptedKey);
-      } catch (error) {
-        console.error('Erreur lors du déchiffrement de la clé API:', error);
-        return null;
+  private async initializeElevenLabs() {
+    try {
+      // Récupérer la clé API depuis Supabase Edge Function
+      const response = await fetch('/functions/v1/get-elevenlabs-key', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('sb-access-token') || ''}`,
+        }
+      });
+      
+      if (response.ok) {
+        const { apiKey } = await response.json();
+        if (apiKey) {
+          this.elevenLabsService = new ElevenLabsVoiceService(apiKey);
+          this.elevenLabsService.setLanguage(this.currentLanguage);
+          this.useElevenLabs = true;
+          console.log('ElevenLabs activé avec succès pour voix africaines naturelles');
+          return;
+        }
       }
+      
+      // Fallback: utiliser la clé directement si disponible
+      const directKey = 'sk_15fdedc9f4016aaeaf8a35ac2573fbededb77432fd8c1c09';
+      if (directKey) {
+        this.elevenLabsService = new ElevenLabsVoiceService(directKey);
+        this.elevenLabsService.setLanguage(this.currentLanguage);
+        this.useElevenLabs = true;
+        console.log('ElevenLabs initialisé avec voix africaines premium');
+      }
+    } catch (error) {
+      console.warn('Initialisation ElevenLabs échouée, fallback vers synthèse navigateur:', error);
+      this.useElevenLabs = false;
     }
-    return null;
   }
 
-  setElevenLabsApiKey(apiKey: string): void {
-    // Chiffrer et stocker la clé de manière sécurisée
-    const encryptedKey = this.encryptData(apiKey);
-    localStorage.setItem('elevenlabs_api_key_encrypted', encryptedKey);
-    // Supprimer l'ancienne clé non chiffrée si elle existe
-    localStorage.removeItem('elevenlabs_api_key');
-  }
-
-  private encryptData(data: string): string {
-    // Utiliser le même système de chiffrement que security.ts
-    const CryptoJS = require('crypto-js');
-    const key = this.getStorageEncryptionKey();
-    return CryptoJS.AES.encrypt(data, key).toString();
-  }
-
-  private decryptData(encryptedData: string): string {
-    const CryptoJS = require('crypto-js');
-    const key = this.getStorageEncryptionKey();
-    const bytes = CryptoJS.AES.decrypt(encryptedData, key);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  }
-
-  private getStorageEncryptionKey(): string {
-    let key = localStorage.getItem('voice_service_key');
-    if (!key) {
-      const array = new Uint8Array(32);
-      crypto.getRandomValues(array);
-      key = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-      localStorage.setItem('voice_service_key', key);
+  // Méthode pour réinitialiser ElevenLabs avec une nouvelle clé
+  async reinitializeElevenLabs(): Promise<boolean> {
+    try {
+      await this.initializeElevenLabs();
+      return this.useElevenLabs;
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation ElevenLabs:', error);
+      return false;
     }
-    return key;
   }
 
   setLanguage(language: string) {
