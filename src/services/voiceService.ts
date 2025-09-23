@@ -10,25 +10,25 @@ export interface SupportedLanguage {
 
 export const LANGUES_SUPPORTEES: Record<string, SupportedLanguage> = {
   wolof: {
-    code: 'wo-SN',
+    code: 'fr-SN', // Utiliser français du Sénégal pour la reconnaissance
     nom: 'Wolof',
     population: '40% Sénégal',
     activated: true
   },
   pulaar: {
-    code: 'ff-SN', 
+    code: 'fr-SN', // Utiliser français du Sénégal pour la reconnaissance
     nom: 'Pulaar/Peul',
     population: '25% Sénégal',
     activated: true
   },
   serere: {
-    code: 'sr-SN',
+    code: 'fr-SN', // Utiliser français du Sénégal pour la reconnaissance
     nom: 'Sérère', 
     population: '15% Sénégal',
     activated: true
   },
   diola: {
-    code: 'dyo-SN',
+    code: 'fr-SN', // Utiliser français du Sénégal pour la reconnaissance
     nom: 'Diola/Joola',
     population: '5% Sénégal',
     activated: true
@@ -386,13 +386,36 @@ export class VoiceService {
     const phrases = PHRASES_BASE[this.currentLanguage] || PHRASES_BASE.francais;
     let phrase = phrases[key] || phrases.help;
     
-    // Adapter le nom de l'assistant selon le genre de la voix
-    if (key === 'greeting' && this.currentLanguage === 'francais') {
+    // Adapter le nom de l'assistant selon le genre de la voix pour toutes les langues
+    if (key === 'greeting') {
       // Par défaut utiliser mAIMOUNA (voix féminine)
       const voiceGender = localStorage.getItem('voice_gender_preference') || 'female';
       const assistantName = voiceGender === 'female' ? 'mAIMOUNA' : 'Ibrahima';
-      const assistantRole = voiceGender === 'female' ? 'assistante' : 'assistant';
-      phrase = `Bonjour, je suis ${assistantName}, votre ${assistantRole} vocale Médipatient. Comment puis-je vous aider ?`;
+      
+      // Adapter selon la langue courante
+      switch (this.currentLanguage) {
+        case 'wolof':
+          const assistantRole_wo = voiceGender === 'female' ? 'assistante' : 'assistant';
+          phrase = `Na nga def ? Dama def ${assistantName}, sama ${assistantRole_wo} MediPatient. Man naa ko bëgg a dimi ?`;
+          break;
+        case 'pulaar':
+          const assistantRole_ff = voiceGender === 'female' ? 'assistante' : 'assistant';
+          phrase = `No feeñi ? Mi woni ${assistantName}, mi ${assistantRole_ff} MediPatient. Hol ko mi maayi ma ?`;
+          break;
+        case 'serere':
+          const assistantRole_sr = voiceGender === 'female' ? 'assistante' : 'assistant';
+          phrase = `No dem ? Man ${assistantName} laa, sama ${assistantRole_sr} MediPatient. Kon a bëgg ?`;
+          break;
+        case 'diola':
+          const assistantRole_dyo = voiceGender === 'female' ? 'assistante' : 'assistant';
+          phrase = `Kajimaat ? Emmit ${assistantName}, sama ${assistantRole_dyo} MediPatient. Aniou a bukabaai ?`;
+          break;
+        case 'francais':
+        default:
+          const assistantRole = voiceGender === 'female' ? 'assistante' : 'assistant';
+          phrase = `Bonjour, je suis ${assistantName}, votre ${assistantRole} vocale Médipatient. Comment puis-je vous aider ?`;
+          break;
+      }
     }
     
     return phrase;

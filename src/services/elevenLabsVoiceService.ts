@@ -96,7 +96,9 @@ export class ElevenLabsVoiceService {
 
   async synthesizeText(text: string): Promise<ArrayBuffer> {
     const voiceConfig = this.getVoiceConfig();
-    const model = LANGUAGE_VOICE_CONFIG[this.currentLanguage]?.model || 'eleven_multilingual_v2';
+    
+    // Utiliser toujours le modèle multilingue avec le français pour les langues locales
+    const model = 'eleven_multilingual_v2';
 
     // Adapter le texte selon la langue pour une prononciation plus naturelle
     const adaptedText = this.adaptTextForLanguage(text);
@@ -116,8 +118,7 @@ export class ElevenLabsVoiceService {
           similarity_boost: 0.85, // Similarité pour cohérence
           style: 0.2, // Style léger pour naturel
           use_speaker_boost: true
-        },
-        pronunciation_dictionary_locators: this.getPronunciationRules()
+        }
       })
     });
 
@@ -129,34 +130,57 @@ export class ElevenLabsVoiceService {
   }
 
   private adaptTextForLanguage(text: string): string {
-    // Adaptations pour une meilleure prononciation selon la langue
+    // Adaptations phonétiques pour une meilleure prononciation avec accent africain
     let adaptedText = text;
 
     switch (this.currentLanguage) {
       case 'wolof':
-        // Adapter la prononciation des mots wolof
+        // Adapter la prononciation des mots wolof en français phonétique
         adaptedText = adaptedText
-          .replace(/ë/g, 'eu')
+          .replace(/ë/g, 'é')
           .replace(/ñ/g, 'gn')
-          .replace(/ng/g, 'n-g');
+          .replace(/xol/g, 'khol')
+          .replace(/bët/g, 'bett')
+          .replace(/ng/g, 'n-g')
+          .replace(/wax/g, 'ouahh');
         break;
         
       case 'pulaar':
-        // Adapter la prononciation du pulaar
+        // Adapter la prononciation du pulaar en français phonétique
         adaptedText = adaptedText
           .replace(/ɓ/g, 'b')
           .replace(/ɗ/g, 'd')
-          .replace(/ñ/g, 'gn');
+          .replace(/ñ/g, 'gn')
+          .replace(/hoore/g, 'hoo-ré')
+          .replace(/njuɓɓu/g, 'njou-bou')
+          .replace(/ɲ/g, 'gn');
+        break;
+        
+      case 'serere':
+        // Adapter la prononciation du sérère
+        adaptedText = adaptedText
+          .replace(/ng/g, 'n-g')
+          .replace(/mb/g, 'm-b');
+        break;
+        
+      case 'diola':
+        // Adapter la prononciation du diola
+        adaptedText = adaptedText
+          .replace(/kj/g, 'ki-y')
+          .replace(/gb/g, 'g-b');
         break;
         
       case 'francais':
         // Ajouter des pauses naturelles en français sénégalais
         adaptedText = adaptedText
           .replace(/\./g, '... ')
-          .replace(/!/g, ' !!')
-          .replace(/\?/g, ' ??');
+          .replace(/!/g, ' !')
+          .replace(/\?/g, ' ?');
         break;
     }
+
+    // Ajouter un ralentissement général pour toutes les langues
+    adaptedText = adaptedText.replace(/([.!?])/g, '$1 ');
 
     return adaptedText;
   }
