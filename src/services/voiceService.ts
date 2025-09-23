@@ -150,7 +150,7 @@ export const PHRASES_BASE = {
     help: "Aniou emmen a def ?"
   },
   francais: {
-    greeting: "Bonjour, je suis Maimouna, votre assistant vocal Médipatient. Comment puis-je vous aider ?",
+    greeting: "Bonjour, je suis mAIMOUNA, votre assistante vocale Médipatient. Comment puis-je vous aider ?",
     understood: "D'accord, j'ai compris",
     notUnderstood: "Excusez-moi, je n'ai pas compris. Pouvez-vous répéter ?",
     processing: "Je réfléchis...",
@@ -386,8 +386,8 @@ export class VoiceService {
     if (key === 'greeting' && this.currentLanguage === 'francais') {
       const voiceGender = this.elevenLabsService?.getCurrentVoiceInfo()?.accent?.includes('female') || 
                          localStorage.getItem('voice_gender_preference') === 'female' ? 'female' : 'male';
-      const assistantName = voiceGender === 'female' ? 'Maimouna' : 'Ibrahima';
-      phrase = `Bonjour, je suis ${assistantName}, votre assistant vocal Médipatient. Comment puis-je vous aider ?`;
+      const assistantName = voiceGender === 'female' ? 'mAIMOUNA' : 'Ibrahima';
+      phrase = `Bonjour, je suis ${assistantName}, votre assistante vocale Médipatient. Comment puis-je vous aider ?`;
     }
     
     return phrase;

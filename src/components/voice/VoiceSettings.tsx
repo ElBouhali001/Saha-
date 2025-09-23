@@ -29,7 +29,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
   const [isTestingVoice, setIsTestingVoice] = useState<string | null>(null);
 
   const africanVoices = Object.entries(AFRICAN_VOICES);
-  const femaleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('Maimouna'));
+  const femaleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('mAIMOUNA'));
   const maleVoices = africanVoices.filter(([_, voice]) => voice.name.includes('Ibrahima'));
 
   const handleGenderChange = (gender: 'female' | 'male') => {
@@ -43,11 +43,11 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
     setIsTestingVoice(voiceId);
     
     const testTexts = {
-      wolof: "Na nga def ? Dama def Maimouna, sama assistant MediPatient.",
-      pulaar: "No feeñi ? Mi woni Maimouna, assistant maa MediPatient.",
-      serere: "No dem ? Man Maimouna laa, assistant MediPatient.",
-      diola: "Kajimaat ? Emmit Maimouna, assistant MediPatient.",
-      francais: "Bonjour ! Je suis Maimouna, votre assistante MediPatient avec un accent sénégalais chaleureux."
+      wolof: "Na nga def ? Dama def mAIMOUNA, sama assistant MediPatient.",
+      pulaar: "No feeñi ? Mi woni mAIMOUNA, assistant maa MediPatient.",
+      serere: "No dem ? Man mAIMOUNA laa, assistant MediPatient.",
+      diola: "Kajimaat ? Emmit mAIMOUNA, assistant MediPatient.",
+      francais: "Bonjour ! Je suis mAIMOUNA, votre assistante MediPatient avec un accent sénégalais chaleureux."
     };
 
     const testText = testTexts[currentLanguage as keyof typeof testTexts] || testTexts.francais;
@@ -102,7 +102,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
               />
               <Label htmlFor="female-voice" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Féminine (Maimouna)
+                Féminine (mAIMOUNA)
               </Label>
             </div>
             <div className="flex items-center space-x-2">
@@ -193,7 +193,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
             <div className="space-y-2">
               <p className="font-medium">Voix Contextuelles Sénégalaises</p>
               <ul className="text-sm space-y-1">
-                <li>• <strong>Maimouna</strong> : Voix féminine chaleureuse avec accent francophone africain</li>
+                <li>• <strong>mAIMOUNA</strong> : Voix féminine chaleureuse avec accent francophone africain</li>
                 <li>• <strong>Ibrahima</strong> : Voix masculine rassurante, contexte ouest-africain</li>
                 <li>• Adaptation automatique selon la langue (Wolof, Pulaar, Sérère, Diola)</li>
                 <li>• Prononciation optimisée pour les termes médicaux locaux</li>

@@ -12,14 +12,14 @@ export const AFRICAN_VOICES: Record<string, ElevenLabsVoice> = {
   // Voix féminines avec accent africain
   femaleAfrican1: {
     id: 'EXAVITQu4vr4xnSDxMaL', // Sarah - voix douce et claire
-    name: 'Maimouna',
+    name: 'mAIMOUNA',
     description: 'Voix féminine chaleureuse, accent africain francophone',
     language: 'fr',
     accent: 'african'
   },
   femaleAfrican2: {
     id: 'XB0fDUnXU5powFXDhCwa', // Charlotte - voix expressive
-    name: 'Maimouna',
+    name: 'mAIMOUNA',
     description: 'Voix féminine expressive, contexte sénégalais',
     language: 'fr',
     accent: 'senegalese'
@@ -45,12 +45,12 @@ export const AFRICAN_VOICES: Record<string, ElevenLabsVoice> = {
 // Configuration par langue avec voix appropriées
 export const LANGUAGE_VOICE_CONFIG = {
   wolof: {
-    primary: AFRICAN_VOICES.femaleAfrican2, // Maimouna pour Wolof
+    primary: AFRICAN_VOICES.femaleAfrican2, // mAIMOUNA pour Wolof
     secondary: AFRICAN_VOICES.maleAfrican1,
     model: 'eleven_multilingual_v2'
   },
   pulaar: {
-    primary: AFRICAN_VOICES.femaleAfrican1, // Maimouna pour Pulaar
+    primary: AFRICAN_VOICES.femaleAfrican1, // mAIMOUNA pour Pulaar
     secondary: AFRICAN_VOICES.maleAfrican2,
     model: 'eleven_multilingual_v2'
   },
