@@ -16,9 +16,12 @@ import {
   User,
   Pill,
   Trash2,
-  Calculator
+  Calculator,
+  Scan,
+  FileText
 } from 'lucide-react';
 import { usePharmacySales, usePharmacyInventory, useCreatePharmacySale } from '@/hooks/usePharmacyOfficina';
+import PrescriptionScanner from './PrescriptionScanner';
 
 interface PharmacySalesManagementProps {
   pharmacyId: string;
@@ -29,15 +32,28 @@ interface SaleItem {
   inventory: any;
   quantity: number;
   unit_price: number;
+  prescription_item?: boolean;
+}
+
+interface PrescriptionMedication {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  quantity: number;
+  found_in_inventory: boolean;
+  inventory_id?: string;
 }
 
 const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharmacyId }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isNewSaleDialogOpen, setIsNewSaleDialogOpen] = useState(false);
+  const [isPrescriptionScannerOpen, setIsPrescriptionScannerOpen] = useState(false);
   const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [customerInfo, setCustomerInfo] = useState('');
+  const [currentPrescription, setCurrentPrescription] = useState<PrescriptionMedication[] | null>(null);
 
   const { data: sales = [], isLoading } = usePharmacySales(pharmacyId);
   const { data: inventory = [] } = usePharmacyInventory(pharmacyId);
@@ -61,11 +77,34 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
       inventory_id: product.id,
       inventory: product,
       quantity: 1,
-      unit_price: product.selling_price
+      unit_price: product.selling_price,
+      prescription_item: false
     };
 
     setSaleItems([...saleItems, newItem]);
     setSelectedProduct('');
+  };
+
+  const handlePrescriptionProcessed = (medications: PrescriptionMedication[]) => {
+    setCurrentPrescription(medications);
+    
+    // Ajouter automatiquement les médicaments disponibles à la vente
+    const newItems: SaleItem[] = medications
+      .filter(med => med.found_in_inventory && med.inventory_id)
+      .map(med => {
+        const product = inventory.find(item => item.id === med.inventory_id);
+        return {
+          inventory_id: med.inventory_id!,
+          inventory: product,
+          quantity: med.quantity,
+          unit_price: product?.selling_price || 0,
+          prescription_item: true
+        };
+      });
+
+    setSaleItems(prevItems => [...prevItems, ...newItems]);
+    setIsPrescriptionScannerOpen(false);
+    setIsNewSaleDialogOpen(true);
   };
 
   const updateItemQuantity = (index: number, quantity: number) => {
@@ -108,6 +147,7 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
     setSaleItems([]);
     setPaymentMethod('cash');
     setCustomerInfo('');
+    setCurrentPrescription(null);
     setIsNewSaleDialogOpen(false);
   };
 
@@ -135,19 +175,38 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
               <ShoppingCart className="w-5 h-5" />
               Gestion des Ventes
             </CardTitle>
-            <Dialog open={isNewSaleDialogOpen} onOpenChange={setIsNewSaleDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nouvelle vente
-                </Button>
-              </DialogTrigger>
+            <div className="flex gap-2">
+              <Button onClick={() => setIsPrescriptionScannerOpen(true)}>
+                <Scan className="w-4 h-4 mr-2" />
+                Scanner ordonnance
+              </Button>
+              <Dialog open={isNewSaleDialogOpen} onOpenChange={setIsNewSaleDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouvelle vente
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Nouvelle vente</DialogTitle>
                 </DialogHeader>
                 
                 <div className="space-y-6">
+                  {/* Alerte prescription */}
+                  {currentPrescription && (
+                    <Card className="bg-blue-50 border-blue-200">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-800">
+                            Vente basée sur ordonnance - {currentPrescription.length} médicament(s) prescrits
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {/* Sélection de produit */}
                   <div className="flex gap-2">
                     <Select value={selectedProduct} onValueChange={setSelectedProduct}>
@@ -178,7 +237,15 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
                           {saleItems.map((item, index) => (
                             <div key={index} className="flex items-center gap-4 p-3 border rounded-lg">
                               <div className="flex-1">
-                                <p className="font-medium">{item.inventory.name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium">{item.inventory.name}</p>
+                                  {item.prescription_item && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      <FileText className="w-3 h-3 mr-1" />
+                                      Ordonnance
+                                    </Badge>
+                                  )}
+                                </div>
                                 <p className="text-sm text-muted-foreground">{item.inventory.dosage}</p>
                               </div>
                               
@@ -279,6 +346,7 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -374,6 +442,14 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
           </Card>
         )}
       </div>
+
+      {/* Scanner d'ordonnance */}
+      <PrescriptionScanner
+        isOpen={isPrescriptionScannerOpen}
+        onClose={() => setIsPrescriptionScannerOpen(false)}
+        onPrescriptionProcessed={handlePrescriptionProcessed}
+        inventory={inventory}
+      />
     </div>
   );
 };
