@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pill, User, Clock, CheckCircle, Package, AlertTriangle } from 'lucide-react';
+import { Pill, User, Clock, CheckCircle, Package, AlertTriangle, Building2 } from 'lucide-react';
 import { useMockPharmacyPrescriptions, useMockUpdatePharmacyPrescription } from '@/hooks/useMockData';
+import OfficinaModule from './OfficinaModule';
 
 const PharmacyDashboard = () => {
   const { data: prescriptions = [], isLoading } = useMockPharmacyPrescriptions();
@@ -113,13 +114,76 @@ const PharmacyDashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="received" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="prescriptions" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="prescriptions">Ordonnances</TabsTrigger>
           <TabsTrigger value="received">Reçues ({receivedPrescriptions.length})</TabsTrigger>
           <TabsTrigger value="preparing">En préparation ({preparingPrescriptions.length})</TabsTrigger>
           <TabsTrigger value="ready">Prêtes ({readyPrescriptions.length})</TabsTrigger>
-          <TabsTrigger value="delivered">Livrées ({deliveredPrescriptions.length})</TabsTrigger>
+          <TabsTrigger value="officina" className="flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            Officine
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="prescriptions">
+          <div className="grid gap-4">
+            {[...receivedPrescriptions, ...preparingPrescriptions, ...readyPrescriptions, ...deliveredPrescriptions].map((prescription) => (
+              <Card key={prescription.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <Package className="w-5 h-5 text-blue-500" />
+                        <h3 className="font-medium">Ordonnance #{prescription.id}</h3>
+                        {getStatusBadge(prescription.status)}
+                        {getAvailabilityBadge(prescription.availability_status)}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-3">
+                        <div className="flex items-center space-x-2">
+                          <User className="w-4 h-4" />
+                          <span>Patient: {prescription.prescription.patient.profile.first_name} {prescription.prescription.patient.profile.last_name}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <User className="w-4 h-4" />
+                          <span>Médecin: {prescription.prescription.doctor.profile.first_name} {prescription.prescription.doctor.profile.last_name}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <h4 className="font-medium mb-2">Médicaments:</h4>
+                        <div className="space-y-2">
+                          {prescription.prescription.medications.map((med, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                              <div>
+                                <span className="font-medium">{med.name}</span>
+                                <span className="text-sm text-muted-foreground ml-2">{med.dosage}</span>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {med.frequency} • {med.duration}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            
+            {receivedPrescriptions.length === 0 && preparingPrescriptions.length === 0 && 
+             readyPrescriptions.length === 0 && deliveredPrescriptions.length === 0 && (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Aucune ordonnance</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
 
         <TabsContent value="received">
           <Card>
@@ -326,51 +390,8 @@ const PharmacyDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="delivered">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ordonnances livrées</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {deliveredPrescriptions.map((prescription) => (
-                  <div key={prescription.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <CheckCircle className="w-5 h-5 text-purple-500" />
-                          <h3 className="font-medium">Ordonnance #{prescription.id}</h3>
-                          {getStatusBadge(prescription.status)}
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center space-x-2">
-                            <User className="w-4 h-4" />
-                            <span>Patient: {prescription.prescription.patient.profile.first_name} {prescription.prescription.patient.profile.last_name}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Clock className="w-4 h-4" />
-                            <span>Livrée le: {prescription.delivered_date ? new Date(prescription.delivered_date).toLocaleDateString('fr-FR') : 'N/A'}</span>
-                          </div>
-                        </div>
-
-                        <div className="mt-3">
-                          <div className="flex items-center space-x-2 text-sm text-green-600">
-                            <CheckCircle className="w-4 h-4" />
-                            <span>{prescription.prescription.medications.length} médicament(s) livré(s)</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {deliveredPrescriptions.length === 0 && (
-                  <p className="text-center text-gray-500 py-8">Aucune ordonnance livrée</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="officina">
+          <OfficinaModule />
         </TabsContent>
       </Tabs>
     </div>

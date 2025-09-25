@@ -319,7 +319,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Erreur lors de l\'analyse clinique IA',
-        details: error.message 
+        details: error instanceof Error ? error.message : 'Erreur inconnue' 
       }),
       {
         status: 500,
