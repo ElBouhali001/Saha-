@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pill, User, Clock, CheckCircle, Package, AlertTriangle, Building2 } from 'lucide-react';
+import { Pill, User, Clock, CheckCircle, Package, AlertTriangle, Building2, Camera, Upload, FileText } from 'lucide-react';
 import { useMockPharmacyPrescriptions, useMockUpdatePharmacyPrescription } from '@/hooks/useMockData';
 import OfficinaModule from './OfficinaModule';
 
@@ -60,7 +60,13 @@ const PharmacyDashboard = () => {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Pharmacie - Tableau de Bord</h1>
-        <p className="text-gray-600">Gestion des ordonnances et préparations</p>
+        <p className="text-gray-600">Gestion complète des ordonnances, ventes et stock pharmaceutique</p>
+        <div className="mt-4 flex gap-2">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700">Scanner d'ordonnances</Badge>
+          <Badge variant="outline" className="bg-green-50 text-green-700">Gestion stock</Badge>
+          <Badge variant="outline" className="bg-purple-50 text-purple-700">Ventes & clients</Badge>
+          <Badge variant="outline" className="bg-orange-50 text-orange-700">Optimisation</Badge>
+        </div>
       </div>
 
       {/* Statistiques rapides */}
@@ -115,16 +121,118 @@ const PharmacyDashboard = () => {
       </div>
 
       <Tabs defaultValue="prescriptions" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="prescriptions">Ordonnances</TabsTrigger>
+          <TabsTrigger value="scanner" className="flex items-center gap-2">
+            <Pill className="w-4 h-4" />
+            Scanner
+          </TabsTrigger>
           <TabsTrigger value="received">Reçues ({receivedPrescriptions.length})</TabsTrigger>
           <TabsTrigger value="preparing">En préparation ({preparingPrescriptions.length})</TabsTrigger>
           <TabsTrigger value="ready">Prêtes ({readyPrescriptions.length})</TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            Historique
+          </TabsTrigger>
           <TabsTrigger value="officina" className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
             Officine
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="scanner">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Pill className="w-5 h-5" />
+                Scanner d'Ordonnances
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Pill className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Scanner d'ordonnances</h3>
+                <p className="text-muted-foreground mb-4">
+                  Scannez et analysez automatiquement les ordonnances pour identifier les médicaments
+                </p>
+                <Button 
+                  className="mb-4"
+                  onClick={() => {
+                    // Ouvrir le scanner dans une modale ou rediriger
+                    window.alert("Fonctionnalité de scanner disponible - À intégrer avec caméra/upload");
+                  }}
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Commencer le scan
+                </Button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  <div className="text-center">
+                    <Camera className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Scanner avec caméra</p>
+                  </div>
+                  <div className="text-center">
+                    <Upload className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Importer un fichier</p>
+                  </div>
+                  <div className="text-center">
+                    <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Validation automatique</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Historique des Prescriptions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Historique des prescriptions</h3>
+                <p className="text-muted-foreground mb-4">
+                  Consultez l'historique complet des prescriptions traitées dans votre pharmacie
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card className="border-dashed">
+                    <CardContent className="p-4 text-center">
+                      <Badge variant="secondary" className="mb-2">Cette semaine</Badge>
+                      <p className="text-2xl font-bold">24</p>
+                      <p className="text-sm text-muted-foreground">Prescriptions</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-dashed">
+                    <CardContent className="p-4 text-center">
+                      <Badge variant="outline" className="mb-2">Ce mois</Badge>
+                      <p className="text-2xl font-bold">127</p>
+                      <p className="text-sm text-muted-foreground">Prescriptions</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-dashed">
+                    <CardContent className="p-4 text-center">
+                      <Badge variant="success" className="mb-2">Traitées</Badge>
+                      <p className="text-2xl font-bold">98%</p>
+                      <p className="text-sm text-muted-foreground">Taux de traitement</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-dashed">
+                    <CardContent className="p-4 text-center">
+                      <Badge variant="secondary" className="mb-2">Moyenne</Badge>
+                      <p className="text-2xl font-bold">12min</p>
+                      <p className="text-sm text-muted-foreground">Temps de traitement</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="prescriptions">
           <div className="grid gap-4">
