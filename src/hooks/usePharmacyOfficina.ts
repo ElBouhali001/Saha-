@@ -360,13 +360,24 @@ export const useUpdatePharmacyStock = () => {
       movementType: string;
       reason?: string;
     }) => {
+      // Récupérer le stock actuel puis le mettre à jour
+      const { data: currentInventory, error: fetchError } = await supabase
+        .from('pharmacy_inventory')
+        .select('current_stock')
+        .eq('id', inventoryId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      
+      const newStock = movementType === 'entrée' 
+        ? currentInventory.current_stock + quantity
+        : currentInventory.current_stock - quantity;
+
       // Mettre à jour le stock
       const { data: inventory, error: updateError } = await supabase
         .from('pharmacy_inventory')
         .update({
-          current_stock: movementType === 'entrée' 
-            ? supabase.raw('current_stock + ?', [quantity])
-            : supabase.raw('current_stock - ?', [quantity]),
+          current_stock: newStock,
           updated_at: new Date().toISOString()
         })
         .eq('id', inventoryId)

@@ -358,7 +358,7 @@ const PharmacyStockOptimization: React.FC<PharmacyStockOptimizationProps> = ({ p
                     <CardContent className="p-4 text-center">
                       <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
                       <div className="text-2xl font-bold">{metrics.fastMovingItems}</div>
-                      <div className="text-sm text-muted-foreground">Rotation rapide (>6/an)</div>
+                      <div className="text-sm text-muted-foreground">Rotation rapide (&gt;6/an)</div>
                     </CardContent>
                   </Card>
                   
@@ -376,7 +376,7 @@ const PharmacyStockOptimization: React.FC<PharmacyStockOptimizationProps> = ({ p
                     <CardContent className="p-4 text-center">
                       <TrendingDown className="w-8 h-8 text-red-500 mx-auto mb-2" />
                       <div className="text-2xl font-bold">{metrics.slowMovingItems}</div>
-                      <div className="text-sm text-muted-foreground">Rotation lente (<2/an)</div>
+                      <div className="text-sm text-muted-foreground">Rotation lente (&lt;2/an)</div>
                     </CardContent>
                   </Card>
                 </div>
