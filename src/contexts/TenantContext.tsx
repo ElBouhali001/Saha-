@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from './SupabaseAuthContext';
+import { IS_DEMO } from '@/config/app';
 
 interface Tenant {
   id: string;
@@ -65,14 +66,55 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (IS_DEMO) {
+      // En mode démo, utiliser un tenant fictif
+      const demoTenant: Tenant = {
+        id: '11111111-1111-1111-1111-111111111111',
+        name: 'Centre Médical Démo',
+        subdomain: 'demo',
+        subscription_plan: 'professional',
+        subscription_status: 'active',
+        subscription_seats: 50,
+        settings: {
+          timezone: 'Africa/Dakar',
+          language: 'fr',
+          features: ['pharmacy', 'laboratory', 'billing']
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const demoConfig: TenantSecurityConfig = {
+        id: '11111111-1111-1111-1111-111111111112',
+        tenant_id: '11111111-1111-1111-1111-111111111111',
+        mfa_required: false,
+        mfa_types: ['totp'],
+        session_timeout: 480,
+        password_min_length: 8,
+        password_require_uppercase: false,
+        password_require_numbers: false,
+        password_require_special_chars: false,
+        max_failed_attempts: 5,
+        lockout_duration: 30,
+        audit_enabled: false,
+        audit_retention_days: 90,
+        encrypted_fields: ['social_security_number', 'phone', 'email'],
+        auth_providers: ['local']
+      };
+
+      setCurrentTenantState(demoTenant);
+      setTenantConfig(demoConfig);
+      setIsLoading(false);
+    } else if (user) {
       initializeTenant();
     }
   }, [user]);
 
   const initializeTenant = async () => {
+    if (IS_DEMO) return; // Ne pas exécuter en mode démo
+    
     try {
-      // Pour la démo, utiliser le tenant par défaut
+      // Pour le mode production, utiliser le tenant par défaut
       const { data: tenantData, error: tenantError } = await supabase
         .from('tenants')
         .select('*')
