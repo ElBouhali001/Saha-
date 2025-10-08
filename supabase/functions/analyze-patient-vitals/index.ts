@@ -19,6 +19,18 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
+    // Validate image data
+    if (!imageData || imageData === 'data:,' || !imageData.startsWith('data:image/')) {
+      console.error('Invalid image data received:', imageData?.substring(0, 50));
+      return new Response(JSON.stringify({ 
+        error: 'Image invalide. Assurez-vous que la caméra est activée.',
+        success: false 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     console.log('Analyzing patient vitals from video frame...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {

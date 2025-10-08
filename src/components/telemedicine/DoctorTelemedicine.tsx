@@ -21,7 +21,8 @@ import {
   CheckCircle,
   TrendingUp,
   FileText,
-  Loader2
+  Loader2,
+  Clock
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -71,6 +72,7 @@ const DoctorTelemedicine = () => {
   const [diagnosis, setDiagnosis] = useState<DiagnosisData | null>(null);
   const [symptoms, setSymptoms] = useState('');
   const [autoAnalysis, setAutoAnalysis] = useState(false);
+  const [analysisHistory, setAnalysisHistory] = useState<Array<{timestamp: string, vitals: VitalsData}>>([]);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -125,6 +127,12 @@ const DoctorTelemedicine = () => {
       return null;
     }
     
+    // Wait for video to be ready
+    if (video.readyState < 2) { // HAVE_CURRENT_DATA
+      console.warn('Video not ready yet, readyState:', video.readyState);
+      return null;
+    }
+    
     // Check if video has loaded and has dimensions
     if (video.videoWidth === 0 || video.videoHeight === 0) {
       console.warn('Video not ready, dimensions are 0');
@@ -138,8 +146,21 @@ const DoctorTelemedicine = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
     
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.8);
+    try {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      
+      // Validate the image data
+      if (imageData === 'data:,' || imageData.length < 100) {
+        console.warn('Invalid image data captured');
+        return null;
+      }
+      
+      return imageData;
+    } catch (error) {
+      console.error('Error capturing frame:', error);
+      return null;
+    }
   };
 
   const analyzeVitals = async () => {
@@ -171,12 +192,21 @@ const DoctorTelemedicine = () => {
 
       if (data.success && data.vitals) {
         setVitals(data.vitals);
+        
+        // Add to history
+        setAnalysisHistory(prev => [...prev, {
+          timestamp: new Date().toISOString(),
+          vitals: data.vitals
+        }].slice(-10)); // Keep last 10 analyses
+        
         console.log('Vitals analyzed successfully:', data.vitals);
         
-        toast({
-          title: "✅ Analyse terminée",
-          description: "Les constantes vitales ont été analysées avec succès",
-        });
+        if (!autoAnalysis) {
+          toast({
+            title: "✅ Analyse terminée",
+            description: "Les constantes vitales ont été analysées avec succès",
+          });
+        }
         
         // Show alerts if any
         if (data.vitals.alerts && data.vitals.alerts.length > 0) {
@@ -186,6 +216,8 @@ const DoctorTelemedicine = () => {
             variant: "destructive",
           });
         }
+      } else {
+        throw new Error(data.error || 'Analyse échouée');
       }
     } catch (error) {
       console.error('Error analyzing vitals:', error);
@@ -246,15 +278,25 @@ const DoctorTelemedicine = () => {
 
   useEffect(() => {
     if (autoAnalysis && isCallActive) {
+      // Initial analysis after a delay to let video stabilize
+      const initialTimeout = setTimeout(() => {
+        analyzeVitals();
+      }, 3000);
+      
+      // Then analyze every 30 seconds
       analysisIntervalRef.current = setInterval(() => {
         analyzeVitals();
-      }, 5000); // Analyze every 5 seconds
+      }, 30000);
       
       return () => {
+        clearTimeout(initialTimeout);
         if (analysisIntervalRef.current) {
           clearInterval(analysisIntervalRef.current);
         }
       };
+    } else if (analysisIntervalRef.current) {
+      clearInterval(analysisIntervalRef.current);
+      analysisIntervalRef.current = null;
     }
   }, [autoAnalysis, isCallActive]);
 
@@ -504,6 +546,39 @@ const DoctorTelemedicine = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Historique des analyses en temps réel */}
+          {analysisHistory.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span>Historique (Temps Réel)</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {analysisHistory.slice().reverse().map((entry, idx) => (
+                    <div key={idx} className="p-2 bg-secondary/50 rounded text-xs">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium">
+                          {new Date(entry.timestamp).toLocaleTimeString('fr-FR')}
+                        </span>
+                        <Badge variant="outline" className="text-xs">
+                          {Math.round(entry.vitals.confidence * 100)}%
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-muted-foreground">
+                        <span>FC: {entry.vitals.heartRate} bpm</span>
+                        <span>FR: {entry.vitals.respiratoryRate}/min</span>
+                        <span>T: {entry.vitals.temperature}°C</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
