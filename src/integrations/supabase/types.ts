@@ -706,6 +706,168 @@ export type Database = {
         }
         Relationships: []
       }
+      medication_acquisitions: {
+        Row: {
+          acquisition_date: string | null
+          barcode: string | null
+          created_at: string
+          id: string
+          medication_name: string
+          patient_id: string | null
+          pharmacy_name: string | null
+          prescription_id: string | null
+          scanned_at: string
+          verified: boolean | null
+        }
+        Insert: {
+          acquisition_date?: string | null
+          barcode?: string | null
+          created_at?: string
+          id?: string
+          medication_name: string
+          patient_id?: string | null
+          pharmacy_name?: string | null
+          prescription_id?: string | null
+          scanned_at?: string
+          verified?: boolean | null
+        }
+        Update: {
+          acquisition_date?: string | null
+          barcode?: string | null
+          created_at?: string
+          id?: string
+          medication_name?: string
+          patient_id?: string | null
+          pharmacy_name?: string | null
+          prescription_id?: string | null
+          scanned_at?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_acquisitions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_acquisitions_prescription_id_fkey"
+            columns: ["prescription_id"]
+            isOneToOne: false
+            referencedRelation: "prescriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medication_library: {
+        Row: {
+          barcode: string | null
+          contraindications: string[] | null
+          created_at: string
+          description: string | null
+          dosage: string
+          form: string
+          generic_name: string | null
+          id: string
+          manufacturer: string | null
+          name: string
+          side_effects: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          barcode?: string | null
+          contraindications?: string[] | null
+          created_at?: string
+          description?: string | null
+          dosage: string
+          form: string
+          generic_name?: string | null
+          id?: string
+          manufacturer?: string | null
+          name: string
+          side_effects?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          barcode?: string | null
+          contraindications?: string[] | null
+          created_at?: string
+          description?: string | null
+          dosage?: string
+          form?: string
+          generic_name?: string | null
+          id?: string
+          manufacturer?: string | null
+          name?: string
+          side_effects?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      medication_reminders: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          medication_name: string
+          next_reminder_at: string | null
+          patient_id: string | null
+          prescription_id: string | null
+          reminder_times: string[] | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          medication_name: string
+          next_reminder_at?: string | null
+          patient_id?: string | null
+          prescription_id?: string | null
+          reminder_times?: string[] | null
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          medication_name?: string
+          next_reminder_at?: string | null
+          patient_id?: string | null
+          prescription_id?: string | null
+          reminder_times?: string[] | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_reminders_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_reminders_prescription_id_fkey"
+            columns: ["prescription_id"]
+            isOneToOne: false
+            referencedRelation: "prescriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_access_requests: {
         Row: {
           expires_at: string | null
