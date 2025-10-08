@@ -73,6 +73,7 @@ const DoctorTelemedicine = () => {
   const [symptoms, setSymptoms] = useState('');
   const [autoAnalysis, setAutoAnalysis] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<Array<{timestamp: string, vitals: VitalsData}>>([]);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -86,7 +87,9 @@ const DoctorTelemedicine = () => {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        try { await (videoRef.current as HTMLVideoElement).play(); } catch {}
       }
+      setIsVideoReady(false);
       setIsCallActive(true);
       toast({
         title: "Consultation démarrée",
@@ -107,14 +110,15 @@ const DoctorTelemedicine = () => {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
     }
-    if (analysisIntervalRef.current) {
-      clearInterval(analysisIntervalRef.current);
-    }
-    setIsCallActive(false);
-    setIsVideoOn(true);
-    setIsAudioOn(true);
-    setAutoAnalysis(false);
-  };
+  if (analysisIntervalRef.current) {
+    clearInterval(analysisIntervalRef.current);
+  }
+  setIsCallActive(false);
+  setIsVideoOn(true);
+  setIsAudioOn(true);
+  setAutoAnalysis(false);
+  setIsVideoReady(false);
+};
 
   const captureFrame = (): string | null => {
     if (!canvasRef.current) return null;
@@ -165,6 +169,14 @@ const DoctorTelemedicine = () => {
 
   const analyzeVitals = async () => {
     if (!isCallActive || isAnalyzing) return;
+    if (!isVideoReady) {
+      toast({
+        title: "Vidéo non prête",
+        description: "Patientez quelques secondes après le démarrage, puis réessayez.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
     const frameData = captureFrame();
@@ -373,6 +385,8 @@ const DoctorTelemedicine = () => {
                     autoPlay
                     playsInline
                     muted
+                    onLoadedMetadata={() => { setIsVideoReady(true); try { (videoRef.current as HTMLVideoElement)?.play(); } catch {} }}
+                    onCanPlay={() => setIsVideoReady(true)}
                   />
                   {!isVideoOn && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
