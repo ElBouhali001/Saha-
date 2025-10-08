@@ -48,6 +48,11 @@ const MainLayout = () => {
           <ModuleComponent moduleId="patient-management" componentName="PatientApp" /> : 
           <div className="p-6">Module gestion patients non disponible</div>;
       
+      case 'prescription-tracker':
+        return canAccessModule('patient-management') ? 
+          <ModuleComponent moduleId="patient-management" componentName="PrescriptionTrackerPage" /> : 
+          <div className="p-6">Module gestion patients non disponible</div>;
+      
       case 'patients':
         return canAccessModule('patient-management') ? 
           <ModuleComponent moduleId="patient-management" componentName="PatientManagement" /> : 

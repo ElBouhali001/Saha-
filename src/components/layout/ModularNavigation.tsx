@@ -82,7 +82,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       if (user?.user_metadata?.role === 'patient') {
         moduleBasedItems.push({ id: 'medical-history', label: 'Mon Dossier', icon: FileText, module: 'medical-consultation' });
         moduleBasedItems.push({ id: 'prescriptions', label: 'Ordonnances', icon: Pill, module: 'medical-consultation' });
-        moduleBasedItems.push({ id: 'patient-interface', label: 'Suivi Traitement', icon: Activity, module: 'medical-consultation' });
+        moduleBasedItems.push({ id: 'prescription-tracker', label: 'Suivi Traitement', icon: Activity, module: 'medical-consultation' });
       }
     }
 
@@ -146,6 +146,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
     const filteredItems = moduleBasedItems.filter(item => 
       item.id === 'qr-settings' || // Exception pour les paramètres QR qui ne sont pas dans les routes modulaires
       item.id === 'telemedicine' || // Exception pour la télémédecine qui est gérée directement dans MainLayout
+      item.id === 'prescription-tracker' || // Exception pour le suivi traitement
       availableRoutes.includes(`/${item.id}`) || 
       availableRoutes.includes(`/${item.id.replace('-', '')}`)
     );

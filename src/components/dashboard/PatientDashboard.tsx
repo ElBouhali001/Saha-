@@ -105,7 +105,7 @@ const PatientDashboard = ({ onNavigate }: PatientDashboardProps = {}) => {
             </Button>
             <Button 
               className="h-20 flex-col space-y-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700"
-              onClick={() => onNavigate?.('patient-interface')}
+              onClick={() => onNavigate?.('prescription-tracker')}
             >
               <Activity className="w-6 h-6" />
               <span>Suivi Traitement</span>
