@@ -115,11 +115,23 @@ const DoctorTelemedicine = () => {
   };
 
   const captureFrame = (): string | null => {
-    if (!remoteVideoRef.current || !canvasRef.current) return null;
+    if (!canvasRef.current) return null;
+    
+    // Try remote video first (patient), fallback to local video (doctor) for testing
+    const video = remoteVideoRef.current?.srcObject ? remoteVideoRef.current : videoRef.current;
+    
+    if (!video || !video.srcObject) {
+      console.warn('No video stream available for analysis');
+      return null;
+    }
+    
+    // Check if video has loaded and has dimensions
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.warn('Video not ready, dimensions are 0');
+      return null;
+    }
     
     const canvas = canvasRef.current;
-    const video = remoteVideoRef.current;
-    
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
@@ -136,20 +148,35 @@ const DoctorTelemedicine = () => {
     setIsAnalyzing(true);
     const frameData = captureFrame();
     
-    if (!frameData) {
+    if (!frameData || frameData === 'data:,') {
+      toast({
+        title: "Vidéo non disponible",
+        description: "Aucun flux vidéo actif à analyser. Assurez-vous que la caméra est activée.",
+        variant: "destructive",
+      });
       setIsAnalyzing(false);
       return;
     }
 
     try {
+      console.log('Sending frame for analysis...');
       const { data, error } = await supabase.functions.invoke('analyze-patient-vitals', {
         body: { imageData: frameData }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
       if (data.success && data.vitals) {
         setVitals(data.vitals);
+        console.log('Vitals analyzed successfully:', data.vitals);
+        
+        toast({
+          title: "✅ Analyse terminée",
+          description: "Les constantes vitales ont été analysées avec succès",
+        });
         
         // Show alerts if any
         if (data.vitals.alerts && data.vitals.alerts.length > 0) {
@@ -163,8 +190,8 @@ const DoctorTelemedicine = () => {
     } catch (error) {
       console.error('Error analyzing vitals:', error);
       toast({
-        title: "Erreur",
-        description: "Erreur lors de l'analyse des constantes vitales",
+        title: "Erreur d'analyse",
+        description: error instanceof Error ? error.message : "Erreur lors de l'analyse des constantes vitales",
         variant: "destructive",
       });
     } finally {

@@ -145,6 +145,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
     // Filtrer les éléments selon les routes disponibles
     const filteredItems = moduleBasedItems.filter(item => 
       item.id === 'qr-settings' || // Exception pour les paramètres QR qui ne sont pas dans les routes modulaires
+      item.id === 'telemedicine' || // Exception pour la télémédecine qui est gérée directement dans MainLayout
       availableRoutes.includes(`/${item.id}`) || 
       availableRoutes.includes(`/${item.id.replace('-', '')}`)
     );
