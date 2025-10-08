@@ -130,6 +130,11 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       }
     }
 
+    // Télémédecine (accessible pour les médecins)
+    if (user?.user_metadata?.role === 'doctor') {
+      moduleBasedItems.push({ id: 'telemedicine', label: 'Télémédecine IA', icon: Video, module: 'medical-consultation' });
+    }
+
     // Paramètres QR
     if (['admin', 'doctor', 'agent'].includes(user?.user_metadata?.role)) {
       moduleBasedItems.push({ id: 'qr-settings', label: 'Paramètres QR', icon: QrCode, module: 'admin' });

@@ -9,6 +9,7 @@ import AgentDashboard from '../dashboard/AgentDashboard';
 import PatientDashboard from '../dashboard/PatientDashboard';
 import { useModuleAccess } from '@/hooks/useModuleAccess';
 import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
+import DoctorTelemedicine from '@/components/telemedicine/DoctorTelemedicine';
 
 const MainLayout = () => {
   const { user } = useSupabaseAuth();
@@ -113,6 +114,12 @@ const MainLayout = () => {
       // QR Display Settings
       case 'qr-settings':
         return <QRDisplaySettings />;
+
+      // Telemedicine Module
+      case 'telemedicine':
+        return user?.user_metadata?.role === 'doctor' ? 
+          <DoctorTelemedicine /> : 
+          <div className="p-6">Module télémédecine non disponible</div>;
 
       default:
         return (

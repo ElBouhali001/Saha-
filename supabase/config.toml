@@ -1,1 +1,7 @@
 project_id = "bmofuisxcssgfuicvrou"
+
+[functions.analyze-patient-vitals]
+verify_jwt = false
+
+[functions.ai-telemedicine-diagnosis]
+verify_jwt = false
