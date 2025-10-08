@@ -12,10 +12,13 @@ import PrimaryDoctorRequest from './PrimaryDoctorRequest';
 import LabRequirements from './LabRequirements';
 import VoiceAssistant from '../voice/VoiceAssistant';
 import { useMockPrescriptions } from '@/hooks/useMockPrescriptions';
+import PrescriptionTracker from '../prescription/PrescriptionTracker';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
 const PatientInterface = () => {
   const [activeTab, setActiveTab] = useState('appointments');
   const { data: prescriptions = [] } = useMockPrescriptions();
+  const { user } = useSupabaseAuth();
 
   const handleVoiceNavigation = (route: string) => {
     setActiveTab(route);
@@ -29,7 +32,7 @@ const PatientInterface = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="appointments" className="flex items-center space-x-2">
             <Calendar className="w-4 h-4" />
             <span>Rendez-vous</span>
@@ -41,6 +44,10 @@ const PatientInterface = () => {
           <TabsTrigger value="prescriptions" className="flex items-center space-x-2">
             <Pill className="w-4 h-4" />
             <span>Ordonnances</span>
+          </TabsTrigger>
+          <TabsTrigger value="prescription-tracker" className="flex items-center space-x-2">
+            <Pill className="w-4 h-4" />
+            <span>Suivi Traitement</span>
           </TabsTrigger>
           <TabsTrigger value="teleconsultation" className="flex items-center space-x-2">
             <User className="w-4 h-4" />
@@ -70,6 +77,10 @@ const PatientInterface = () => {
 
         <TabsContent value="prescriptions" className="space-y-6">
           <PrescriptionHistory prescriptions={prescriptions} />
+        </TabsContent>
+
+        <TabsContent value="prescription-tracker" className="space-y-6">
+          {user?.id && <PrescriptionTracker patientId={user.id} />}
         </TabsContent>
 
         <TabsContent value="teleconsultation" className="space-y-6">

@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.ai-telemedicine-diagnosis]
 verify_jwt = false
+
+[functions.scan-medication-barcode]
+verify_jwt = false
