@@ -82,7 +82,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       if (user?.user_metadata?.role === 'patient') {
         moduleBasedItems.push({ id: 'medical-history', label: 'Mon Dossier', icon: FileText, module: 'medical-consultation' });
         moduleBasedItems.push({ id: 'prescriptions', label: 'Ordonnances', icon: Pill, module: 'medical-consultation' });
-        moduleBasedItems.push({ id: 'prescription-tracker', label: 'Suivi Traitement', icon: Activity, module: 'medical-consultation' });
+        moduleBasedItems.push({ id: 'prescription-tracker', label: 'Suivi Traitement', icon: Activity, module: 'patient-management' });
       }
     }
 

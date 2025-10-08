@@ -21,6 +21,7 @@ const moduleComponents = {
     PatientManagement: lazy(() => import('./patient-management').then(m => ({ default: m.PatientManagement }))),
     PatientApp: lazy(() => import('./patient-management').then(m => ({ default: m.PatientApp }))),
     PatientInterface: lazy(() => import('./patient-management').then(m => ({ default: m.PatientInterface }))),
+    PrescriptionTrackerPage: lazy(() => import('./patient-management').then(m => ({ default: m.PrescriptionTrackerPage }))),
   },
   'appointment-scheduling': {
     AppointmentScheduling: lazy(() => import('./appointment-scheduling').then(m => ({ default: m.AppointmentScheduling }))),
