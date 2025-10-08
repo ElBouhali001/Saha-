@@ -23,11 +23,11 @@ const MainLayout = () => {
           case 'admin':
             return <AdminDashboard />;
           case 'doctor':
-            return <DoctorDashboard />;
+            return <DoctorDashboard onNavigate={setCurrentPage} />;
           case 'agent':
             return <AgentDashboard />;
           case 'patient':
-            return <PatientDashboard />;
+            return <PatientDashboard onNavigate={setCurrentPage} />;
           case 'lab_technician':
             if (canAccessModule('laboratory-integration')) {
               return <ModuleComponent moduleId="laboratory-integration" componentName="LaboratoryDashboard" />;

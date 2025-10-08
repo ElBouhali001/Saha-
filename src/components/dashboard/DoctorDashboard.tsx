@@ -9,7 +9,11 @@ import { IS_DEMO } from '@/config/app';
 import AppStoreQRCodes from '@/components/shared/AppStoreQRCodes';
 import { useQRDisplay } from '@/contexts/QRDisplayContext';
 
-const DoctorDashboard = () => {
+interface DoctorDashboardProps {
+  onNavigate?: (page: string) => void;
+}
+
+const DoctorDashboard = ({ onNavigate }: DoctorDashboardProps = {}) => {
   const { settings } = useQRDisplay();
   const todayAppointments = [
     { time: '09:00', patient: 'Mme Diabaté Aïcha', type: 'Consultation', status: 'confirmed' },
@@ -208,7 +212,7 @@ const DoctorDashboard = () => {
           <CardDescription>Accès direct aux fonctionnalités les plus utilisées</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button className="h-16 flex-col space-y-2" variant="outline">
               <FileText className="w-6 h-6" />
               <span>Nouvelle Consultation</span>
@@ -220,6 +224,16 @@ const DoctorDashboard = () => {
             <Button className="h-16 flex-col space-y-2" variant="outline">
               <Calendar className="w-6 h-6" />
               <span>Modifier Planning</span>
+            </Button>
+            <Button 
+              className="h-16 flex-col space-y-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700" 
+              onClick={() => onNavigate?.('telemedicine')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                <polyline points="17 2 12 7 7 2"></polyline>
+              </svg>
+              <span>Télémédecine IA</span>
             </Button>
           </div>
         </CardContent>

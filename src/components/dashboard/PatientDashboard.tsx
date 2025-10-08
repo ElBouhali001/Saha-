@@ -2,9 +2,13 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, Pill, Video, Download, Clock, MapPin, User } from 'lucide-react';
+import { Calendar, FileText, Pill, Video, Download, Clock, MapPin, User, Activity } from 'lucide-react';
 
-const PatientDashboard = () => {
+interface PatientDashboardProps {
+  onNavigate?: (page: string) => void;
+}
+
+const PatientDashboard = ({ onNavigate }: PatientDashboardProps = {}) => {
   const nextAppointment = {
     date: '2024-01-25',
     time: '14:30',
@@ -82,7 +86,7 @@ const PatientDashboard = () => {
           <CardDescription>Accès direct à vos services</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <Button className="h-20 flex-col space-y-2 bg-green-600 hover:bg-green-700 text-white">
               <Calendar className="w-6 h-6" />
               <span>Prendre RDV</span>
@@ -98,6 +102,13 @@ const PatientDashboard = () => {
             <Button className="h-20 flex-col space-y-2" variant="outline">
               <FileText className="w-6 h-6" />
               <span>Mon Dossier</span>
+            </Button>
+            <Button 
+              className="h-20 flex-col space-y-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700"
+              onClick={() => onNavigate?.('patient-interface')}
+            >
+              <Activity className="w-6 h-6" />
+              <span>Suivi Traitement</span>
             </Button>
           </div>
         </CardContent>
