@@ -17,9 +17,9 @@ const MVPLogin = () => {
   const handleLogin = async (role: 'doctor' | 'patient') => {
     setLoading(true);
     
-    // Demo credentials
-    const email = role === 'doctor' ? 'doctor@medipatient.com' : 'patient@medipatient.com';
-    const pass = 'demo123';
+    // Use existing account with specified role
+    const email = 'cmboup20@gmail.com';
+    const pass = 'Essai2025@';
     
     const { error } = await signIn(email, pass);
     
@@ -29,7 +29,17 @@ const MVPLogin = () => {
         description: error.message,
         variant: "destructive",
       });
+      setLoading(false);
+      return;
     }
+
+    // Store the selected role in localStorage for MVP
+    localStorage.setItem('mvp_demo_role', role);
+    
+    toast({
+      title: "Connexion réussie",
+      description: `Connecté en tant que ${role === 'doctor' ? 'Médecin' : 'Patient'}`,
+    });
     
     setLoading(false);
   };
@@ -76,7 +86,7 @@ const MVPLogin = () => {
                   )}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Demo: patient@medipatient.com / demo123
+                  Connexion rapide - Mode Patient
                 </p>
               </div>
             </TabsContent>
@@ -105,7 +115,7 @@ const MVPLogin = () => {
                   )}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Demo: doctor@medipatient.com / demo123
+                  Connexion rapide - Mode Médecin
                 </p>
               </div>
             </TabsContent>

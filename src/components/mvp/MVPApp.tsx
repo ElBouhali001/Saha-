@@ -23,7 +23,9 @@ const MVPApp = () => {
     return <MVPLogin />;
   }
 
-  const userRole = user?.user_metadata?.role || 'patient';
+  // Get role from localStorage for MVP demo or from user metadata
+  const demoRole = localStorage.getItem('mvp_demo_role');
+  const userRole = demoRole || user?.user_metadata?.role || 'patient';
 
   return userRole === 'doctor' ? <MVPDoctorDashboard /> : <MVPPatientDashboard />;
 };
