@@ -3,19 +3,21 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Smartphone, Printer, CheckCircle } from 'lucide-react';
-
-const consultationTypes = [
-  { type: 'Consultation simple', price: 5000 },
-  { type: 'Consultation spécialisée', price: 10000 },
-  { type: 'Contrôle', price: 3000 },
-  { type: 'Urgence', price: 15000 },
-];
+import { useMVPConsultationTypes } from '@/hooks/useMVPData';
+import { DollarSign, Smartphone, Printer, CheckCircle, Loader2 } from 'lucide-react';
 
 const MVPBilling = () => {
-  const [selected, setSelected] = useState(consultationTypes[0]);
+  const { data: consultationTypes, isLoading } = useMVPConsultationTypes();
+  const [selected, setSelected] = useState<any>(null);
   const [paid, setPaid] = useState(false);
   const { toast } = useToast();
+
+  // Set first item as selected when data loads
+  React.useEffect(() => {
+    if (consultationTypes && consultationTypes.length > 0 && !selected) {
+      setSelected(consultationTypes[0]);
+    }
+  }, [consultationTypes, selected]);
 
   const handleOrangeMoneyPayment = () => {
     toast({
@@ -38,25 +40,33 @@ const MVPBilling = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-4 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 space-y-4">
       <Card className="p-4 bg-gradient-to-br from-primary/10 to-background">
         <h3 className="font-semibold mb-2">Tarifs prédéfinis</h3>
-        <p className="text-sm text-muted-foreground">Sélection rapide</p>
+        <p className="text-sm text-muted-foreground">Chargés depuis Supabase</p>
       </Card>
 
       <div className="grid grid-cols-2 gap-3">
-        {consultationTypes.map((item) => (
+        {consultationTypes?.map((item) => (
           <Card
-            key={item.type}
+            key={item.name}
             className={`p-4 cursor-pointer transition-all ${
-              selected.type === item.type
+              selected?.name === item.name
                 ? 'bg-primary text-primary-foreground shadow-lg scale-105'
                 : 'hover:shadow-md'
             }`}
             onClick={() => setSelected(item)}
           >
-            <p className="font-semibold text-sm mb-2">{item.type}</p>
+            <p className="font-semibold text-sm mb-2">{item.name}</p>
             <p className="text-lg font-bold">{item.price.toLocaleString()} FCFA</p>
           </Card>
         ))}
