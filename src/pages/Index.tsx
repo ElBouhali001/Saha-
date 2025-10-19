@@ -1,7 +1,8 @@
-import MVPApp from '@/components/mvp/MVPApp';
+
+import MainApp from '@/components/MainApp';
 
 const Index = () => {
-  return <MVPApp />;
+  return <MainApp />;
 };
 
 export default Index;
