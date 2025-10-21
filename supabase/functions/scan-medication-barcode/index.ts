@@ -154,7 +154,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error scanning barcode:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: error instanceof Error ? error.message : 'An error occurred',
       success: false 
     }), {
       status: 500,

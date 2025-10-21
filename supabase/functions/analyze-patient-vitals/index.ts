@@ -119,7 +119,7 @@ Réponds UNIQUEMENT avec un objet JSON structuré comme suit:
   } catch (error) {
     console.error('Error analyzing patient vitals:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: error instanceof Error ? error.message : 'An error occurred',
       success: false 
     }), {
       status: 500,
