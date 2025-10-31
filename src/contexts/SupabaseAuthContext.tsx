@@ -38,6 +38,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         { id: '12', email: 'neuro.rousseau@medipatient.com', first_name: 'Julien', last_name: 'Rousseau', role: 'doctor', speciality: 'Neurologie' },
         { id: '13', email: 'ortho.girard@medipatient.com', first_name: 'Luc', last_name: 'Girard', role: 'doctor', speciality: 'Orthopédie' },
         { id: '14', email: 'ophtalmo.leroy@medipatient.com', first_name: 'Anne', last_name: 'Leroy', role: 'doctor', speciality: 'Ophtalmologie' },
+        { id: '15', email: 'dentiste.demo@medipatient.com', first_name: 'Aïcha', last_name: 'Diallo', role: 'doctor', speciality: 'Dentiste' },
       ]
     : [];
 
@@ -84,6 +85,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         'neuro.rousseau@medipatient.com': 'neuro123',
         'ortho.girard@medipatient.com': 'ortho123',
         'ophtalmo.leroy@medipatient.com': 'ophtalmo123',
+        'dentiste.demo@medipatient.com': 'dentiste123',
       };
 
       const demo = demoUsers.find((u) => u.email === email);

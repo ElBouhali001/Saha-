@@ -30,12 +30,11 @@ const MedicalConsultation = () => {
 
   // Récupérer la spécialité du médecin connecté (simulation)
   const getDoctorSpecialty = () => {
-    // En production, ceci viendrait de la base de données
-    const doctorSpecialties = [
-      'Médecine Générale', 'Cardiologie', 'Dermatologie', 'Pédiatrie', 
-      'Gynécologie', 'Neurologie', 'Orthopédie', 'Ophtalmologie'
-    ];
-    // Simulation : retourne une spécialité basée sur l'email du médecin
+    // Priorité: lire la spécialité fournie par le profil utilisateur (mode démo inclus)
+    const metaSpeciality = (user as any)?.user_metadata?.speciality as string | undefined;
+    if (metaSpeciality && metaSpeciality.trim().length > 0) return metaSpeciality;
+
+    // Fallback: heuristique par email (ancien comportement)
     const email = user?.email || '';
     if (email.includes('cardio')) return 'Cardiologie';
     if (email.includes('dermato')) return 'Dermatologie';
@@ -44,6 +43,7 @@ const MedicalConsultation = () => {
     if (email.includes('neuro')) return 'Neurologie';
     if (email.includes('ortho')) return 'Orthopédie';
     if (email.includes('ophtalmo')) return 'Ophtalmologie';
+    if (email.includes('dentiste')) return 'Dentiste';
     return 'Médecine Générale';
   };
 
