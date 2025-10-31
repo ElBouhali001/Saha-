@@ -38,7 +38,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Tension artérielle (mmHg)</Label>
             <Input
@@ -75,7 +75,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Symptômes cardiovasculaires</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Douleur thoracique', 'Essoufflement', 'Palpitations', 'Œdème des membres', 'Fatigue', 'Syncope'].map((symptom) => (
               <div key={symptom} className="flex items-center space-x-2">
                 <Checkbox
@@ -126,7 +126,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Type de lésion</Label>
             <Select value={specialtyData.lesionType || ''} onValueChange={(value) => updateField('lesionType', value)}>
@@ -155,7 +155,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Symptômes associés</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Prurit', 'Brûlure', 'Douleur', 'Saignement', 'Desquamation', 'Suppuration'].map((symptom) => (
               <div key={symptom} className="flex items-center space-x-2">
                 <Checkbox
@@ -201,7 +201,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <Label>Âge de l'enfant</Label>
             <Input
@@ -283,7 +283,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Dernières règles</Label>
             <Input
@@ -327,7 +327,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Grossesses antérieures</Label>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label className="text-sm">Gestité</Label>
               <Input
@@ -363,7 +363,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Dépistages</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Frottis cervical à jour', 'Mammographie récente', 'Échographie pelvienne', 'Test HPV'].map((screening) => (
               <div key={screening} className="flex items-center space-x-2">
                 <Checkbox
@@ -412,7 +412,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Réflexes ostéo-tendineux</Label>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="text-sm">Membres supérieurs</Label>
               <Select value={specialtyData.upperReflexes || ''} onValueChange={(value) => updateField('upperReflexes', value)}>
@@ -446,7 +446,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Force musculaire</Label>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="text-sm">Membre supérieur droit</Label>
               <Select value={specialtyData.rightArmStrength || ''} onValueChange={(value) => updateField('rightArmStrength', value)}>
@@ -534,7 +534,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Amplitude de mouvement</Label>
             <Select value={specialtyData.rangeOfMotion || ''} onValueChange={(value) => updateField('rangeOfMotion', value)}>
@@ -566,7 +566,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Tests spéciaux</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Test de Lachman', 'Test de McMurray', 'Test de Hawkins', 'Test de Lasègue', 'Test de Patrick', 'Test de Thompson'].map((test) => (
               <div key={test} className="flex items-center space-x-2">
                 <Checkbox
@@ -614,7 +614,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Acuité visuelle OD</Label>
             <Input
@@ -633,7 +633,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Pression intraoculaire OD</Label>
             <Input
@@ -670,7 +670,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Symptômes oculaires</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Vision floue', 'Douleur oculaire', 'Photophobie', 'Larmoiement', 'Sécheresse', 'Halos colorés'].map((symptom) => (
               <div key={symptom} className="flex items-center space-x-2">
                 <Checkbox
@@ -702,7 +702,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>État de la dentition</Label>
             <Select value={specialtyData.dentitionState || ''} onValueChange={(value) => updateField('dentitionState', value)}>
@@ -804,7 +804,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Symptômes dentaires</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Douleur dentaire', 'Sensibilité au froid', 'Sensibilité au chaud', 'Saignement gingival', 'Mauvaise haleine', 'Mobilité dentaire'].map((symptom) => (
               <div key={symptom} className="flex items-center space-x-2">
                 <Checkbox
@@ -826,7 +826,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
 
         <div>
           <Label>Soins nécessaires</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             {['Détartrage', 'Soins de caries', 'Extraction', 'Prothèse dentaire', 'Couronne', 'Implant', 'Blanchiment', 'Orthodontie'].map((care) => (
               <div key={care} className="flex items-center space-x-2">
                 <Checkbox
