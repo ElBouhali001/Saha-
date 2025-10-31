@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Heart, Stethoscope, Baby, UserPlus, Eye, Brain, Bone, Scissors } from 'lucide-react';
+import { Heart, Stethoscope, Baby, UserPlus, Eye, Brain, Bone, Scissors, Smile } from 'lucide-react';
 
 interface SpecialtyData {
   [key: string]: any;
@@ -693,6 +693,186 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
     </Card>
   );
 
+  const renderDentistrySection = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center text-cyan-600">
+          <Smile className="w-5 h-5 mr-2" />
+          Examen Dentaire
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>État de la dentition</Label>
+            <Select value={specialtyData.dentitionState || ''} onValueChange={(value) => updateField('dentitionState', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="État général" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="bon">Bon état général</SelectItem>
+                <SelectItem value="moyen">État moyen</SelectItem>
+                <SelectItem value="mauvais">Mauvais état</SelectItem>
+                <SelectItem value="edente">Édenté partiel</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Nombre de dents absentes</Label>
+            <Input
+              type="number"
+              min="0"
+              max="32"
+              placeholder="0-32"
+              value={specialtyData.missingTeeth || ''}
+              onChange={(e) => updateField('missingTeeth', e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label>Caries détectées</Label>
+          <Input
+            placeholder="Ex: 16, 26, 36 (notation FDI)"
+            value={specialtyData.cavities || ''}
+            onChange={(e) => updateField('cavities', e.target.value)}
+          />
+        </div>
+
+        <div>
+          <Label>État des gencives</Label>
+          <Select value={specialtyData.gumsState || ''} onValueChange={(value) => updateField('gumsState', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Évaluation gingivale" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="saines">Gencives saines</SelectItem>
+              <SelectItem value="gingivite">Gingivite légère</SelectItem>
+              <SelectItem value="parodontite-legere">Parodontite légère</SelectItem>
+              <SelectItem value="parodontite-moderee">Parodontite modérée</SelectItem>
+              <SelectItem value="parodontite-severe">Parodontite sévère</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Hygiène bucco-dentaire</Label>
+          <Select value={specialtyData.oralHygiene || ''} onValueChange={(value) => updateField('oralHygiene', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Niveau d'hygiène" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="excellente">Excellente</SelectItem>
+              <SelectItem value="bonne">Bonne</SelectItem>
+              <SelectItem value="moyenne">Moyenne</SelectItem>
+              <SelectItem value="insuffisante">Insuffisante</SelectItem>
+              <SelectItem value="mauvaise">Mauvaise</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Tartre</Label>
+          <Select value={specialtyData.tartar || ''} onValueChange={(value) => updateField('tartar', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Présence de tartre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="absent">Absent</SelectItem>
+              <SelectItem value="leger">Léger</SelectItem>
+              <SelectItem value="modere">Modéré</SelectItem>
+              <SelectItem value="important">Important</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Occlusion dentaire</Label>
+          <Select value={specialtyData.occlusion || ''} onValueChange={(value) => updateField('occlusion', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Type d'occlusion" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="classe-I">Classe I (Normale)</SelectItem>
+              <SelectItem value="classe-II">Classe II (Rétrognathie)</SelectItem>
+              <SelectItem value="classe-III">Classe III (Prognathie)</SelectItem>
+              <SelectItem value="supraclusion">Supraclusion</SelectItem>
+              <SelectItem value="infraclusion">Infraclusion</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Symptômes dentaires</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {['Douleur dentaire', 'Sensibilité au froid', 'Sensibilité au chaud', 'Saignement gingival', 'Mauvaise haleine', 'Mobilité dentaire'].map((symptom) => (
+              <div key={symptom} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={specialtyData.dentalSymptoms?.includes(symptom) || false}
+                  onCheckedChange={(checked) => {
+                    const current = specialtyData.dentalSymptoms || [];
+                    updateField('dentalSymptoms', 
+                      checked 
+                        ? [...current, symptom]
+                        : current.filter((s: string) => s !== symptom)
+                    );
+                  }}
+                />
+                <Label className="text-sm">{symptom}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Label>Soins nécessaires</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {['Détartrage', 'Soins de caries', 'Extraction', 'Prothèse dentaire', 'Couronne', 'Implant', 'Blanchiment', 'Orthodontie'].map((care) => (
+              <div key={care} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={specialtyData.requiredCare?.includes(care) || false}
+                  onCheckedChange={(checked) => {
+                    const current = specialtyData.requiredCare || [];
+                    updateField('requiredCare', 
+                      checked 
+                        ? [...current, care]
+                        : current.filter((c: string) => c !== care)
+                    );
+                  }}
+                />
+                <Label className="text-sm">{care}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Label>Radiographie panoramique</Label>
+          <Select value={specialtyData.panoramicXray || ''} onValueChange={(value) => updateField('panoramicXray', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Besoin de radio" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="non-necessaire">Non nécessaire</SelectItem>
+              <SelectItem value="recommandee">Recommandée</SelectItem>
+              <SelectItem value="realisee">Déjà réalisée</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Remarques et observations</Label>
+          <Textarea
+            placeholder="Notes complémentaires sur l'examen dentaire..."
+            value={specialtyData.dentalNotes || ''}
+            onChange={(e) => updateField('dentalNotes', e.target.value)}
+            rows={3}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   const getSpecialtySection = () => {
     switch (specialty.toLowerCase()) {
       case 'cardiologie':
@@ -709,6 +889,8 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         return renderOrthopedicsSection();
       case 'ophtalmologie':
         return renderOphthalmologySection();
+      case 'dentiste':
+        return renderDentistrySection();
       default:
         return null;
     }
