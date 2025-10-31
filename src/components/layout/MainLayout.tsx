@@ -10,11 +10,16 @@ import PatientDashboard from '../dashboard/PatientDashboard';
 import { useModuleAccess } from '@/hooks/useModuleAccess';
 import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
 import DoctorTelemedicine from '@/components/telemedicine/DoctorTelemedicine';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 
 const MainLayout = () => {
   const { user } = useSupabaseAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const { canAccessModule } = useModuleAccess();
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const renderPageContent = () => {
     switch (currentPage) {
@@ -144,8 +149,47 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
-      <main className="flex-1 overflow-auto">
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <Menu className="w-6 h-6" />
+          </Button>
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">M+</span>
+            </div>
+            <h1 className="font-bold text-lg text-blue-900">MediPatient</h1>
+          </div>
+          <div className="w-10" /> {/* Spacer for centering */}
+        </div>
+      )}
+
+      {/* Overlay pour mobile */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <Sidebar 
+        currentPage={currentPage} 
+        onPageChange={(page) => {
+          setCurrentPage(page);
+          if (isMobile) setSidebarOpen(false);
+        }}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      {/* Main Content */}
+      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-16' : ''}`}>
         {renderPageContent()}
       </main>
     </div>

@@ -9,14 +9,18 @@ import {
   Home
 } from 'lucide-react';
 import ModularNavigation from './ModularNavigation';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SidebarProps {
   currentPage: string;
   onPageChange: (page: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = false, onClose }) => {
   const { user, signOut } = useSupabaseAuth();
+  const isMobile = useIsMobile();
 
   const getRoleColor = () => {
     switch (user?.user_metadata?.role) {
@@ -45,21 +49,27 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold">M+</span>
-          </div>
-          <div>
-            <h1 className="font-bold text-lg text-blue-900">MediPatient</h1>
+    <div className={cn(
+      "bg-white border-r border-gray-200 h-screen flex flex-col transition-transform duration-300 ease-in-out",
+      isMobile ? "fixed top-0 left-0 z-50 w-64" : "w-64",
+      isMobile && !isOpen && "-translate-x-full"
+    )}>
+      {/* Header - masqué sur mobile car dans le header fixe */}
+      {!isMobile && (
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold">M+</span>
+            </div>
+            <div>
+              <h1 className="font-bold text-lg text-blue-900">MediPatient</h1>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* User Info */}
-      <div className="p-4 border-b border-gray-200">
+      <div className={cn("p-4 border-b border-gray-200", isMobile && "mt-4")}>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
             <User className="w-4 h-4 text-gray-600" />
@@ -79,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
       <ModularNavigation currentPage={currentPage} onPageChange={onPageChange} />
 
       {/* Logout */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 mt-auto">
         <Button
           variant="ghost"
           className="w-full justify-start space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50"
