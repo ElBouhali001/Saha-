@@ -5,3 +5,4 @@ export { default as TreatmentSuggestions } from '../../components/ai/TreatmentSu
 export { default as DocumentGenerator } from '../../components/ai/DocumentGenerator';
 export { default as AdvancedDocumentGenerator } from '../../components/ai/AdvancedDocumentGenerator';
 export { default as DocumentsModule } from '../../components/ai/DocumentsModule';
+export { default as OpenEvidenceIntegration } from '../../components/ai/OpenEvidenceIntegration';

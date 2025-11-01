@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, AlertTriangle, Clock, Target } from 'lucide-react';
 import { aiService, DiagnosticSuggestion } from '@/utils/aiService';
+import OpenEvidenceIntegration from './OpenEvidenceIntegration';
 
 interface DiagnosticAssistantProps {
   onSuggestionSelect?: (suggestion: DiagnosticSuggestion) => void;
@@ -93,6 +95,13 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        <Tabs defaultValue="local" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="local">Analyse IA Interne</TabsTrigger>
+            <TabsTrigger value="openevidence">OpenEvidence</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="local" className="space-y-4 mt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="patient-age">Âge du patient</Label>
@@ -300,6 +309,38 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
             </div>
           </div>
         )}
+          </TabsContent>
+
+          <TabsContent value="openevidence" className="space-y-4 mt-4">
+            <OpenEvidenceIntegration
+              symptoms={symptoms}
+              patientAge={patientAge}
+              patientGender={patientGender}
+              onDiagnosisImport={(diagnosis) => {
+                // The diagnosis from OpenEvidence can be used by parent component
+                if (onSuggestionSelect) {
+                  const openEvidenceSuggestion: DiagnosticSuggestion = {
+                    condition: 'Diagnostic OpenEvidence',
+                    probability: 1,
+                    symptoms: symptoms.split(',').map(s => s.trim()),
+                    urgencyLevel: 'medium',
+                    icd10Code: '',
+                    whoCategory: 'OpenEvidence',
+                    confidenceIndex: 95,
+                    additionalTests: [],
+                    differentialDiagnosis: [],
+                    clinicalEvidence: {
+                      whoGuidelines: diagnosis,
+                      prevalenceData: '',
+                      medlineReferences: []
+                    }
+                  };
+                  onSuggestionSelect(openEvidenceSuggestion);
+                }
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

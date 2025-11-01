@@ -6,3 +6,4 @@ export { default as ConsultationActions } from '../../components/consultation/Co
 export { default as PrescriptionModal } from '../../components/consultation/PrescriptionModal';
 export { default as FollowUpModal } from '../../components/consultation/FollowUpModal';
 export { default as SpecialtyConsultationSections } from '../../components/consultation/SpecialtyConsultationSections';
+export { default as ClinicalDiagnosticPanel } from '../../components/consultation/ClinicalDiagnosticPanel';

@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { 
   Video, 
   VideoOff, 
@@ -26,6 +28,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import OpenEvidenceIntegration from '@/components/ai/OpenEvidenceIntegration';
 
 interface VitalsData {
   respiratoryRate: number;
@@ -606,16 +609,18 @@ const DoctorTelemedicine = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="input" className="space-y-4">
-            <TabsList>
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="input">Symptômes</TabsTrigger>
-              <TabsTrigger value="diagnosis">Diagnostic</TabsTrigger>
+              <TabsTrigger value="openevidence">OpenEvidence</TabsTrigger>
+              <TabsTrigger value="diagnosis">Diagnostic IA</TabsTrigger>
             </TabsList>
 
             <TabsContent value="input" className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Symptômes du patient</label>
-                <textarea
-                  className="w-full p-3 border rounded-lg min-h-[100px]"
+                <Label htmlFor="symptoms">Symptômes du patient</Label>
+                <Textarea
+                  id="symptoms"
+                  className="min-h-[100px]"
                   placeholder="Décrivez les symptômes du patient..."
                   value={symptoms}
                   onChange={(e) => setSymptoms(e.target.value)}
@@ -638,6 +643,37 @@ const DoctorTelemedicine = () => {
                   </>
                 )}
               </Button>
+            </TabsContent>
+
+            <TabsContent value="openevidence" className="space-y-4">
+              <OpenEvidenceIntegration
+                symptoms={symptoms}
+                onDiagnosisImport={(openEvidenceDiagnosis) => {
+                  // Update the diagnosis state with OpenEvidence results
+                  setDiagnosis({
+                    differentialDiagnosis: [{
+                      condition: 'Diagnostic OpenEvidence',
+                      icd10: 'OpenEvidence',
+                      probability: 95,
+                      reasoning: openEvidenceDiagnosis,
+                      keyFindings: []
+                    }],
+                    urgencyLevel: 'À évaluer',
+                    urgencyReason: 'Basé sur consultation OpenEvidence',
+                    recommendedTests: [],
+                    treatmentRecommendations: [],
+                    warningSignals: [],
+                    followUp: {
+                      timeframe: 'Selon recommandations OpenEvidence',
+                      instructions: openEvidenceDiagnosis
+                    }
+                  });
+                  toast({
+                    title: "Diagnostic OpenEvidence importé",
+                    description: "Le diagnostic a été ajouté à la consultation",
+                  });
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="diagnosis">

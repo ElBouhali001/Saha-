@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, Database, AlertTriangle, Target, FileText, Globe } from 'lucide-react';
 import DiagnosticAssistant from '@/components/ai/DiagnosticAssistant';
+import OpenEvidenceIntegration from '@/components/ai/OpenEvidenceIntegration';
 import { DiagnosticSuggestion } from '@/utils/aiService';
 
 interface ClinicalDiagnosticPanelProps {
@@ -49,13 +50,41 @@ const ClinicalDiagnosticPanel: React.FC<ClinicalDiagnosticPanelProps> = ({
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="diagnostic" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="diagnostic">Analyse Diagnostique</TabsTrigger>
-              <TabsTrigger value="selected">Diagnostic Sélectionné</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="diagnostic">Analyse IA</TabsTrigger>
+              <TabsTrigger value="openevidence">OpenEvidence</TabsTrigger>
+              <TabsTrigger value="selected">Sélectionné</TabsTrigger>
             </TabsList>
 
             <TabsContent value="diagnostic" className="space-y-4">
               <DiagnosticAssistant onSuggestionSelect={handleDiagnosisSelection} />
+            </TabsContent>
+
+            <TabsContent value="openevidence" className="space-y-4">
+              <OpenEvidenceIntegration
+                symptoms={patientData?.symptoms || ''}
+                patientAge={patientData?.age?.toString()}
+                patientGender={patientData?.gender}
+                onDiagnosisImport={(diagnosis) => {
+                  const openEvidenceSuggestion: DiagnosticSuggestion = {
+                    condition: 'Diagnostic OpenEvidence',
+                    probability: 1,
+                    symptoms: patientData?.symptoms?.split(',').map(s => s.trim()) || [],
+                    urgencyLevel: 'medium',
+                    icd10Code: 'OpenEvidence',
+                    whoCategory: 'Consultation OpenEvidence',
+                    confidenceIndex: 95,
+                    additionalTests: [],
+                    differentialDiagnosis: [],
+                    clinicalEvidence: {
+                      whoGuidelines: diagnosis,
+                      prevalenceData: '',
+                      medlineReferences: []
+                    }
+                  };
+                  handleDiagnosisSelection(openEvidenceSuggestion);
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="selected" className="space-y-4">
