@@ -9,4 +9,5 @@ export * from './laboratory-integration';
 export * from './pharmacy-integration';
 export * from './ai-assistant';
 export * from './transmission-referrals';
+export * from './admin';
 export { default as ModuleComponent } from './ModuleLoader';
