@@ -168,6 +168,12 @@ const MainLayout = () => {
           <ModuleComponent moduleId="transmission-referrals" componentName="SecureTransmissionModal" /> : 
           <div className="p-6">Module transmission non disponible</div>;
 
+      // Module Manager (Admin only)
+      case 'module-manager':
+        return userRole === 'admin' ? 
+          <ModuleComponent moduleId="admin" componentName="ModuleManager" /> : 
+          <div className="p-6">Module gestion non disponible</div>;
+
       // QR Display Settings
       case 'qr-settings':
         return <QRDisplaySettings />;
@@ -233,6 +239,7 @@ const MainLayout = () => {
         }}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        userRole={userRole}
       />
 
       {/* Main Content */}

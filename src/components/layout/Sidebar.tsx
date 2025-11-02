@@ -16,14 +16,15 @@ interface SidebarProps {
   onPageChange: (page: string) => void;
   isOpen?: boolean;
   onClose?: () => void;
+  userRole?: string | null;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = false, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = false, onClose, userRole }) => {
   const { user, signOut } = useSupabaseAuth();
   const isMobile = useIsMobile();
 
   const getRoleColor = () => {
-    switch (user?.user_metadata?.role) {
+    switch (userRole || user?.user_metadata?.role) {
       case 'admin': return 'text-purple-600';
       case 'doctor': return 'text-blue-600';
       case 'agent': return 'text-green-600';
@@ -36,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = f
   };
 
   const getRoleLabel = () => {
-    switch (user?.user_metadata?.role) {
+    switch (userRole || user?.user_metadata?.role) {
       case 'admin': return 'Administrateur';
       case 'doctor': return 'Médecin';
       case 'agent': return 'Agent/Secrétaire';
@@ -86,7 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = f
       </div>
 
       {/* Navigation Modulaire */}
-      <ModularNavigation currentPage={currentPage} onPageChange={onPageChange} />
+      <ModularNavigation currentPage={currentPage} onPageChange={onPageChange} userRole={userRole} />
 
       {/* Logout */}
       <div className="p-4 border-t border-gray-200 mt-auto">
