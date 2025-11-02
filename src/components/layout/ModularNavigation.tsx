@@ -144,6 +144,12 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
     // Gestion des modules (admins seulement)
     if (role === 'admin') {
       moduleBasedItems.push({ id: 'module-manager', label: 'Gestion Modules', icon: Settings, module: 'admin' });
+      moduleBasedItems.push({ id: 'business-analytics', label: 'Analytique Affaires', icon: BarChart, module: 'business-analytics' });
+    }
+
+    // Analytics pour les médecins et agents
+    if (['doctor', 'agent'].includes(role) && enabledModules.find(m => m.id === 'business-analytics')) {
+      moduleBasedItems.push({ id: 'business-analytics', label: 'Analytique', icon: BarChart, module: 'business-analytics' });
     }
 
     // Paramètres QR

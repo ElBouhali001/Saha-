@@ -10,7 +10,8 @@ export type ModuleId =
   | 'pharmacy-integration'
   | 'ai-assistant'
   | 'transmission-referrals'
-  | 'admin';
+  | 'admin'
+  | 'business-analytics';
 
 export interface ModuleConfig {
   id: ModuleId;
@@ -32,6 +33,16 @@ export interface ModuleSettings {
 }
 
 export const CORE_MODULES: ModuleId[] = ['auth', 'patient-management'];
+
+export const defaultEnabledModules: ModuleId[] = [
+  'auth',
+  'patient-management',
+  'appointment-scheduling',
+  'medical-consultation',
+  'billing-invoicing',
+  'admin',
+  'business-analytics'
+];
 
 export const MODULE_DEFINITIONS: Record<ModuleId, Omit<ModuleConfig, 'isEnabled'>> = {
   'auth': {
@@ -154,5 +165,16 @@ export const MODULE_DEFINITIONS: Record<ModuleId, Omit<ModuleConfig, 'isEnabled'
     permissions: ['admin:settings', 'admin:qr_manage'],
     routes: ['/qr-settings'],
     components: ['QRDisplaySettings', 'ModuleManager', 'TenantSettings', 'AdminDashboard']
+  },
+  'business-analytics': {
+    id: 'business-analytics',
+    name: 'Analytique & Affaires',
+    description: 'Analyse du chiffre d\'affaires et performance des médecins',
+    version: '1.0.0',
+    isCore: false,
+    dependencies: ['auth', 'billing-invoicing'],
+    permissions: ['analytics:view', 'analytics:revenue', 'analytics:reports'],
+    routes: ['/business-analytics'],
+    components: ['RevenueDistribution', 'DoctorRoleManager']
   }
 };

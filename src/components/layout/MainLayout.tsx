@@ -182,6 +182,12 @@ const MainLayout = () => {
           <ModuleComponent moduleId="admin" componentName="ModuleManager" /> : 
           <div className="p-6">Module gestion non disponible</div>;
 
+      // Business Analytics
+      case 'business-analytics':
+        return ['admin', 'doctor', 'agent'].includes(userRole || '') && canAccessModule('business-analytics') ?
+          <ModuleComponent moduleId="business-analytics" componentName="RevenueDistribution" /> :
+          <div className="p-6">Module analytique non disponible</div>;
+
       // QR Display Settings
       case 'qr-settings':
         return <QRDisplaySettings />;

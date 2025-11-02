@@ -10,4 +10,5 @@ export * from './pharmacy-integration';
 export * from './ai-assistant';
 export * from './transmission-referrals';
 export * from './admin';
+export * from './business-analytics';
 export { default as ModuleComponent } from './ModuleLoader';
