@@ -63,6 +63,10 @@ const moduleComponents = {
     AccessTransmissionForm: lazy(() => import('./transmission-referrals').then(m => ({ default: m.AccessTransmissionForm }))),
     TransmissionAccess: lazy(() => import('./transmission-referrals').then(m => ({ default: m.TransmissionAccess }))),
   },
+  'business-analytics': {
+    RevenueDistribution: lazy(() => import('./business-analytics').then(m => ({ default: m.RevenueDistribution }))),
+    DoctorRoleManager: lazy(() => import('./business-analytics').then(m => ({ default: m.DoctorRoleManager }))),
+  },
 };
 
 interface ModuleComponentProps {
