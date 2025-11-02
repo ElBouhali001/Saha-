@@ -8,7 +8,8 @@ import { hasPermission } from '@/utils/permissions';
 import InvoiceCreation from './InvoiceCreation';
 import PaymentTracking from './PaymentTracking';
 import BillingHistory from './BillingHistory';
-import { Receipt, CreditCard, History, TrendingUp, AlertCircle, DollarSign } from 'lucide-react';
+import RevenueDistribution from './RevenueDistribution';
+import { Receipt, CreditCard, History, TrendingUp, AlertCircle, DollarSign, PieChart } from 'lucide-react';
 
 const BillingModule = () => {
   const { user } = useSupabaseAuth();
@@ -115,11 +116,22 @@ const BillingModule = () => {
 
       {/* Onglets de gestion */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="create">Nouvelle Facture</TabsTrigger>
-          <TabsTrigger value="payments">Paiements</TabsTrigger>
-          <TabsTrigger value="history">Historique</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-1">
+          <TabsTrigger value="overview" className="text-xs md:text-sm">
+            <span className="hidden md:inline">Vue d'ensemble</span>
+            <span className="md:hidden">Vue</span>
+          </TabsTrigger>
+          <TabsTrigger value="create" className="text-xs md:text-sm">
+            <span className="hidden md:inline">Nouvelle Facture</span>
+            <span className="md:hidden">Créer</span>
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="text-xs md:text-sm">Paiements</TabsTrigger>
+          <TabsTrigger value="history" className="text-xs md:text-sm">Historique</TabsTrigger>
+          <TabsTrigger value="revenue" className="text-xs md:text-sm">
+            <PieChart className="w-4 h-4 mr-1" />
+            <span className="hidden md:inline">Répartition CA</span>
+            <span className="md:hidden">CA</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -200,6 +212,10 @@ const BillingModule = () => {
 
         <TabsContent value="history">
           <BillingHistory />
+        </TabsContent>
+
+        <TabsContent value="revenue">
+          <RevenueDistribution />
         </TabsContent>
       </Tabs>
     </div>
