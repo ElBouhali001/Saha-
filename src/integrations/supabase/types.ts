@@ -244,6 +244,71 @@ export type Database = {
           },
         ]
       }
+      doctor_pricing: {
+        Row: {
+          created_at: string | null
+          custom_fee: number
+          doctor_id: string | null
+          id: string
+          is_active: boolean | null
+          pricing_type: Database["public"]["Enums"]["pricing_type"]
+          specialty_id: string | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_fee: number
+          doctor_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          pricing_type: Database["public"]["Enums"]["pricing_type"]
+          specialty_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_fee?: number
+          doctor_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          pricing_type?: Database["public"]["Enums"]["pricing_type"]
+          specialty_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_pricing_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctor_patients"
+            referencedColumns: ["doctor_id"]
+          },
+          {
+            foreignKeyName: "doctor_pricing_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctor_pricing_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "medical_specialties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctor_pricing_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doctor_specialties: {
         Row: {
           created_at: string | null
@@ -286,6 +351,64 @@ export type Database = {
             columns: ["specialty_id"]
             isOneToOne: false
             referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doctor_structure_roles: {
+        Row: {
+          created_at: string | null
+          doctor_id: string | null
+          id: string
+          is_active: boolean | null
+          revenue_percentage: number
+          structure_percentage: number
+          structure_role: Database["public"]["Enums"]["medical_structure_role"]
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          doctor_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          revenue_percentage?: number
+          structure_percentage?: number
+          structure_role?: Database["public"]["Enums"]["medical_structure_role"]
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          doctor_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          revenue_percentage?: number
+          structure_percentage?: number
+          structure_role?: Database["public"]["Enums"]["medical_structure_role"]
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_structure_roles_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctor_patients"
+            referencedColumns: ["doctor_id"]
+          },
+          {
+            foreignKeyName: "doctor_structure_roles_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctor_structure_roles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -775,6 +898,56 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      medical_specialties: {
+        Row: {
+          consultation_duration: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          insurance_fee: number
+          is_active: boolean | null
+          name: string
+          reduced_fee: number
+          standard_fee: number
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          consultation_duration?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          insurance_fee?: number
+          is_active?: boolean | null
+          name: string
+          reduced_fee?: number
+          standard_fee?: number
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          consultation_duration?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          insurance_fee?: number
+          is_active?: boolean | null
+          name?: string
+          reduced_fee?: number
+          standard_fee?: number
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_specialties_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       medication_acquisitions: {
         Row: {
@@ -2131,6 +2304,44 @@ export type Database = {
           },
         ]
       }
+      role_module_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          module_id: string
+          permissions: string[] | null
+          role: string
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          module_id: string
+          permissions?: string[] | null
+          role: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          module_id?: string
+          permissions?: string[] | null
+          role?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_module_permissions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       secure_transmissions: {
         Row: {
           access_code: string
@@ -2270,6 +2481,54 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_patients: number | null
+          max_users: number | null
+          modules_enabled: string[] | null
+          name: string
+          plan_type: Database["public"]["Enums"]["subscription_plan"]
+          price_monthly: number
+          price_yearly: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_patients?: number | null
+          max_users?: number | null
+          modules_enabled?: string[] | null
+          name: string
+          plan_type: Database["public"]["Enums"]["subscription_plan"]
+          price_monthly?: number
+          price_yearly?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_patients?: number | null
+          max_users?: number | null
+          modules_enabled?: string[] | null
+          name?: string
+          plan_type?: Database["public"]["Enums"]["subscription_plan"]
+          price_monthly?: number
+          price_yearly?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tenant_audit_logs: {
         Row: {
           action: string
@@ -2391,6 +2650,50 @@ export type Database = {
           },
         ]
       }
+      tenant_subscriptions: {
+        Row: {
+          billing_cycle: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          plan_type: Database["public"]["Enums"]["subscription_plan"]
+          started_at: string | null
+          status: string | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          plan_type: Database["public"]["Enums"]["subscription_plan"]
+          started_at?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          plan_type?: Database["public"]["Enums"]["subscription_plan"]
+          started_at?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_subscriptions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           created_at: string | null
@@ -2462,6 +2765,44 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          role: string
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role: string
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       doctor_patients: {
@@ -2521,6 +2862,15 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_consultation_fee: {
+        Args: {
+          _doctor_id: string
+          _patient_has_insurance: boolean
+          _patient_id?: string
+          _specialty_id: string
+        }
+        Returns: number
+      }
       calculate_patient_unique_hash: {
         Args: {
           p_birth_date: string
@@ -2540,10 +2890,21 @@ export type Database = {
       get_current_tenant_id: { Args: never; Returns: string }
       get_mvp_demo_data: { Args: { p_data_type: string }; Returns: Json }
       initialize_mvp_demo_data: { Args: never; Returns: undefined }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       set_current_tenant: { Args: { tenant_id: string }; Returns: undefined }
+      user_has_role: {
+        Args: { _role: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      medical_structure_role: "primary_doctor" | "secondary_doctor"
+      pricing_type: "standard" | "insurance" | "reduced"
+      subscription_plan:
+        | "freemium"
+        | "individual"
+        | "professional"
+        | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2670,6 +3031,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      medical_structure_role: ["primary_doctor", "secondary_doctor"],
+      pricing_type: ["standard", "insurance", "reduced"],
+      subscription_plan: [
+        "freemium",
+        "individual",
+        "professional",
+        "enterprise",
+      ],
+    },
   },
 } as const

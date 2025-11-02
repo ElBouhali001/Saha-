@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Calendar, FileText, Settings, Package, BarChart3 } from 'lucide-react';
 import ModuleManager from '../admin/ModuleManager';
+import SubscriptionManager from '../admin/SubscriptionManager';
+import SpecialtyManager from '../admin/SpecialtyManager';
+import DoctorRoleManager from '../admin/DoctorRoleManager';
+import UserRoleManager from '../admin/UserRoleManager';
 
 const AdminDashboard = () => {
   const { user } = useSupabaseAuth();
@@ -37,9 +41,13 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="modules">Gestion Modules</TabsTrigger>
+          <TabsTrigger value="modules">Modules</TabsTrigger>
+          <TabsTrigger value="subscription">Abonnements</TabsTrigger>
+          <TabsTrigger value="specialties">Spécialités</TabsTrigger>
+          <TabsTrigger value="roles">Rôles Médicaux</TabsTrigger>
+          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           <TabsTrigger value="analytics">Analytiques</TabsTrigger>
         </TabsList>
 
@@ -94,6 +102,22 @@ const AdminDashboard = () => {
 
         <TabsContent value="modules">
           <ModuleManager />
+        </TabsContent>
+
+        <TabsContent value="subscription">
+          <SubscriptionManager />
+        </TabsContent>
+
+        <TabsContent value="specialties">
+          <SpecialtyManager />
+        </TabsContent>
+
+        <TabsContent value="roles">
+          <DoctorRoleManager />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <UserRoleManager />
         </TabsContent>
 
         <TabsContent value="analytics">
