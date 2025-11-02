@@ -56,7 +56,8 @@ export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       'laboratory-integration',
       'pharmacy-integration',
       'ai-assistant',
-      'transmission-referrals'
+      'transmission-referrals',
+      'admin'
     ];
     return defaultEnabledModules.includes(moduleId);
   };

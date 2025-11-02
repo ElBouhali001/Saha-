@@ -46,6 +46,14 @@ const MainLayout = () => {
         } else {
           setUserRole(profile?.role || 'patient');
         }
+
+        // Vérification serveur du rôle admin (authoritative)
+        const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', { _user_id: user.id });
+        if (adminCheckError) {
+          console.warn('Admin check failed:', adminCheckError);
+        } else if (isAdmin === true) {
+          setUserRole('admin');
+        }
       } catch (error) {
         console.error('Error:', error);
         setUserRole(user.user_metadata?.role || 'patient');
