@@ -108,12 +108,20 @@ const RevenueDistribution = () => {
 
   const totalStats = useMemo(() => {
     const total = revenueDistribution.reduce(
-      (acc, curr) => ({
-        revenue: acc.revenue + curr.totalRevenue,
-        doctorShare: acc.doctorShare + curr.doctorShare,
-        structureShare: acc.structureShare + curr.structureShare,
-        consultations: acc.consultations + curr.consultationsCount,
-      }),
+      (acc, curr) => {
+        // Pour les médecins principaux, leur part va à la structure
+        const doctorShare = curr.doctorRole === 'Principal' ? 0 : curr.doctorShare;
+        const structureShare = curr.doctorRole === 'Principal' 
+          ? curr.totalRevenue  // Toute la part du médecin principal va à la structure
+          : curr.structureShare;
+        
+        return {
+          revenue: acc.revenue + curr.totalRevenue,
+          doctorShare: acc.doctorShare + doctorShare,
+          structureShare: acc.structureShare + structureShare,
+          consultations: acc.consultations + curr.consultationsCount,
+        };
+      },
       { revenue: 0, doctorShare: 0, structureShare: 0, consultations: 0 }
     );
     return total;
@@ -121,8 +129,8 @@ const RevenueDistribution = () => {
 
   const roleStats = useMemo(() => {
     const stats = {
-      primary: { count: 0, consultations: 0, revenue: 0, share: 0 },
-      secondary: { count: 0, consultations: 0, revenue: 0, share: 0 },
+      primary: { count: 0, consultations: 0, revenue: 0, share: 0, structureShare: 0 },
+      secondary: { count: 0, consultations: 0, revenue: 0, share: 0, structureShare: 0 },
     };
 
     revenueDistribution.forEach((data) => {
@@ -130,7 +138,16 @@ const RevenueDistribution = () => {
       stats[type].count++;
       stats[type].consultations += data.consultationsCount;
       stats[type].revenue += data.totalRevenue;
-      stats[type].share += data.doctorShare;
+      
+      if (data.doctorRole === 'Principal') {
+        // Pour les médecins principaux, toute la part va à la structure
+        stats[type].structureShare += data.totalRevenue;
+        stats[type].share += 0;
+      } else {
+        // Pour les médecins secondaires, répartition normale
+        stats[type].share += data.doctorShare;
+        stats[type].structureShare += data.structureShare;
+      }
     });
 
     return stats;
@@ -242,10 +259,13 @@ const RevenueDistribution = () => {
                 </div>
               </div>
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div className="text-xs text-muted-foreground mb-1">Part après répartition (100%)</div>
+                <div className="text-xs text-muted-foreground mb-1">Part Structure (100%)</div>
                 <div className="text-2xl font-bold text-green-700">
-                  {roleStats.primary.share.toLocaleString()} CFA
+                  {roleStats.primary.structureShare.toLocaleString()} CFA
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Médecins principaux → Structure
+                </p>
               </div>
             </div>
           </CardContent>
@@ -278,9 +298,15 @@ const RevenueDistribution = () => {
                 </div>
               </div>
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div className="text-xs text-muted-foreground mb-1">Part après répartition (moyenne 80%)</div>
+                <div className="text-xs text-muted-foreground mb-1">Part Médecins (moyenne 80%)</div>
                 <div className="text-2xl font-bold text-green-700">
                   {roleStats.secondary.share.toLocaleString()} CFA
+                </div>
+              </div>
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">Part Structure (moyenne 20%)</div>
+                <div className="text-2xl font-bold text-purple-700">
+                  {roleStats.secondary.structureShare.toLocaleString()} CFA
                 </div>
               </div>
             </div>
@@ -337,22 +363,48 @@ const RevenueDistribution = () => {
                         </TableCell>
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="space-y-1">
-                            <div className="font-medium text-green-700">
-                              {data.doctorShare.toLocaleString()} CFA
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              ({data.revenuePercentage}%)
-                            </div>
+                            {data.doctorRole === 'Principal' ? (
+                              <>
+                                <div className="font-medium text-muted-foreground">
+                                  0 CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  (→ Structure)
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="font-medium text-green-700">
+                                  {data.doctorShare.toLocaleString()} CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  ({data.revenuePercentage}%)
+                                </div>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="space-y-1">
-                            <div className="font-medium text-purple-700">
-                              {data.structureShare.toLocaleString()} CFA
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              ({data.structurePercentage}%)
-                            </div>
+                            {data.doctorRole === 'Principal' ? (
+                              <>
+                                <div className="font-medium text-purple-700">
+                                  {data.totalRevenue.toLocaleString()} CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  (100%)
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="font-medium text-purple-700">
+                                  {data.structureShare.toLocaleString()} CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  ({data.structurePercentage}%)
+                                </div>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -385,7 +437,12 @@ const RevenueDistribution = () => {
                   {['Principal', 'Secondaire'].map((roleType) => {
                     const roleData = revenueDistribution.filter((d) => d.doctorRole === roleType);
                     const roleTotal = roleData.reduce((acc, curr) => acc + curr.totalRevenue, 0);
-                    const roleDoctorShare = roleData.reduce((acc, curr) => acc + curr.doctorShare, 0);
+                    const roleDoctorShare = roleData.reduce((acc, curr) => {
+                      return acc + (curr.doctorRole === 'Principal' ? 0 : curr.doctorShare);
+                    }, 0);
+                    const roleStructureShare = roleData.reduce((acc, curr) => {
+                      return acc + (curr.doctorRole === 'Principal' ? curr.totalRevenue : curr.structureShare);
+                    }, 0);
                     
                     return (
                       <div key={roleType} className="p-4 border rounded-lg">
@@ -402,12 +459,29 @@ const RevenueDistribution = () => {
                             <span className="text-sm">CA Total:</span>
                             <span className="font-medium">{roleTotal.toLocaleString()} CFA</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Part Médecins:</span>
-                            <span className="font-medium text-green-700">
-                              {roleDoctorShare.toLocaleString()} CFA
-                            </span>
-                          </div>
+                          {roleType === 'Principal' ? (
+                            <div className="flex justify-between">
+                              <span className="text-sm">Part Structure:</span>
+                              <span className="font-medium text-purple-700">
+                                {roleStructureShare.toLocaleString()} CFA
+                              </span>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-sm">Part Médecins:</span>
+                                <span className="font-medium text-green-700">
+                                  {roleDoctorShare.toLocaleString()} CFA
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm">Part Structure:</span>
+                                <span className="font-medium text-purple-700">
+                                  {roleStructureShare.toLocaleString()} CFA
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     );
