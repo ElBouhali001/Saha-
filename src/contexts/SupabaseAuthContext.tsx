@@ -24,7 +24,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const demoUsers = IS_DEMO
     ? [
         { id: '1', email: 'admin@medipatient.com', first_name: 'Admin', last_name: 'Structure', role: 'admin' },
-        { id: '2', email: 'dr.kouame@medipatient.com', first_name: 'Dr. Kouamé', last_name: 'Adjoua', role: 'doctor', speciality: 'Médecine Générale' },
+        { id: '2', email: 'dr.kouame@medipatient.com', first_name: 'Dr. Kouamé', last_name: 'Adjoua', role: 'admin', speciality: 'Médecine Générale' },
         { id: '3', email: 'agent@medipatient.com', first_name: 'Marie', last_name: 'Traoré', role: 'agent' },
         { id: '4', email: 'patient@medipatient.com', first_name: 'Jean', last_name: 'Koné', role: 'patient' },
         { id: '5', email: 'labo@medipatient.com', first_name: 'Sophie', last_name: 'Diabaté', role: 'lab_technician' },
@@ -39,6 +39,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         { id: '13', email: 'ortho.girard@medipatient.com', first_name: 'Luc', last_name: 'Girard', role: 'doctor', speciality: 'Orthopédie' },
         { id: '14', email: 'ophtalmo.leroy@medipatient.com', first_name: 'Anne', last_name: 'Leroy', role: 'doctor', speciality: 'Ophtalmologie' },
         { id: '15', email: 'dentiste.demo@medipatient.com', first_name: 'Aïcha', last_name: 'Diallo', role: 'doctor', speciality: 'Dentiste' },
+        { id: '16', email: 'admin.demo@medipatient.com', first_name: 'Admin', last_name: 'Demo', role: 'admin' },
       ]
     : [];
 
@@ -86,6 +87,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         'ortho.girard@medipatient.com': 'ortho123',
         'ophtalmo.leroy@medipatient.com': 'ophtalmo123',
         'dentiste.demo@medipatient.com': 'dentiste123',
+        'admin.demo@medipatient.com': 'Admin123!',
       };
 
       const demo = demoUsers.find((u) => u.email === email);
