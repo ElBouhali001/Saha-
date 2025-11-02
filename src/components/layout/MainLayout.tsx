@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import Sidebar from './Sidebar';
 import ModuleComponent from '@/modules/ModuleLoader';
 import AdminDashboard from '../dashboard/AdminDashboard';
@@ -12,19 +13,65 @@ import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
 import DoctorTelemedicine from '@/components/telemedicine/DoctorTelemedicine';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, Loader2 } from 'lucide-react';
 
 const MainLayout = () => {
   const { user } = useSupabaseAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const { canAccessModule } = useModuleAccess();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Récupérer le rôle depuis la table profiles
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user role:', error);
+          // Fallback to user_metadata
+          setUserRole(user.user_metadata?.role || 'patient');
+        } else {
+          setUserRole(profile?.role || 'patient');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setUserRole(user.user_metadata?.role || 'patient');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserRole();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Chargement du profil...</p>
+        </div>
+      </div>
+    );
+  }
+
   const renderPageContent = () => {
     switch (currentPage) {
       case 'dashboard':
-        switch (user?.user_metadata?.role || 'patient') {
+        switch (userRole || 'patient') {
           case 'admin':
             return <AdminDashboard />;
           case 'doctor':
@@ -127,7 +174,7 @@ const MainLayout = () => {
 
       // Telemedicine Module
       case 'telemedicine':
-        return user?.user_metadata?.role === 'doctor' ? 
+        return (userRole === 'doctor' || userRole === 'admin') ? 
           <DoctorTelemedicine /> : 
           <div className="p-6">Module télémédecine non disponible</div>;
 
