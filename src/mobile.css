@@ -1,4 +1,3 @@
-
 /* Styles spécifiques pour mobile */
 @media (max-width: 768px) {
   .mobile-safe-area {
@@ -19,6 +18,41 @@
   .mobile-nav-bottom {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
+
+  /* Prévention des chevauchements sur mobile */
+  h1, h2, h3, h4, h5, h6 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Réduction des paddings pour mobile */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Cards responsive */
+  .card {
+    padding: 1rem !important;
+  }
+
+  /* Tables responsive */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Grids responsive - force 1 colonne sur mobile */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Flex wrap sur mobile */
+  .flex {
+    flex-wrap: wrap;
+  }
 }
 
 /* Styles pour tablette */
@@ -27,10 +61,40 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
+
+  /* Grids 2 colonnes max sur tablette */
+  .grid[class*="grid-cols-3"],
+  .grid[class*="grid-cols-4"],
+  .grid[class*="grid-cols-5"],
+  .grid[class*="grid-cols-6"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 
 /* Amélioration des touch targets */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* Prévention globale des chevauchements */
+* {
+  word-wrap: break-word;
+}
+
+/* Textes longs */
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-ellipsis-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -209,24 +209,25 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 p-3 md:p-4 flex items-center justify-between mobile-header">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="touch-target"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5 md:w-6 md:h-6" />
           </Button>
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M+</span>
+            <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-xs md:text-sm">M+</span>
             </div>
-            <h1 className="font-bold text-lg text-blue-900">MediPatient</h1>
+            <h1 className="font-bold text-base md:text-lg text-blue-900 truncate">MediPatient</h1>
           </div>
-          <div className="w-10" /> {/* Spacer for centering */}
+          <div className="w-10 flex-shrink-0" /> {/* Spacer for centering */}
         </div>
       )}
 
@@ -251,8 +252,10 @@ const MainLayout = () => {
       />
 
       {/* Main Content */}
-      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-16' : ''}`}>
-        {renderPageContent()}
+      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-14 md:pt-16' : ''} p-3 md:p-6 mobile-safe-area`}>
+        <div className="max-w-full overflow-x-hidden">
+          {renderPageContent()}
+        </div>
       </main>
     </div>
   );
