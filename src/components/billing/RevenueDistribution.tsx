@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Users, Building2, DollarSign, Activity, Stethoscope } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IS_DEMO } from '@/config/app';
 
 interface RevenueData {
   doctorName: string;
@@ -19,8 +20,50 @@ interface RevenueData {
   doctorId: string;
 }
 
+// Données démo pour le mode IS_DEMO (bypass RLS)
+const demoDoctorRoles = [
+  {
+    id: 'r1',
+    doctor_id: 'd1',
+    structure_role: 'primary_doctor',
+    revenue_percentage: 100,
+    structure_percentage: 0,
+    is_active: true,
+    doctors: { profiles: { first_name: 'Awa', last_name: 'Koné' } },
+  },
+  {
+    id: 'r2',
+    doctor_id: 'd2',
+    structure_role: 'secondary_doctor',
+    revenue_percentage: 80,
+    structure_percentage: 20,
+    is_active: true,
+    doctors: { profiles: { first_name: 'Moussa', last_name: 'Traoré' } },
+  },
+  {
+    id: 'r3',
+    doctor_id: 'd3',
+    structure_role: 'secondary_doctor',
+    revenue_percentage: 75,
+    structure_percentage: 25,
+    is_active: true,
+    doctors: { profiles: { first_name: 'Aïcha', last_name: 'Diallo' } },
+  },
+];
+
+const demoInvoices = [
+  // rattachées au médecin principal (tout va à la structure)
+  { id: 'i1', amount: 50000, status: 'paid', appointments: { doctor_id: 'd1' } },
+  { id: 'i2', amount: 60000, status: 'paid', appointments: { doctor_id: 'd1' } },
+  // rattachées aux médecins secondaires (80/20 ou 75/25)
+  { id: 'i3', amount: 40000, status: 'paid', appointments: { doctor_id: 'd2' } },
+  { id: 'i4', amount: 70000, status: 'paid', appointments: { doctor_id: 'd2' } },
+  { id: 'i5', amount: 55000, status: 'paid', appointments: { doctor_id: 'd3' } },
+  { id: 'i6', amount: 65000, status: 'paid', appointments: { doctor_id: 'd3' } },
+];
+
 const RevenueDistribution = () => {
-  const { data: invoices } = useQuery({
+  const { data: invoicesRaw } = useQuery({
     queryKey: ['invoices-revenue'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,9 +83,10 @@ const RevenueDistribution = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !IS_DEMO,
   });
 
-  const { data: doctorRoles } = useQuery({
+  const { data: doctorRolesRaw } = useQuery({
     queryKey: ['doctor-roles-revenue'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -59,7 +103,11 @@ const RevenueDistribution = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !IS_DEMO,
   });
+
+  const invoices = (IS_DEMO ? demoInvoices : (invoicesRaw || [])) as any[];
+  const doctorRoles = (IS_DEMO ? demoDoctorRoles : (doctorRolesRaw || [])) as any[];
 
   const revenueDistribution = useMemo<RevenueData[]>(() => {
     if (!invoices || !doctorRoles) return [];
