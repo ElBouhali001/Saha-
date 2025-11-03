@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Heart, Stethoscope, Baby, UserPlus, Eye, Brain, Bone, Scissors, Smile } from 'lucide-react';
+import DentalImagingAnalyzer from './DentalImagingAnalyzer';
 
 interface SpecialtyData {
   [key: string]: any;
@@ -15,12 +16,16 @@ interface SpecialtyConsultationSectionsProps {
   specialty: string;
   specialtyData: SpecialtyData;
   onSpecialtyDataChange: (data: SpecialtyData) => void;
+  onSymptomsUpdate?: (symptoms: string) => void;
+  onDiagnosisUpdate?: (diagnosis: string) => void;
 }
 
 const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps> = ({
   specialty,
   specialtyData,
-  onSpecialtyDataChange
+  onSpecialtyDataChange,
+  onSymptomsUpdate,
+  onDiagnosisUpdate
 }) => {
   const updateField = (field: string, value: any) => {
     onSpecialtyDataChange({
@@ -702,6 +707,15 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {onSymptomsUpdate && onDiagnosisUpdate && (
+          <DentalImagingAnalyzer 
+            onAnalysisComplete={(symptoms, diagnosis) => {
+              onSymptomsUpdate(symptoms);
+              onDiagnosisUpdate(diagnosis);
+            }}
+          />
+        )}
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>État de la dentition</Label>

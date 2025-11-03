@@ -100,6 +100,8 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
           specialty={doctorSpecialty}
           specialtyData={specialtyData}
           onSpecialtyDataChange={onSpecialtyDataChange}
+          onSymptomsUpdate={(symptoms) => handleFieldChange('symptoms', symptoms)}
+          onDiagnosisUpdate={(diagnosis) => handleFieldChange('diagnosis', diagnosis)}
         />
       )}
 
