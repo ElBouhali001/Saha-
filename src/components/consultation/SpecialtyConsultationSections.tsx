@@ -713,6 +713,12 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
               onSymptomsUpdate(symptoms);
               onDiagnosisUpdate(diagnosis);
             }}
+            onSpecialtyDataUpdate={(data) => {
+              // Mettre à jour tous les champs de spécialité
+              Object.entries(data).forEach(([field, value]) => {
+                updateField(field, value);
+              });
+            }}
           />
         )}
         

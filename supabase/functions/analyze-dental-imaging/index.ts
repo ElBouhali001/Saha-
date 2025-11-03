@@ -82,7 +82,20 @@ Réponds UNIQUEMENT avec un objet JSON structuré comme suit:
   "diagnosis": "diagnostic dentaire détaillé basé sur les observations",
   "recommendedActions": ["action1", "action2", "..."],
   "urgency": "faible | modérée | élevée",
-  "confidence": number (0-100)
+  "confidence": number (0-100),
+  "specialtyFields": {
+    "dentitionState": "bon | moyen | mauvais | edente",
+    "missingTeeth": number,
+    "cavities": "liste des dents avec caries (notation FDI séparée par virgules)",
+    "gumsState": "saines | gingivite | parodontite-legere | parodontite-moderee | parodontite-severe",
+    "oralHygiene": "excellente | bonne | moyenne | insuffisante | mauvaise",
+    "tartar": "absent | leger | modere | important",
+    "occlusion": "classe-I | classe-II | classe-III | supraclusion | infraclusion",
+    "dentalSymptoms": ["liste des symptômes détectés parmi: Douleur dentaire, Sensibilité au froid, Sensibilité au chaud, Saignement gingival, Mauvaise haleine, Mobilité dentaire"],
+    "requiredCare": ["liste des soins nécessaires parmi: Détartrage, Soins de caries, Extraction, Prothèse dentaire, Couronne, Implant, Blanchiment, Orthodontie"],
+    "panoramicXray": "non-necessaire | recommandee | realisee",
+    "dentalNotes": "observations cliniques complémentaires"
+  }
 }`
           },
           {

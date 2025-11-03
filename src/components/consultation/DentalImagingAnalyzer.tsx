@@ -26,13 +26,30 @@ interface DentalAnalysis {
   recommendedActions: string[];
   urgency: string;
   confidence: number;
+  specialtyFields?: {
+    dentitionState: string;
+    missingTeeth: number;
+    cavities: string;
+    gumsState: string;
+    oralHygiene: string;
+    tartar: string;
+    occlusion: string;
+    dentalSymptoms: string[];
+    requiredCare: string[];
+    panoramicXray: string;
+    dentalNotes: string;
+  };
 }
 
 interface DentalImagingAnalyzerProps {
   onAnalysisComplete: (symptoms: string, diagnosis: string) => void;
+  onSpecialtyDataUpdate?: (data: any) => void;
 }
 
-const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({ onAnalysisComplete }) => {
+const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({ 
+  onAnalysisComplete,
+  onSpecialtyDataUpdate 
+}) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<DentalAnalysis | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -110,10 +127,17 @@ const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({ onAnalysi
 
   const handleApplyToConsultation = () => {
     if (analysis) {
+      // Mettre à jour les symptômes et diagnostic
       onAnalysisComplete(analysis.symptoms, analysis.diagnosis);
+      
+      // Mettre à jour tous les champs de spécialité si disponibles
+      if (analysis.specialtyFields && onSpecialtyDataUpdate) {
+        onSpecialtyDataUpdate(analysis.specialtyFields);
+      }
+      
       toast({
         title: "Résultats appliqués",
-        description: "Les symptômes et diagnostic ont été ajoutés à la consultation",
+        description: "Toutes les sections de l'examen ont été remplies automatiquement",
       });
     }
   };
