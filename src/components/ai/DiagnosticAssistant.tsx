@@ -57,15 +57,18 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
 
       if (error) throw error;
 
-      const diagnostics = data.diagnostics || [];
+      const diagnostics = data?.diagnostics || [];
       const results = diagnostics.map((d: any) => ({
         condition: d.condition,
         icd10Code: d.icd10Code,
-        confidence: d.confidence || d.confidenceIndex,
+        confidenceIndex: d.confidence || d.confidenceIndex,
         urgencyLevel: d.urgencyLevel,
-        description: `Source: ${d.source} | ${d.whoCategory}`,
-        recommendedTests: d.additionalTests || [],
-        differentialDiagnoses: d.differentialDiagnosis || []
+        whoCategory: d.whoCategory,
+        symptoms: d.symptoms || [],
+        additionalTests: d.additionalTests || [],
+        differentialDiagnosis: d.differentialDiagnosis || [],
+        description: d.description || `Source: ${d.source}`,
+        clinicalEvidence: d.clinicalEvidence || {}
       }));
 
       setSuggestions(results);
