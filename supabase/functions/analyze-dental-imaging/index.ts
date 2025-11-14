@@ -13,10 +13,10 @@ serve(async (req) => {
 
   try {
     const { imageData } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
     }
 
     // Validate image data
@@ -31,20 +31,42 @@ serve(async (req) => {
       });
     }
 
-    console.log('Analyzing dental imaging...');
+    console.log('Analyzing dental imaging with Claude Sonnet 4...');
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Extract media type and base64 data
+    const mediaTypeMatch = imageData.match(/^data:image\/(png|jpeg|jpg|webp);base64,/);
+    if (!mediaTypeMatch) {
+      throw new Error('Unsupported image format');
+    }
+
+    const mediaType = mediaTypeMatch[1] === 'jpg' ? 'jpeg' : mediaTypeMatch[1];
+    const base64Data = imageData.split(',')[1];
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': `${ANTHROPIC_API_KEY}`,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
         messages: [
           {
-            role: 'system',
-            content: `Tu es un assistant médical IA spécialisé dans l'analyse d'imagerie dentaire.
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: `image/${mediaType}`,
+                  data: base64Data,
+                },
+              },
+              {
+                type: 'text',
+                text: `Tu es un assistant médical IA spécialisé dans l'analyse d'imagerie dentaire.
 
 Analyse l'image dentaire fournie (radiographie, photo intra-orale, panoramique dentaire, etc.) et fournis un rapport clinique détaillé.
 
@@ -96,62 +118,30 @@ Réponds UNIQUEMENT avec un objet JSON structuré comme suit:
     "panoramicXray": "non-necessaire | recommandee | realisee",
     "dentalNotes": "observations cliniques complémentaires"
   }
-}`
-          },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Analyse cette imagerie dentaire et fournis un rapport clinique complet.'
+}`,
               },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: imageData
-                }
-              }
-            ]
-          }
+            ],
+          },
         ],
-        temperature: 0.3,
-        max_tokens: 2000
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ 
-          error: 'Limite de requêtes atteinte. Veuillez réessayer dans quelques instants.',
-          success: false 
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ 
-          error: 'Crédits insuffisants. Veuillez recharger votre compte Lovable AI.',
-          success: false 
-        }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      throw new Error(`AI Gateway error: ${response.status}`);
+      console.error('Anthropic API error:', response.status, errorText);
+      throw new Error(`Anthropic API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-    
-    console.log('AI Response:', content);
+    const aiResponse = await response.json();
+    const content = aiResponse.content?.[0]?.text;
 
-    // Parse the JSON response
+    if (!content) {
+      throw new Error('No content received from AI');
+    }
+
+    console.log('AI Response received from Claude');
+
+    // Parse the JSON response (Claude may wrap it in markdown code blocks)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('Invalid JSON response from AI');
