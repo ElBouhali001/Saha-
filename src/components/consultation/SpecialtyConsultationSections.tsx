@@ -7,6 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Heart, Stethoscope, Baby, UserPlus, Eye, Brain, Bone, Scissors, Smile } from 'lucide-react';
 import DentalImagingAnalyzer from './DentalImagingAnalyzer';
+import CardiologyImagingAnalyzer from './CardiologyImagingAnalyzer';
+import DermatologyImagingAnalyzer from './DermatologyImagingAnalyzer';
+import OrthopedicImagingAnalyzer from './OrthopedicImagingAnalyzer';
+import NeurologyImagingAnalyzer from './NeurologyImagingAnalyzer';
+import OphtalmologyImagingAnalyzer from './OphtalmologyImagingAnalyzer';
 
 interface SpecialtyData {
   [key: string]: any;
@@ -193,6 +198,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             </SelectContent>
           </Select>
         </div>
+
+        <DermatologyImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
@@ -508,6 +524,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             ))}
           </div>
         </div>
+
+        <NeurologyImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
@@ -606,6 +633,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             </SelectContent>
           </Select>
         </div>
+
+        <OrthopedicImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
@@ -694,6 +732,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             ))}
           </div>
         </div>
+
+        <OphtalmologyImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
