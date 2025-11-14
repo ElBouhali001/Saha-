@@ -108,8 +108,28 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant/après):
   }
 
   const result = await response.json();
-  const content = result.choices[0].message.content;
+  let content = result.choices[0].message.content;
+  
+  console.log('Raw Gemini response content:', content.substring(0, 200));
+  
+  // Nettoyer les balises markdown si présentes
+  if (content.includes('```json')) {
+    content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+  }
+  if (content.includes('```')) {
+    content = content.replace(/```/g, '');
+  }
+  
+  content = content.trim();
+  
+  console.log('Cleaned content:', content.substring(0, 200));
+  
   const parsed = JSON.parse(content);
+  
+  if (!parsed.diagnostics || !Array.isArray(parsed.diagnostics)) {
+    console.error('Invalid response structure:', parsed);
+    throw new Error('Invalid response structure from Gemini');
+  }
   
   return parsed.diagnostics.map((d: any) => ({
     ...d,
