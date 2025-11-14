@@ -15,6 +15,12 @@ verify_jwt = false
 [functions.openevidence-search]
 verify_jwt = true
 
+[functions.multi-ai-diagnosis]
+verify_jwt = false
+
+[functions.create-demo-doctor]
+verify_jwt = false
+
 [functions.secure-data-handler]
 verify_jwt = false
 
