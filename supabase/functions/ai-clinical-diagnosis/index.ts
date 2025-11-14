@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -78,8 +78,8 @@ const WHO_CLINICAL_DATABASE = {
 };
 
 async function analyzeWithClinicalAI(data: ClinicalData): Promise<DiagnosticResult[]> {
-  if (!openAIApiKey) {
-    throw new Error('Clé API OpenAI non configurée');
+  if (!ANTHROPIC_API_KEY) {
+    throw new Error('Clé API Anthropic non configurée');
   }
 
   const prompt = `
@@ -133,37 +133,37 @@ IMPORTANT: Basez-vous sur les données réelles de l'OMS et les classifications 
 `;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'x-api-key': `${ANTHROPIC_API_KEY}`,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
         messages: [
           {
-            role: 'system',
-            content: 'Vous êtes un assistant diagnostique médical expert connecté aux bases de données cliniques mondiales et de l\'OMS. Vous analysez les symptômes avec rigueur scientifique et fournissez des diagnostics différentiels basés sur l\'évidence.'
-          },
-          {
             role: 'user',
-            content: prompt
+            content: `Vous êtes un assistant diagnostique médical expert connecté aux bases de données cliniques mondiales et de l'OMS. Vous analysez les symptômes avec rigueur scientifique et fournissez des diagnostics différentiels basés sur l'évidence.\n\n${prompt}`
           }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000
+        ]
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Erreur API OpenAI: ${response.status}`);
+      throw new Error(`Erreur API Anthropic: ${response.status}`);
     }
 
     const aiResponse = await response.json();
-    const content = aiResponse.choices[0].message.content;
+    const content = aiResponse.content?.[0]?.text;
     
-    // Parser la réponse JSON de l'IA
+    if (!content) {
+      throw new Error('Pas de contenu dans la réponse IA');
+    }
+    
+    // Parser la réponse JSON de l'IA (Claude peut l'envelopper dans des blocs markdown)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('Format de réponse IA invalide');
