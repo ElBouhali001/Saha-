@@ -114,6 +114,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             rows={3}
           />
         </div>
+
+        <CardiologyImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
