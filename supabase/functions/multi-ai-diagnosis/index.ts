@@ -41,35 +41,48 @@ interface DiagnosticResult {
 }
 
 async function callGeminiDiagnosis(data: ClinicalData): Promise<DiagnosticResult[]> {
-  const prompt = `
-En tant qu'assistant diagnostique médical, analysez les symptômes suivants et fournissez un diagnostic différentiel.
+  const prompt = `Tu es un expert en diagnostic médical. Analyse ces symptômes et fournis un diagnostic différentiel précis et structuré.
 
-DONNÉES PATIENT:
+PATIENT:
 - Âge: ${data.patientAge} ans
-- Sexe: ${data.patientGender === 'M' ? 'Masculin' : 'Féminin'}
-- Symptômes: ${data.symptoms}
-${data.medicalHistory ? `- Antécédents: ${data.medicalHistory.join(', ')}` : ''}
-${data.vitalSigns ? `- Signes vitaux: ${JSON.stringify(data.vitalSigns)}` : ''}
+- Sexe: ${data.patientGender === 'M' ? 'Homme' : 'Femme'}
+- Symptômes principaux: ${data.symptoms}
+${data.medicalHistory ? `- Antécédents médicaux: ${data.medicalHistory.join(', ')}` : ''}
+${data.vitalSigns ? `- Signes vitaux: Température ${data.vitalSigns.temperature}°C, TA ${data.vitalSigns.bloodPressure}, FC ${data.vitalSigns.heartRate} bpm, FR ${data.vitalSigns.respiratoryRate}/min` : ''}
 
-Proposez 3-5 diagnostics différentiels avec codes ICD-10 et niveau de confiance.
+INSTRUCTIONS:
+1. Analyse les symptômes en considérant l'âge, le sexe et les antécédents
+2. Propose 3-5 diagnostics différentiels classés par probabilité décroissante
+3. Base l'indice de confiance (0-100) sur:
+   - Correspondance symptomatique précise
+   - Prévalence épidémiologique
+   - Facteurs de risque du patient
+   - Cohérence clinique globale
 
-Structurez votre réponse en JSON:
+4. Pour CHAQUE diagnostic, fournis:
+   - Code ICD-10 exact
+   - Liste des symptômes caractéristiques
+   - Examens complémentaires pertinents et spécifiques
+   - Niveau d'urgence justifié
+   - Diagnostic différentiel concis
+
+Réponds UNIQUEMENT avec ce JSON (aucun texte avant/après):
 {
   "diagnostics": [
     {
-      "condition": "Nom de la pathologie",
+      "condition": "Nom précis de la pathologie",
       "confidenceIndex": 85,
-      "icd10Code": "J44.1",
-      "whoCategory": "Maladies respiratoires",
-      "symptoms": ["symptôme1", "symptôme2"],
-      "additionalTests": ["test1", "test2"],
-      "urgencyLevel": "medium",
+      "icd10Code": "A00.0",
+      "whoCategory": "Catégorie OMS",
+      "symptoms": ["symptôme caractéristique 1", "symptôme 2"],
+      "additionalTests": ["examen spécifique 1", "examen 2"],
+      "urgencyLevel": "low|medium|high|critical",
       "clinicalEvidence": {
-        "whoGuidelines": "WHO Global Strategy",
-        "medlineReferences": ["ref1", "ref2"],
-        "prevalenceData": "Données de prévalence"
+        "whoGuidelines": "Guideline pertinent",
+        "medlineReferences": ["référence 1"],
+        "prevalenceData": "Données épidémiologiques"
       },
-      "differentialDiagnosis": ["diagnostic1", "diagnostic2"]
+      "differentialDiagnosis": ["autre diagnostic possible 1", "autre 2"]
     }
   ]
 }`;
@@ -81,9 +94,10 @@ Structurez votre réponse en JSON:
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-pro',
+      model: 'google/gemini-2.5-flash',
       messages: [{ role: 'user', content: prompt }],
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_object' },
+      temperature: 0.3
     })
   });
 
@@ -99,7 +113,7 @@ Structurez votre réponse en JSON:
   
   return parsed.diagnostics.map((d: any) => ({
     ...d,
-    source: 'gemini',
+    source: 'gemini-flash',
     confidence: d.confidenceIndex
   }));
 }
@@ -220,37 +234,53 @@ serve(async (req) => {
 
   try {
     const data: ClinicalData = await req.json();
+    const useMultiEngine = req.url.includes('multi=true');
     
-    console.log('Analyzing with multiple AI engines...');
+    console.log(`Analyzing with ${useMultiEngine ? 'multi-engine' : 'fast'} mode...`);
     
-    // Appeler les deux moteurs en parallèle
-    const [geminiResults, claudeResults] = await Promise.allSettled([
-      callGeminiDiagnosis(data),
-      callClaudeDiagnosis(data)
-    ]);
-    
-    const gemini = geminiResults.status === 'fulfilled' ? geminiResults.value : [];
-    const claude = claudeResults.status === 'fulfilled' ? claudeResults.value : [];
-    
-    console.log(`Gemini results: ${gemini.length}, Claude results: ${claude.length}`);
-    
-    // Fusionner et classer les résultats
-    const mergedResults = mergeAndRankResults(gemini, claude);
-    
-    return new Response(
-      JSON.stringify({ 
-        diagnostics: mergedResults.slice(0, 5), // Top 5 résultats
-        sources: {
-          gemini: gemini.length,
-          claude: claude.length,
-          total: mergedResults.length
-        }
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    if (useMultiEngine) {
+      // Mode multi-moteurs (plus lent mais plus précis)
+      const [geminiResults, claudeResults] = await Promise.allSettled([
+        callGeminiDiagnosis(data),
+        callClaudeDiagnosis(data)
+      ]);
+      
+      const gemini = geminiResults.status === 'fulfilled' ? geminiResults.value : [];
+      const claude = claudeResults.status === 'fulfilled' ? claudeResults.value : [];
+      
+      console.log(`Gemini results: ${gemini.length}, Claude results: ${claude.length}`);
+      
+      const mergedResults = mergeAndRankResults(gemini, claude);
+      
+      return new Response(
+        JSON.stringify({ 
+          diagnostics: mergedResults.slice(0, 5),
+          sources: {
+            gemini: gemini.length,
+            claude: claude.length,
+            total: mergedResults.length
+          }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } else {
+      // Mode rapide (Gemini Flash uniquement)
+      const results = await callGeminiDiagnosis(data);
+      
+      return new Response(
+        JSON.stringify({ 
+          diagnostics: results.slice(0, 5),
+          sources: {
+            gemini: results.length,
+            total: results.length
+          }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
   } catch (error) {
-    console.error('Multi-AI diagnosis error:', error);
+    console.error('AI diagnosis error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

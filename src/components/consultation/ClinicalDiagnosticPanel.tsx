@@ -28,7 +28,22 @@ const ClinicalDiagnosticPanel: React.FC<ClinicalDiagnosticPanelProps> = ({
   const handleDiagnosisSelection = (suggestion: DiagnosticSuggestion) => {
     setSelectedDiagnosis(suggestion);
     if (onDiagnosisSelect) {
-      onDiagnosisSelect(suggestion.condition);
+      // Formatter le diagnostic complet avec toutes les informations pertinentes
+      const fullDiagnosis = `${suggestion.condition} (${suggestion.icd10Code})
+
+Indice de confiance: ${suggestion.confidenceIndex}%
+Niveau d'urgence: ${suggestion.urgencyLevel}
+
+Symptômes associés:
+${suggestion.symptoms?.map(s => `- ${s}`).join('\n')}
+
+${suggestion.differentialDiagnosis?.length > 0 ? `Diagnostic différentiel à considérer:
+${suggestion.differentialDiagnosis.map(d => `- ${d}`).join('\n')}` : ''}
+
+${suggestion.additionalTests?.length > 0 ? `Examens complémentaires recommandés:
+${suggestion.additionalTests.map(t => `- ${t}`).join('\n')}` : ''}`;
+      
+      onDiagnosisSelect(fullDiagnosis);
     }
   };
 

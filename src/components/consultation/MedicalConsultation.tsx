@@ -6,6 +6,7 @@ import { FileText, Pill, Send, Shield, Brain } from 'lucide-react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { usePermissions } from '@/utils/permissions';
 import { generateSecureTicket, generateSecureToken } from '@/utils/security';
+import { useToast } from '@/hooks/use-toast';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import TicketAuthentication from './TicketAuthentication';
 import PatientInfoDisplay from './PatientInfoDisplay';
@@ -16,6 +17,7 @@ import ClinicalDiagnosticPanel from './ClinicalDiagnosticPanel';
 const MedicalConsultation = () => {
   const { user } = useSupabaseAuth();
   const permissions = usePermissions(user);
+  const { toast } = useToast();
   const [patient, setPatient] = useState<any>(null);
   const [accessGranted, setAccessGranted] = useState(false);
   const [consultation, setConsultation] = useState({
@@ -57,6 +59,10 @@ const MedicalConsultation = () => {
   const handleDiagnosisSelect = (diagnosis: string) => {
     setConsultation(prev => ({ ...prev, diagnosis }));
     setShowDiagnosticPanel(false);
+    toast({
+      title: "Diagnostic copié",
+      description: "Le diagnostic IA a été copié dans votre consultation",
+    });
   };
 
   const handleSaveConsultation = () => {
