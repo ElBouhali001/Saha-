@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Heart, Stethoscope, Baby, UserPlus, Eye, Brain, Bone, Scissors, Smile } from 'lucide-react';
 import DentalImagingAnalyzer from './DentalImagingAnalyzer';
+import SpecialtyImageAnalyzer from './SpecialtyImageAnalyzer';
 
 interface SpecialtyData {
   [key: string]: any;
@@ -34,8 +35,19 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
     });
   };
 
+  const handleCardioAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderCardiologySection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="cardiology" 
+        onAnalysisComplete={handleCardioAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-red-600">
           <Heart className="w-5 h-5 mr-2" />
@@ -111,10 +123,113 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
+  const handleDermaAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderDermatologySection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="dermatology" 
+        onAnalysisComplete={handleDermaAnalysisComplete}
+      />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center text-red-600">
+            <Heart className="w-5 h-5 mr-2" />
+            Évaluation Cardiologique
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label>Tension artérielle (mmHg)</Label>
+              <Input
+                placeholder="Ex: 120/80"
+                value={specialtyData.bloodPressure || ''}
+                onChange={(e) => updateField('bloodPressure', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Fréquence cardiaque (bpm)</Label>
+              <Input
+                type="number"
+                placeholder="Ex: 72"
+                value={specialtyData.heartRate || ''}
+                onChange={(e) => updateField('heartRate', e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <Label>Auscultation cardiaque</Label>
+            <Select value={specialtyData.heartAuscultation || ''} onValueChange={(value) => updateField('heartAuscultation', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Résultat de l'auscultation" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="normal">Bruits du cœur normaux</SelectItem>
+                <SelectItem value="murmur">Souffle cardiaque</SelectItem>
+                <SelectItem value="irregular">Rythme irrégulier</SelectItem>
+                <SelectItem value="gallop">Galop</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Symptômes cardiovasculaires</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+              {['Douleur thoracique', 'Essoufflement', 'Palpitations', 'Œdème des membres', 'Fatigue', 'Syncope'].map((symptom) => (
+                <div key={symptom} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={specialtyData.cardioSymptoms?.includes(symptom) || false}
+                    onCheckedChange={(checked) => {
+                      const current = specialtyData.cardioSymptoms || [];
+                      updateField('cardioSymptoms', 
+                        checked 
+                          ? [...current, symptom]
+                          : current.filter((s: string) => s !== symptom)
+                      );
+                    }}
+                  />
+                  <Label className="text-sm">{symptom}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label>Examens complémentaires recommandés</Label>
+            <Textarea
+              placeholder="ECG, Échocardiographie, Test d'effort..."
+              value={specialtyData.recommendedTests || ''}
+              onChange={(e) => updateField('recommendedTests', e.target.value)}
+              rows={3}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+
+  const handleDermaAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
+  const renderDermatologySection = () => (
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="dermatology" 
+        onAnalysisComplete={handleDermaAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-orange-600">
           <UserPlus className="w-5 h-5 mr-2" />
@@ -195,10 +310,22 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
+  const handlePediatricsAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderPediatricsSection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="pediatrics" 
+        onAnalysisComplete={handlePediatricsAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-blue-600">
           <Baby className="w-5 h-5 mr-2" />
@@ -277,10 +404,22 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
+  const handleGynecoAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderGynecologySection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="gynecology" 
+        onAnalysisComplete={handleGynecoAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-pink-600">
           <UserPlus className="w-5 h-5 mr-2" />
@@ -389,10 +528,22 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
+  const handleNeuroAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderNeurologySection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="neurology" 
+        onAnalysisComplete={handleNeuroAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-purple-600">
           <Brain className="w-5 h-5 mr-2" />
@@ -510,10 +661,22 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
+  const handleOrthoAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderOrthopedicsSection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="orthopedics" 
+        onAnalysisComplete={handleOrthoAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-green-600">
           <Bone className="w-5 h-5 mr-2" />
@@ -608,10 +771,22 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
+  const handleOphtalmoAnalysisComplete = (analysis: string) => {
+    if (onDiagnosisUpdate) {
+      onDiagnosisUpdate(analysis);
+    }
+  };
+
   const renderOphthalmologySection = () => (
-    <Card>
+    <>
+      <SpecialtyImageAnalyzer 
+        specialty="ophthalmology" 
+        onAnalysisComplete={handleOphtalmoAnalysisComplete}
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-indigo-600">
           <Eye className="w-5 h-5 mr-2" />
@@ -696,6 +871,7 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
         </div>
       </CardContent>
     </Card>
+    </>
   );
 
   const renderDentistrySection = () => (
