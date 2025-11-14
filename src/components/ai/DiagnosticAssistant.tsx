@@ -43,13 +43,31 @@ const DiagnosticAssistant: React.FC<DiagnosticAssistantProps> = ({ onSuggestionS
         respiratoryRate: vitalSigns.respiratoryRate ? parseInt(vitalSigns.respiratoryRate) : undefined
       } : undefined;
 
-      const results = await aiService.getDiagnosticSuggestions(
-        symptoms,
-        parseInt(patientAge) || 30,
-        patientGender,
-        historyArray,
-        vitals
-      );
+      // Utiliser le nouvel endpoint multi-AI qui combine Gemini et Claude
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.functions.invoke('multi-ai-diagnosis', {
+        body: {
+          symptoms,
+          patientAge: parseInt(patientAge) || 30,
+          patientGender,
+          medicalHistory: historyArray,
+          vitalSigns: vitals
+        }
+      });
+
+      if (error) throw error;
+
+      const diagnostics = data.diagnostics || [];
+      const results = diagnostics.map((d: any) => ({
+        condition: d.condition,
+        icd10Code: d.icd10Code,
+        confidence: d.confidence || d.confidenceIndex,
+        urgencyLevel: d.urgencyLevel,
+        description: `Source: ${d.source} | ${d.whoCategory}`,
+        recommendedTests: d.additionalTests || [],
+        differentialDiagnoses: d.differentialDiagnosis || []
+      }));
+
       setSuggestions(results);
     } catch (error) {
       console.error('Erreur analyse diagnostique:', error);
