@@ -37,21 +37,21 @@ Deno.serve(async (req) => {
       inventory = inventoryData || [];
     }
 
-    // Call OpenAI Vision API for OCR
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiApiKey) {
-      throw new Error('OpenAI API key not configured');
+    // Call Lovable AI Gateway with Gemini Vision for OCR
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log('Calling OpenAI Vision API for OCR');
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    console.log('Calling Lovable AI (Gemini Vision) for OCR');
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'user',
@@ -90,21 +90,38 @@ IMPORTANT:
             ]
           }
         ],
-        max_tokens: 1000,
-        temperature: 0.2
+        max_completion_tokens: 1000
       }),
     });
 
-    if (!openaiResponse.ok) {
-      const error = await openaiResponse.text();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+    if (!aiResponse.ok) {
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'Limite de requêtes atteinte. Veuillez réessayer dans quelques instants.' 
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'Crédits AI insuffisants. Veuillez ajouter des crédits dans les paramètres.' 
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const error = await aiResponse.text();
+      console.error('Lovable AI error:', error);
+      throw new Error(`Lovable AI error: ${aiResponse.status}`);
     }
 
-    const openaiData = await openaiResponse.json();
-    console.log('OpenAI response received');
+    const aiData = await aiResponse.json();
+    console.log('Lovable AI response received');
 
-    const content = openaiData.choices[0].message.content;
+    const content = aiData.choices[0].message.content;
     let prescriptionData;
     
     try {
@@ -116,7 +133,7 @@ IMPORTANT:
         prescriptionData = JSON.parse(content);
       }
     } catch (e) {
-      console.error('Failed to parse OpenAI response as JSON:', e);
+      console.error('Failed to parse AI response as JSON:', e);
       throw new Error('Failed to parse prescription data');
     }
 
