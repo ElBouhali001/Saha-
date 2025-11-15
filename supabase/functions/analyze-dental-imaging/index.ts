@@ -82,7 +82,7 @@ Réponds UNIQUEMENT avec un objet JSON structuré comme suit:
   "diagnosis": "diagnostic dentaire détaillé basé sur les observations",
   "recommendedActions": ["action1", "action2", "..."],
   "urgency": "faible | modérée | élevée",
-  "confidence": number (0-100),
+  "confidence": number (0-100, typiquement entre 35 et 65, rarement au-dessus de 70),
   "specialtyFields": {
     "dentitionState": "bon | moyen | mauvais | edente",
     "missingTeeth": number,
@@ -96,7 +96,9 @@ Réponds UNIQUEMENT avec un objet JSON structuré comme suit:
     "panoramicXray": "non-necessaire | recommandee | realisee",
     "dentalNotes": "observations cliniques complémentaires"
   }
-}`
+}
+
+IMPORTANT: Le score "confidence" doit être RÉALISTE et CONSERVATEUR. Utilise typiquement entre 35 et 65. Rarement au-dessus de 70. Une image médicale seule ne permet JAMAIS un diagnostic certain à 80-90%.`
           },
           {
             role: 'user',
