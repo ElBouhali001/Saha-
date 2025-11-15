@@ -98,7 +98,10 @@ Réponds UNIQUEMENT avec un objet JSON structuré comme suit:
   }
 }
 
-IMPORTANT: Le score "confidence" doit être RÉALISTE et CONSERVATEUR. Utilise typiquement entre 35 et 65. Rarement au-dessus de 70. Une image médicale seule ne permet JAMAIS un diagnostic certain à 80-90%.`
+IMPORTANT: Le score "confidence" doit être CALCULÉ dynamiquement selon:
+- Qualité de l'image: floue (35-40), moyenne (45-55), nette (60-65)
+- Clarté des signes cliniques: ambigus (30-40), partiels (45-55), évidents (60-70)
+- JAMAIS au-dessus de 70. Une image seule ne permet JAMAIS un diagnostic certain à 80-90%.`
           },
           {
             role: 'user',
