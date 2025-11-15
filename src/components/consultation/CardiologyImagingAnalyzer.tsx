@@ -50,16 +50,22 @@ const CardiologyImagingAnalyzer: React.FC<CardiologyImagingAnalyzerProps> = ({
   const { toast } = useToast();
 
   const handleImageUpload = async (file: File) => {
-    setIsAnalyzing(true);
     setPreviewImage(URL.createObjectURL(file));
+  };
 
+  const handleAnalyze = async () => {
+    if (!previewImage) return;
+    setIsAnalyzing(true);
     try {
+      const response = await fetch(previewImage);
+      const blob = await response.blob();
+
       const reader = new FileReader();
-      reader.readAsDataURL(file);
-      
+      reader.readAsDataURL(blob);
+
       reader.onload = async () => {
         const base64Image = reader.result as string;
-        
+
         const { data, error } = await supabase.functions.invoke('analyze-cardiac-imaging', {
           body: { image: base64Image }
         });
@@ -67,10 +73,7 @@ const CardiologyImagingAnalyzer: React.FC<CardiologyImagingAnalyzerProps> = ({
         if (error) throw error;
 
         setAnalysis(data);
-        
-        if (onAnalysisComplete) {
-          onAnalysisComplete(data);
-        }
+        if (onAnalysisComplete) onAnalysisComplete(data);
 
         toast({
           title: "Analyse terminée",
@@ -164,8 +167,20 @@ const CardiologyImagingAnalyzer: React.FC<CardiologyImagingAnalyzerProps> = ({
         </Button>
 
         {previewImage && (
-          <div className="relative">
-            <img src={previewImage} alt="Imagerie cardiologique" className="w-full rounded-md" />
+          <div className="space-y-2">
+            <div className="relative">
+              <img src={previewImage} alt="Imagerie cardiologique" className="w-full rounded-md" />
+            </div>
+            <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full">
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyse en cours...
+                </>
+              ) : (
+                "Lancer l'analyse IA"
+              )}
+            </Button>
           </div>
         )}
 

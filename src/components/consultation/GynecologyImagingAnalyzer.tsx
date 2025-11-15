@@ -48,13 +48,21 @@ const GynecologyImagingAnalyzer: React.FC<GynecologyImagingAnalyzerProps> = ({
   const { toast } = useToast();
 
   const handleImageUpload = async (file: File) => {
-    setIsAnalyzing(true);
     const imageUrl = URL.createObjectURL(file);
     setPreviewImage(imageUrl);
+  };
+
+  const handleAnalyze = async () => {
+    if (!previewImage) return;
+    
+    setIsAnalyzing(true);
 
     try {
+      const response = await fetch(previewImage);
+      const blob = await response.blob();
+      
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(blob);
       
       reader.onload = async () => {
         const base64Image = reader.result as string;
@@ -163,8 +171,24 @@ const GynecologyImagingAnalyzer: React.FC<GynecologyImagingAnalyzerProps> = ({
         </Button>
 
         {previewImage && (
-          <div className="relative">
-            <img src={previewImage} alt="Imagerie gynécologique" className="w-full rounded-md" />
+          <div className="space-y-2">
+            <div className="relative">
+              <img src={previewImage} alt="Imagerie gynécologique" className="w-full rounded-md" />
+            </div>
+            <Button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+              className="w-full"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyse en cours...
+                </>
+              ) : (
+                "Lancer l'analyse IA"
+              )}
+            </Button>
           </div>
         )}
 
