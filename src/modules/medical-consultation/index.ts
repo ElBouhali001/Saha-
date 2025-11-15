@@ -13,4 +13,7 @@ export { default as DermatologyImagingAnalyzer } from '../../components/consulta
 export { default as OrthopedicImagingAnalyzer } from '../../components/consultation/OrthopedicImagingAnalyzer';
 export { default as NeurologyImagingAnalyzer } from '../../components/consultation/NeurologyImagingAnalyzer';
 export { default as OphtalmologyImagingAnalyzer } from '../../components/consultation/OphtalmologyImagingAnalyzer';
+export { default as PediatricsImagingAnalyzer } from '../../components/consultation/PediatricsImagingAnalyzer';
+export { default as GynecologyImagingAnalyzer } from '../../components/consultation/GynecologyImagingAnalyzer';
+
 
