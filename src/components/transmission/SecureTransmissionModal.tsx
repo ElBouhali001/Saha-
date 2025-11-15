@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,11 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Send, QrCode, Copy, Check } from 'lucide-react';
+import { Send, QrCode, Copy, Check, AlertCircle } from 'lucide-react';
 import { useCreateTransmission } from '@/hooks/useTransmissions';
 import { useDoctors } from '@/hooks/useDoctors';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { TransmissionCreate } from '@/types/transmission';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface SecureTransmissionModalProps {
   isOpen: boolean;
@@ -38,9 +41,8 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
   specialistMode = false
 }) => {
   const [selectedRecipient, setSelectedRecipient] = useState('');
-  const [recipientType, setRecipientType] = useState<'specialist' | 'laboratory' | 'doctor'>(
-    specialistMode ? 'specialist' : 'specialist'
-  );
+  const [selectedSpecialty, setSelectedSpecialty] = useState('');
+  const [recipientType, setRecipientType] = useState<'specialist' | 'laboratory' | 'doctor'>('specialist');
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   const [reason, setReason] = useState('');
   const [validityHours, setValidityHours] = useState(48);
@@ -50,15 +52,39 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
   const { data: doctors } = useDoctors();
   const createTransmission = useCreateTransmission();
 
-  // Filtrer les médecins selon le mode
-  const availableDoctors = specialistMode 
-    ? doctors?.filter(doctor => {
-        const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
-        const specialtyName = primarySpecialty?.specialty?.name || '';
-        // Exclure "Médecine Générale" pour les spécialistes
-        return specialtyName && specialtyName !== 'Médecine Générale';
-      })
-    : doctors;
+  // Récupérer les spécialités médicales
+  const { data: specialties } = useQuery({
+    queryKey: ['medical-specialties'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('medical_specialties')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Filtrer les spécialités (exclure Médecine Générale en mode spécialiste)
+  const availableSpecialties = useMemo(() => {
+    if (!specialties) return [];
+    if (specialistMode) {
+      return specialties.filter(s => s.name !== 'Médecine Générale');
+    }
+    return specialties;
+  }, [specialties, specialistMode]);
+
+  // Filtrer les médecins selon la spécialité sélectionnée
+  const availableDoctors = useMemo(() => {
+    if (!doctors || !selectedSpecialty) return [];
+    
+    return doctors.filter(doctor => {
+      const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
+      const specialtyId = primarySpecialty?.specialty?.id;
+      return specialtyId === selectedSpecialty;
+    });
+  }, [doctors, selectedSpecialty]);
 
   const handleElementToggle = (elementId: string) => {
     setSelectedElements(prev => 
@@ -104,6 +130,7 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
 
   const resetForm = () => {
     setSelectedRecipient('');
+    setSelectedSpecialty('');
     setRecipientType('specialist');
     setSelectedElements([]);
     setReason('');
@@ -115,12 +142,6 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
   const handleClose = () => {
     resetForm();
     onClose();
-  };
-
-  // Helper function to get primary specialty
-  const getPrimarySpecialty = (doctor: any) => {
-    const primarySpecialty = doctor.doctor_specialties?.find((ds: any) => ds.is_primary);
-    return primarySpecialty?.specialty?.name || doctor.doctor_specialties?.[0]?.specialty?.name || 'Spécialité non définie';
   };
 
   return (
@@ -143,39 +164,59 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="recipient-type">Type de destinataire</Label>
-                {specialistMode ? (
-                  <Input value="Spécialiste" readOnly />
-                ) : (
-                  <Select value={recipientType} onValueChange={(value: any) => setRecipientType(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="specialist">Spécialiste</SelectItem>
-                      <SelectItem value="laboratory">Laboratoire</SelectItem>
-                      <SelectItem value="doctor">Médecin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                <Label htmlFor="specialty">Spécialité médicale *</Label>
+                <Select value={selectedSpecialty} onValueChange={(value) => {
+                  setSelectedSpecialty(value);
+                  setSelectedRecipient(''); // Réinitialiser le destinataire lors du changement de spécialité
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une spécialité..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSpecialties?.map((specialty) => (
+                      <SelectItem key={specialty.id} value={specialty.id}>
+                        {specialty.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label htmlFor="recipient">Destinataire</Label>
-                <Select value={selectedRecipient} onValueChange={setSelectedRecipient}>
+                <Label htmlFor="recipient">Médecin destinataire *</Label>
+                <Select 
+                  value={selectedRecipient} 
+                  onValueChange={setSelectedRecipient}
+                  disabled={!selectedSpecialty}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Choisir le destinataire..." />
+                    <SelectValue placeholder={
+                      !selectedSpecialty 
+                        ? "Sélectionnez d'abord une spécialité" 
+                        : availableDoctors.length === 0 
+                        ? "Aucun médecin disponible"
+                        : "Choisir le destinataire..."
+                    } />
                   </SelectTrigger>
                   <SelectContent>
                     {availableDoctors?.map((doctor) => (
                       <SelectItem key={doctor.id} value={doctor.id}>
-                        Dr. {doctor.profile?.first_name} {doctor.profile?.last_name} - {getPrimarySpecialty(doctor)}
+                        Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
+
+            {selectedSpecialty && availableDoctors.length === 0 && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Aucun médecin spécialiste disponible pour cette spécialité. Veuillez contacter l'administration.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div>
               <Label className="text-base font-medium mb-3 block">Éléments à transmettre</Label>
