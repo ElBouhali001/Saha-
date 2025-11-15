@@ -35,3 +35,21 @@ verify_jwt = true
 
 [functions.analyze-cardiac-imaging]
 verify_jwt = false
+
+[functions.analyze-dermatology-imaging]
+verify_jwt = false
+
+[functions.analyze-pediatrics-imaging]
+verify_jwt = false
+
+[functions.analyze-gynecology-imaging]
+verify_jwt = false
+
+[functions.analyze-neurology-imaging]
+verify_jwt = false
+
+[functions.analyze-orthopedic-imaging]
+verify_jwt = false
+
+[functions.analyze-ophthalmology-imaging]
+verify_jwt = false
