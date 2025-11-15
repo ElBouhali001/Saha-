@@ -125,15 +125,25 @@ IMPORTANT:
     let prescriptionData;
     
     try {
-      // Try to parse JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        prescriptionData = JSON.parse(jsonMatch[0]);
+      // Remove markdown code blocks if present
+      let jsonStr = content.trim();
+      
+      // Check for markdown code blocks (```json ... ```)
+      const markdownMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (markdownMatch) {
+        jsonStr = markdownMatch[1].trim();
       } else {
-        prescriptionData = JSON.parse(content);
+        // Try to extract JSON object
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
+        }
       }
+      
+      prescriptionData = JSON.parse(jsonStr);
     } catch (e) {
       console.error('Failed to parse AI response as JSON:', e);
+      console.error('Raw content:', content);
       throw new Error('Failed to parse prescription data');
     }
 
