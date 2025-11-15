@@ -135,6 +135,8 @@ Deno.serve(async (req) => {
       throw new Error(`Lovable AI error: ${aiResponse.status}`);
     }
 
+    const aiData = await aiResponse.json();
+
     // Prefer tool call structured output
     const message = aiData.choices?.[0]?.message;
     const toolCalls = message?.tool_calls;
