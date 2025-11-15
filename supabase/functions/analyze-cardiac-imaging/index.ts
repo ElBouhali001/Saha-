@@ -77,8 +77,7 @@ serve(async (req) => {
     try {
       analysis = JSON.parse(cleaned);
     } catch (e) {
-      console.error('JSON parse error:', e, '\
-Raw:', cleaned);
+      console.error('JSON parse error:', e, 'Raw content:', cleaned);
       return new Response(JSON.stringify({ error: 'Réponse IA invalide' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
