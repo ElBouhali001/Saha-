@@ -125,21 +125,19 @@ IMPORTANT:
     let prescriptionData;
     
     try {
-      // Remove markdown code blocks if present
-      let jsonStr = content.trim();
+      // Clean up the response - remove all markdown code blocks markers
+      let jsonStr = content
+        .replace(/```json\s*/g, '')  // Remove opening ```json
+        .replace(/```\s*/g, '')       // Remove any closing ```
+        .trim();
       
-      // Check for markdown code blocks (```json ... ```)
-      const markdownMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-      if (markdownMatch) {
-        jsonStr = markdownMatch[1].trim();
-      } else {
-        // Try to extract JSON object
-        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          jsonStr = jsonMatch[0];
-        }
+      // Extract JSON object
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0];
       }
       
+      console.log('Extracted JSON string:', jsonStr.substring(0, 200)); // Log first 200 chars
       prescriptionData = JSON.parse(jsonStr);
     } catch (e) {
       console.error('Failed to parse AI response as JSON:', e);
