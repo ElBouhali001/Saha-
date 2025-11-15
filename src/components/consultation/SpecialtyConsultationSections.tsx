@@ -12,6 +12,8 @@ import DermatologyImagingAnalyzer from './DermatologyImagingAnalyzer';
 import OrthopedicImagingAnalyzer from './OrthopedicImagingAnalyzer';
 import NeurologyImagingAnalyzer from './NeurologyImagingAnalyzer';
 import OphtalmologyImagingAnalyzer from './OphtalmologyImagingAnalyzer';
+import PediatricsImagingAnalyzer from './PediatricsImagingAnalyzer';
+import GynecologyImagingAnalyzer from './GynecologyImagingAnalyzer';
 
 interface SpecialtyData {
   [key: string]: any;
@@ -302,6 +304,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             rows={3}
           />
         </div>
+
+        <PediatricsImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
@@ -414,6 +427,17 @@ const SpecialtyConsultationSections: React.FC<SpecialtyConsultationSectionsProps
             ))}
           </div>
         </div>
+
+        <GynecologyImagingAnalyzer 
+          onAnalysisComplete={(analysis) => {
+            if (onDiagnosisUpdate) {
+              onDiagnosisUpdate(analysis.diagnosis);
+            }
+          }}
+          onSpecialtyDataUpdate={(data) => {
+            onSpecialtyDataChange({ ...specialtyData, ...data });
+          }}
+        />
       </CardContent>
     </Card>
   );
