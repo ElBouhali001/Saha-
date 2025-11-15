@@ -54,42 +54,59 @@ Deno.serve(async (req) => {
         model: 'google/gemini-2.5-pro',
         messages: [
           {
+            role: 'system',
+            content: 'Tu es un assistant d\'OCR médical. Analyse l\'image d\'ordonnance et renvoie UNIQUEMENT les champs structurés via l\'outil extract_prescription. Pas de texte libre.'
+          },
+          {
             role: 'user',
             content: [
               {
-                type: 'text',
-                text: `Analyse cette ordonnance médicale et extrais les informations suivantes en JSON:
-{
-  "doctor_name": "nom du médecin",
-  "patient_name": "nom du patient",
-  "date": "date de l'ordonnance (format DD/MM/YYYY)",
-  "medications": [
-    {
-      "name": "nom du médicament",
-      "dosage": "dosage (ex: 500mg)",
-      "frequency": "fréquence (ex: 3 fois par jour)",
-      "duration": "durée (ex: 7 jours)",
-      "instructions": "instructions particulières"
-    }
-  ],
-  "notes": "notes ou instructions générales"
-}
-
-IMPORTANT: 
-- Retourne UNIQUEMENT le JSON, sans texte supplémentaire
-- Si une information n'est pas lisible, utilise null
-- Pour les médicaments, extrais le nom commercial ou générique
-- Sois précis sur les dosages et fréquences`
+                type: 'image_url',
+                image_url: { url: `data:image/jpeg;base64,${imageBase64}` }
               },
               {
-                type: 'image_url',
-                image_url: {
-                  url: `data:image/jpeg;base64,${imageBase64}`
-                }
+                type: 'text',
+                text: 'Extraire les champs demandés et APPELER la fonction extract_prescription avec les valeurs.'
               }
             ]
           }
         ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'extract_prescription',
+              description: 'Retourne les informations structurées d\'une ordonnance',
+              parameters: {
+                type: 'object',
+                properties: {
+                  doctor_name: { type: 'string', nullable: true },
+                  patient_name: { type: 'string', nullable: true },
+                  date: { type: 'string', nullable: true, description: "format DD/MM/YYYY" },
+                  medications: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        dosage: { type: 'string', nullable: true },
+                        frequency: { type: 'string', nullable: true },
+                        duration: { type: 'string', nullable: true },
+                        instructions: { type: 'string', nullable: true }
+                      },
+                      required: ['name'],
+                      additionalProperties: false
+                    }
+                  },
+                  notes: { type: 'string', nullable: true }
+                },
+                required: ['medications'],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'extract_prescription' } },
         max_completion_tokens: 1000
       }),
     });
@@ -118,30 +135,33 @@ IMPORTANT:
       throw new Error(`Lovable AI error: ${aiResponse.status}`);
     }
 
-    const aiData = await aiResponse.json();
-    console.log('Lovable AI response received');
+    // Prefer tool call structured output
+    const message = aiData.choices?.[0]?.message;
+    const toolCalls = message?.tool_calls;
 
-    const content = aiData.choices[0].message.content;
     let prescriptionData;
-    
+
     try {
-      // Clean up the response - remove all markdown code blocks markers
-      let jsonStr = content
-        .replace(/```json\s*/g, '')  // Remove opening ```json
-        .replace(/```\s*/g, '')       // Remove any closing ```
-        .trim();
-      
-      // Extract JSON object
-      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[0];
+      if (toolCalls && toolCalls.length > 0) {
+        const argsStr = toolCalls[0]?.function?.arguments ?? '{}';
+        console.log('Tool call arguments (truncated):', (argsStr as string).slice(0, 200));
+        prescriptionData = JSON.parse(argsStr);
+      } else {
+        const content = message?.content ?? '';
+        // Clean up the response - remove all markdown code blocks markers
+        let jsonStr = (content as string)
+          .replace(/```json\s*/g, '')
+          .replace(/```\s*/g, '')
+          .trim();
+        // Extract JSON object
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) jsonStr = jsonMatch[0];
+        console.log('Extracted JSON string:', jsonStr.substring(0, 200));
+        prescriptionData = JSON.parse(jsonStr);
       }
-      
-      console.log('Extracted JSON string:', jsonStr.substring(0, 200)); // Log first 200 chars
-      prescriptionData = JSON.parse(jsonStr);
     } catch (e) {
       console.error('Failed to parse AI response as JSON:', e);
-      console.error('Raw content:', content);
+      console.error('Raw message:', JSON.stringify(message));
       throw new Error('Failed to parse prescription data');
     }
 
