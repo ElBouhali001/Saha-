@@ -264,7 +264,7 @@ const OrthopedicImagingAnalyzer: React.FC<OrthopedicImagingAnalyzerProps> = ({
 
             <div className="flex items-center justify-between pt-2">
               <span className="text-sm text-muted-foreground">
-                Confiance: {(analysis.confidence * 100).toFixed(0)}%
+                Confiance: {analysis.confidence.toFixed(0)}%
               </span>
               <Button onClick={handleApplyToConsultation}>
                 Appliquer à la consultation
