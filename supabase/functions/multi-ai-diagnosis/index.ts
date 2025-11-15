@@ -9,6 +9,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to clean JSON from markdown code blocks
+function cleanJsonResponse(content: string): string {
+  let cleaned = content.trim();
+  
+  // Remove markdown code blocks if present
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```\s*$/, '');
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```\s*/, '').replace(/```\s*$/, '');
+  }
+  
+  return cleaned.trim();
+}
+
 interface ClinicalData {
   symptoms: string;
   patientAge: number;
@@ -109,7 +123,8 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant/après):
 
   const result = await response.json();
   const content = result.choices[0].message.content;
-  const parsed = JSON.parse(content);
+  const cleanedContent = cleanJsonResponse(content);
+  const parsed = JSON.parse(cleanedContent);
   
   return parsed.diagnostics.map((d: any) => ({
     ...d,
