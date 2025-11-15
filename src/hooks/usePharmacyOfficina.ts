@@ -40,6 +40,8 @@ export const usePharmacyInventory = (pharmacyId?: string) => {
   return useQuery({
     queryKey: ['pharmacy-inventory', pharmacyId],
     queryFn: async () => {
+      if (!pharmacyId) return [];
+      
       let query = supabase
         .from('pharmacy_inventory')
         .select(`
@@ -49,13 +51,14 @@ export const usePharmacyInventory = (pharmacyId?: string) => {
         `)
         .order('name');
 
-      if (pharmacyId) {
-        query = query.eq('pharmacy_id', pharmacyId);
-      }
+      query = query.eq('pharmacy_id', pharmacyId);
 
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching pharmacy inventory:', error);
+        return [];
+      }
+      return data || [];
     },
     enabled: !!pharmacyId,
   });
@@ -93,6 +96,8 @@ export const usePharmacySales = (pharmacyId?: string) => {
   return useQuery({
     queryKey: ['pharmacy-sales', pharmacyId],
     queryFn: async () => {
+      if (!pharmacyId) return [];
+      
       let query = supabase
         .from('pharmacy_sales')
         .select(`
@@ -105,13 +110,14 @@ export const usePharmacySales = (pharmacyId?: string) => {
         `)
         .order('sale_date', { ascending: false });
 
-      if (pharmacyId) {
-        query = query.eq('pharmacy_id', pharmacyId);
-      }
+      query = query.eq('pharmacy_id', pharmacyId);
 
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching pharmacy sales:', error);
+        return [];
+      }
+      return data || [];
     },
     enabled: !!pharmacyId,
   });
@@ -122,6 +128,8 @@ export const usePharmacyOrders = (pharmacyId?: string) => {
   return useQuery({
     queryKey: ['pharmacy-orders', pharmacyId],
     queryFn: async () => {
+      if (!pharmacyId) return [];
+      
       let query = supabase
         .from('pharmacy_orders')
         .select(`
@@ -134,13 +142,14 @@ export const usePharmacyOrders = (pharmacyId?: string) => {
         `)
         .order('order_date', { ascending: false });
 
-      if (pharmacyId) {
-        query = query.eq('pharmacy_id', pharmacyId);
-      }
+      query = query.eq('pharmacy_id', pharmacyId);
 
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching pharmacy orders:', error);
+        return [];
+      }
+      return data || [];
     },
     enabled: !!pharmacyId,
   });
@@ -151,6 +160,8 @@ export const usePharmacyCustomers = (pharmacyId?: string) => {
   return useQuery({
     queryKey: ['pharmacy-customers', pharmacyId],
     queryFn: async () => {
+      if (!pharmacyId) return [];
+      
       let query = supabase
         .from('pharmacy_customers')
         .select(`
@@ -162,13 +173,14 @@ export const usePharmacyCustomers = (pharmacyId?: string) => {
         `)
         .order('total_purchases', { ascending: false });
 
-      if (pharmacyId) {
-        query = query.eq('pharmacy_id', pharmacyId);
-      }
+      query = query.eq('pharmacy_id', pharmacyId);
 
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching pharmacy customers:', error);
+        return [];
+      }
+      return data || [];
     },
     enabled: !!pharmacyId,
   });

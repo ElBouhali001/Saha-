@@ -22,6 +22,8 @@ export const usePharmacyPrescriptions = (pharmacyId?: string) => {
   return useQuery({
     queryKey: ['pharmacy-prescriptions', pharmacyId],
     queryFn: async () => {
+      if (!pharmacyId) return [];
+      
       let query = supabase
         .from('pharmacy_prescriptions')
         .select(`
@@ -41,13 +43,14 @@ export const usePharmacyPrescriptions = (pharmacyId?: string) => {
         `)
         .order('created_at', { ascending: false });
 
-      if (pharmacyId) {
-        query = query.eq('pharmacy_id', pharmacyId);
-      }
+      query = query.eq('pharmacy_id', pharmacyId);
 
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching pharmacy prescriptions:', error);
+        return [];
+      }
+      return data || [];
     },
   });
 };
