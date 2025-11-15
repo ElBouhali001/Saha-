@@ -42,14 +42,14 @@ interface PrescriptionScannerProps {
   isOpen: boolean;
   onClose: () => void;
   onPrescriptionProcessed: (medications: Medication[]) => void;
-  inventory: any[];
+  pharmacyId?: string;
 }
 
 const PrescriptionScanner: React.FC<PrescriptionScannerProps> = ({
   isOpen,
   onClose,
   onPrescriptionProcessed,
-  inventory
+  pharmacyId
 }) => {
   const [prescriptionData, setPrescriptionData] = useState<PrescriptionData | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -58,11 +58,9 @@ const PrescriptionScanner: React.FC<PrescriptionScannerProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
-  // Use the prescription recognition hook
-  const { isProcessing, processImage: processImageOCR, processManualText: processManualTextOCR, convertToSaleItems } = usePrescriptionRecognition(inventory);
-  
-  // Extract pharmacy ID from inventory
-  const pharmacyId = inventory[0]?.pharmacy_id;
+  // Use the prescription recognition hook - pass empty array if no pharmacyId
+  const inventory: any[] = [];
+  const { isProcessing, processImage: processImageOCR, processManualText: processManualTextOCR } = usePrescriptionRecognition(inventory);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

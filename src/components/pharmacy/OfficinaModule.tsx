@@ -20,15 +20,25 @@ import PharmacySalesManagement from './PharmacySalesManagement';
 import PharmacyCustomerRelations from './PharmacyCustomerRelations';
 import PharmacyOrdersManagement from './PharmacyOrdersManagement';
 import { usePharmacyInventory, useStockOptimization, usePharmacySales, usePharmacyCustomers } from '@/hooks/usePharmacyOfficina';
+import { useCurrentPharmacist } from '@/hooks/useCurrentPharmacist';
 
 const OfficinaModule = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const pharmacyId = '1'; // En pratique, récupéré du contexte utilisateur
+  const { data: pharmacist, isLoading: isLoadingPharmacist } = useCurrentPharmacist();
+  const pharmacyId = pharmacist?.pharmacy_id;
   
   const { data: inventory = [] } = usePharmacyInventory(pharmacyId);
   const { data: optimization } = useStockOptimization(pharmacyId);
   const { data: sales = [] } = usePharmacySales(pharmacyId);
   const { data: customers = [] } = usePharmacyCustomers(pharmacyId);
+
+  if (isLoadingPharmacist) {
+    return <div className="p-6">Chargement...</div>;
+  }
+
+  if (!pharmacist || !pharmacyId) {
+    return <div className="p-6">Aucune pharmacie associée à ce compte.</div>;
+  }
 
   const todaySales = sales?.filter(sale => 
     new Date(sale.sale_date).toDateString() === new Date().toDateString()

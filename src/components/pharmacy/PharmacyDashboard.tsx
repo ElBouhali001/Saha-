@@ -5,12 +5,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pill, User, Clock, CheckCircle, Package, AlertTriangle, Building2, Camera, Upload, FileText } from 'lucide-react';
-import { useMockPharmacyPrescriptions, useMockUpdatePharmacyPrescription } from '@/hooks/useMockData';
+import { usePharmacyPrescriptions, useUpdatePharmacyPrescription } from '@/hooks/usePharmacies';
+import { useCurrentPharmacist } from '@/hooks/useCurrentPharmacist';
 import OfficinaModule from './OfficinaModule';
 
 const PharmacyDashboard = () => {
-  const { data: prescriptions = [], isLoading } = useMockPharmacyPrescriptions();
-  const updatePrescription = useMockUpdatePharmacyPrescription();
+  const { data: pharmacist, isLoading: isLoadingPharmacist } = useCurrentPharmacist();
+  const pharmacyId = pharmacist?.pharmacy_id;
+  
+  const { data: prescriptions = [], isLoading } = usePharmacyPrescriptions(pharmacyId);
+  const updatePrescription = useUpdatePharmacyPrescription();
+
+  if (isLoadingPharmacist) {
+    return <div className="p-6">Chargement...</div>;
+  }
+
+  if (!pharmacist || !pharmacyId) {
+    return <div className="p-6">Aucune pharmacie associée à ce compte.</div>;
+  }
 
   const receivedPrescriptions = prescriptions.filter(p => p.status === 'received');
   const preparingPrescriptions = prescriptions.filter(p => p.status === 'preparing');
@@ -262,7 +274,7 @@ const PharmacyDashboard = () => {
                       <div className="mt-3">
                         <h4 className="font-medium mb-2">Médicaments:</h4>
                         <div className="space-y-2">
-                          {prescription.prescription.medications.map((med, index) => (
+                          {Array.isArray(prescription.prescription.medications) && prescription.prescription.medications.map((med: any, index: number) => (
                             <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded">
                               <div>
                                 <span className="font-medium">{med.name}</span>
@@ -325,7 +337,7 @@ const PharmacyDashboard = () => {
                         <div className="mt-3">
                           <h4 className="font-medium mb-2">Médicaments prescrits:</h4>
                           <div className="space-y-2">
-                            {prescription.prescription.medications.map((med, index) => (
+                            {Array.isArray(prescription.prescription.medications) && prescription.prescription.medications.map((med: any, index: number) => (
                               <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                 <div>
                                   <span className="font-medium">{med.name}</span>
@@ -393,7 +405,7 @@ const PharmacyDashboard = () => {
                         <div className="mt-3">
                           <h4 className="font-medium mb-2">Médicaments:</h4>
                           <div className="space-y-2">
-                            {prescription.prescription.medications.map((med, index) => (
+                            {Array.isArray(prescription.prescription.medications) && prescription.prescription.medications.map((med: any, index: number) => (
                               <div key={index} className="flex items-center justify-between p-2 bg-orange-50 rounded">
                                 <div>
                                   <span className="font-medium">{med.name}</span>
@@ -461,7 +473,7 @@ const PharmacyDashboard = () => {
                         <div className="mt-3">
                           <h4 className="font-medium mb-2">Médicaments prêts:</h4>
                           <div className="space-y-2">
-                            {prescription.prescription.medications.map((med, index) => (
+                            {Array.isArray(prescription.prescription.medications) && prescription.prescription.medications.map((med: any, index: number) => (
                               <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                                 <div>
                                   <span className="font-medium">{med.name}</span>
