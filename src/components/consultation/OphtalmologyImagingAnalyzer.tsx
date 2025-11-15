@@ -87,7 +87,7 @@ const OphtalmologyImagingAnalyzer: React.FC<OphtalmologyImagingAnalyzerProps> = 
       reader.onload = async () => {
         const base64Image = reader.result as string;
 
-        const { data, error } = await supabase.functions.invoke('analyze-ophtalmology-imaging', {
+        const { data, error } = await supabase.functions.invoke('analyze-ophthalmology-imaging', {
           body: { image: base64Image }
         });
 
