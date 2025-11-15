@@ -448,7 +448,7 @@ const PharmacySalesManagement: React.FC<PharmacySalesManagementProps> = ({ pharm
         isOpen={isPrescriptionScannerOpen}
         onClose={() => setIsPrescriptionScannerOpen(false)}
         onPrescriptionProcessed={handlePrescriptionProcessed}
-        inventory={inventory}
+        pharmacyId={pharmacyId}
       />
     </div>
   );
