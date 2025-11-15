@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Pill, User, Clock, CheckCircle, Package, AlertTriangle, Building2, Camera, Upload, FileText } from 'lucide-react';
 import { usePharmacyPrescriptions, useUpdatePharmacyPrescription } from '@/hooks/usePharmacies';
 import { useCurrentPharmacist } from '@/hooks/useCurrentPharmacist';
+import { useToast } from '@/hooks/use-toast';
 import OfficinaModule from './OfficinaModule';
+import PrescriptionScanner from './PrescriptionScanner';
 
 const PharmacyDashboard = () => {
   const { data: pharmacist, isLoading: isLoadingPharmacist } = useCurrentPharmacist();
@@ -15,6 +17,8 @@ const PharmacyDashboard = () => {
   
   const { data: prescriptions = [], isLoading } = usePharmacyPrescriptions(pharmacyId);
   const updatePrescription = useUpdatePharmacyPrescription();
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const { toast } = useToast();
 
   if (isLoadingPharmacist) {
     return <div className="p-6">Chargement...</div>;
@@ -162,34 +166,42 @@ const PharmacyDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <Pill className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <Pill className="w-16 h-16 text-primary/70 mx-auto mb-4" />
                 <h3 className="text-lg font-medium mb-2">Scanner d'ordonnances</h3>
                 <p className="text-muted-foreground mb-4">
                   Scannez et analysez automatiquement les ordonnances pour identifier les médicaments
                 </p>
                 <Button 
                   className="mb-4"
-                  onClick={() => {
-                    // Ouvrir le scanner dans une modale ou rediriger
-                    window.alert("Fonctionnalité de scanner disponible - À intégrer avec caméra/upload");
-                  }}
+                  onClick={() => setIsScannerOpen(true)}
                 >
                   <Camera className="w-4 h-4 mr-2" />
                   Commencer le scan
                 </Button>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                  <div className="text-center">
-                    <Camera className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Scanner avec caméra</p>
-                  </div>
-                  <div className="text-center">
-                    <Upload className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Importer un fichier</p>
-                  </div>
-                  <div className="text-center">
-                    <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Validation automatique</p>
-                  </div>
+                  <Card className="border-2 border-dashed hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => setIsScannerOpen(true)}>
+                    <CardContent className="p-6">
+                      <Camera className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                      <p className="text-sm font-medium">Scanner avec caméra</p>
+                      <p className="text-xs text-muted-foreground mt-1">Utilisez la caméra de votre appareil</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-2 border-dashed hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => setIsScannerOpen(true)}>
+                    <CardContent className="p-6">
+                      <Upload className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-sm font-medium">Importer un fichier</p>
+                      <p className="text-xs text-muted-foreground mt-1">JPG, PNG, PDF supportés</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-2 border-dashed bg-muted/30">
+                    <CardContent className="p-6">
+                      <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                      <p className="text-sm font-medium">Validation automatique</p>
+                      <p className="text-xs text-muted-foreground mt-1">Reconnaissance OCR par IA</p>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </CardContent>
@@ -514,6 +526,20 @@ const PharmacyDashboard = () => {
           <OfficinaModule />
         </TabsContent>
       </Tabs>
+
+      {/* Scanner d'ordonnance modal */}
+      <PrescriptionScanner
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onPrescriptionProcessed={(medications) => {
+          toast({
+            title: "Succès",
+            description: `${medications.length} médicament(s) identifié(s)`,
+          });
+          setIsScannerOpen(false);
+        }}
+        pharmacyId={pharmacyId}
+      />
     </div>
   );
 };

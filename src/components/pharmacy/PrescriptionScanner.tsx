@@ -66,10 +66,10 @@ const PrescriptionScanner: React.FC<PrescriptionScannerProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
       toast({
         title: "Erreur",
-        description: "Veuillez sélectionner un fichier image",
+        description: "Veuillez sélectionner un fichier image (JPG, PNG) ou PDF",
         variant: "destructive",
       });
       return;
@@ -218,7 +218,7 @@ const PrescriptionScanner: React.FC<PrescriptionScannerProps> = ({
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.pdf"
                         onChange={handleFileUpload}
                         className="hidden"
                       />
