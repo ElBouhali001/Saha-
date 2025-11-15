@@ -153,6 +153,17 @@ const SecureTransmissionModal: React.FC<SecureTransmissionModalProps> = ({
       return;
     }
 
+    // Validate UUIDs
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(consultationId)) {
+      toast.error('ID de consultation invalide');
+      return;
+    }
+    if (!uuidRegex.test(selectedRecipient)) {
+      toast.error('Veuillez sélectionner un médecin valide (les données de démonstration ne sont pas supportées)');
+      return;
+    }
+
     try {
       const transmissionData: TransmissionCreate = {
         consultation_id: consultationId,

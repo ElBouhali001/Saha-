@@ -20,6 +20,7 @@ const MedicalConsultation = () => {
   const { toast } = useToast();
   const [patient, setPatient] = useState<any>(null);
   const [accessGranted, setAccessGranted] = useState(false);
+  const [consultationId, setConsultationId] = useState<string>(crypto.randomUUID());
   const [consultation, setConsultation] = useState({
     symptoms: '',
     diagnosis: '',
@@ -153,16 +154,18 @@ const MedicalConsultation = () => {
                 <PatientInfoDisplay patient={patient} />
                 
                 <div className="lg:col-span-2 space-y-6">
-                  <ConsultationForm 
-                    consultation={consultation} 
-                    onConsultationChange={setConsultation}
-                    consultationId={generateSecureToken()}
-                    patientName={`${patient.firstName} ${patient.lastName}`}
-                    patientId={patient.id}
-                    doctorSpecialty={doctorSpecialty}
-                    specialtyData={specialtyData}
-                    onSpecialtyDataChange={setSpecialtyData}
-                  />
+                  {consultationId && (
+                    <ConsultationForm 
+                      consultation={consultation} 
+                      onConsultationChange={setConsultation}
+                      consultationId={consultationId}
+                      patientName={`${patient.firstName} ${patient.lastName}`}
+                      patientId={patient.id}
+                      doctorSpecialty={doctorSpecialty}
+                      specialtyData={specialtyData}
+                      onSpecialtyDataChange={setSpecialtyData}
+                    />
+                  )}
                   
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between mb-4">
