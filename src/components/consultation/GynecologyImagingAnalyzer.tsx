@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Loader2, UserPlus } from 'lucide-react';
+import { Upload, Loader2, UserPlus, Timer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -44,8 +44,30 @@ const GynecologyImagingAnalyzer: React.FC<GynecologyImagingAnalyzerProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<GynecologyAnalysis | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (isAnalyzing) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (interval) {
+        clearInterval(interval);
+      }
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isAnalyzing]);
 
   const handleImageUpload = async (file: File) => {
     const imageUrl = URL.createObjectURL(file);
@@ -181,10 +203,14 @@ const GynecologyImagingAnalyzer: React.FC<GynecologyImagingAnalyzerProps> = ({
               className="w-full"
             >
               {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyse en cours...
-                </>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Analyse en cours</span>
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-background border-2 border-primary rounded-full">
+                    <Timer className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-bold font-mono text-foreground">{elapsedTime}s</span>
+                  </div>
+                </div>
               ) : (
                 "Lancer l'analyse IA"
               )}

@@ -196,9 +196,9 @@ const DermatologyImagingAnalyzer: React.FC<DermatologyImagingAnalyzerProps> = ({
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Analyse en cours</span>
-                  <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/20 rounded-full">
-                    <Timer className="w-3 h-3" />
-                    <span className="text-xs font-mono">{elapsedTime}s</span>
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-background border-2 border-primary rounded-full">
+                    <Timer className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-bold font-mono text-foreground">{elapsedTime}s</span>
                   </div>
                 </div>
               ) : (
