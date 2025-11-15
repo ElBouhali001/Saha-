@@ -66,46 +66,14 @@ const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({
       return;
     }
 
-    setIsAnalyzing(true);
     setAnalysis(null);
 
     try {
-      // Convert to base64
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Image = reader.result as string;
         setPreviewImage(base64Image);
-
-        try {
-          const { data, error } = await supabase.functions.invoke('analyze-dental-imaging', {
-            body: { imageData: base64Image }
-          });
-
-          if (error) throw error;
-
-          if (!data.success) {
-            throw new Error(data.error || 'Échec de l\'analyse');
-          }
-
-          const analysisResult = data.analysis as DentalAnalysis;
-          setAnalysis(analysisResult);
-
-          toast({
-            title: "Analyse terminée",
-            description: `Confiance: ${analysisResult.confidence}%`,
-          });
-        } catch (error) {
-          console.error('Error analyzing image:', error);
-          toast({
-            title: "Erreur d'analyse",
-            description: error instanceof Error ? error.message : "Impossible d'analyser l'image",
-            variant: "destructive"
-          });
-        } finally {
-          setIsAnalyzing(false);
-        }
       };
-
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error reading file:', error);
@@ -114,7 +82,6 @@ const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({
         description: "Impossible de lire le fichier",
         variant: "destructive"
       });
-      setIsAnalyzing(false);
     }
   };
 
@@ -122,6 +89,38 @@ const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({
     const file = e.target.files?.[0];
     if (file) {
       handleImageUpload(file);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!previewImage) return;
+    setIsAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-dental-imaging', {
+        body: { imageData: previewImage }
+      });
+
+      if (error) throw error;
+
+      if (!data.success) {
+        throw new Error(data.error || "Échec de l'analyse");
+      }
+
+      const analysisResult = data.analysis as DentalAnalysis;
+      setAnalysis(analysisResult);
+      toast({
+        title: "Analyse terminée",
+        description: `Confiance: ${analysisResult.confidence}%`,
+      });
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      toast({
+        title: "Erreur d'analyse",
+        description: error instanceof Error ? error.message : "Impossible d'analyser l'image",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -207,12 +206,24 @@ const DentalImagingAnalyzer: React.FC<DentalImagingAnalyzerProps> = ({
         </div>
 
         {previewImage && (
-          <div className="border rounded-lg overflow-hidden">
-            <img 
-              src={previewImage} 
-              alt="Imagerie dentaire" 
-              className="w-full h-auto max-h-64 object-contain bg-gray-50"
-            />
+          <div className="space-y-2">
+            <div className="border rounded-lg overflow-hidden">
+              <img 
+                src={previewImage} 
+                alt="Imagerie dentaire" 
+                className="w-full h-auto max-h-64 object-contain bg-gray-50"
+              />
+            </div>
+            <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full">
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyse en cours...
+                </>
+              ) : (
+                "Lancer l'analyse IA"
+              )}
+            </Button>
           </div>
         )}
 
