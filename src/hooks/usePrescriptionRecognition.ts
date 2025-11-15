@@ -121,50 +121,74 @@ export const usePrescriptionRecognition = (inventory: any[]) => {
     };
   }, [inventory]);
 
-  // Fonction pour simuler l'OCR d'une image
-  const processImage = useCallback(async (imageData: string): Promise<PrescriptionAnalysis> => {
+  // Fonction pour traiter l'OCR d'une image via l'API
+  const processImage = useCallback(async (imageData: string, pharmacyId?: string): Promise<PrescriptionAnalysis> => {
     setIsProcessing(true);
 
     try {
-      // Simulation d'un délai pour l'OCR
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Extract base64 data from data URL
+      const base64Data = imageData.split(',')[1] || imageData;
 
-      // Dans un vrai système, ici on appellerait un service OCR
-      // Pour la démo, on retourne un texte simulé
-      const simulatedOcrText = `
-        Dr. Martin Dubois
-        Médecin généraliste
-        
-        Patient: Jean Dupont
-        Date: ${new Date().toLocaleDateString('fr-FR')}
-        
-        Ordonnance:
-        - Paracétamol 500mg, 3 fois par jour, 7 jours
-        - Amoxicilline 250mg, 2 fois par jour, 10 jours
-        - Ibuprofène 400mg, au besoin pour la douleur
-        
-        Prendre avec les repas
-      `;
+      console.log('Calling OCR API for prescription analysis');
+      
+      // Call the edge function for OCR
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.functions.invoke('scan-prescription-ocr', {
+        body: {
+          imageBase64: base64Data,
+          pharmacyId
+        }
+      });
 
-      const analysis = analyzeText(simulatedOcrText);
+      if (error) {
+        console.error('OCR API error:', error);
+        throw new Error(error.message || 'Erreur lors de l\'analyse OCR');
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Erreur lors de l\'analyse OCR');
+      }
+
+      console.log('OCR analysis successful:', data.data);
+
+      // Transform API response to PrescriptionAnalysis format
+      const apiData = data.data;
+      const medications: MedicationMatch[] = (apiData.medications || []).map((med: any) => ({
+        name: med.matched_name || med.name,
+        dosage: med.dosage || 'Non spécifié',
+        confidence: med.confidence || 0.5,
+        inventory_id: med.inventory_id,
+        suggestions: med.suggestions || [],
+        found_in_inventory: med.found_in_inventory || false,
+        current_stock: med.current_stock
+      }));
+
+      const analysis: PrescriptionAnalysis = {
+        doctor_name: apiData.doctor_name,
+        patient_name: apiData.patient_name,
+        date: apiData.date,
+        medications,
+        raw_text: JSON.stringify(apiData, null, 2)
+      };
       
       toast({
         title: "OCR terminé",
-        description: `${analysis.medications.length} médicament(s) détecté(s)`,
+        description: `${medications.length} médicament(s) détecté(s)`,
       });
 
       return analysis;
     } catch (error) {
+      console.error('Error processing image:', error);
       toast({
         title: "Erreur OCR",
-        description: "Impossible d'analyser l'image",
+        description: error instanceof Error ? error.message : "Impossible d'analyser l'image",
         variant: "destructive",
       });
       throw error;
     } finally {
       setIsProcessing(false);
     }
-  }, [analyzeText, toast]);
+  }, [toast]);
 
   // Fonction pour traiter le texte manuel
   const processManualText = useCallback((text: string): PrescriptionAnalysis => {

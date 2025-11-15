@@ -18,6 +18,7 @@ import {
   Pill
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePrescriptionRecognition } from '@/hooks/usePrescriptionRecognition';
 
 interface Medication {
   name: string;
@@ -50,13 +51,18 @@ const PrescriptionScanner: React.FC<PrescriptionScannerProps> = ({
   onPrescriptionProcessed,
   inventory
 }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState<PrescriptionData | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [manualText, setManualText] = useState('');
   const [activeTab, setActiveTab] = useState<'upload' | 'manual'>('upload');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Use the prescription recognition hook
+  const { isProcessing, processImage: processImageOCR, processManualText: processManualTextOCR, convertToSaleItems } = usePrescriptionRecognition(inventory);
+  
+  // Extract pharmacy ID from inventory
+  const pharmacyId = inventory[0]?.pharmacy_id;
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -81,120 +87,65 @@ const PrescriptionScanner: React.FC<PrescriptionScannerProps> = ({
   const processImage = async () => {
     if (!uploadedImage) return;
     
-    setIsProcessing(true);
-    
     try {
-      // Simulation du traitement OCR
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await processImageOCR(uploadedImage, pharmacyId);
       
-      // Simulation de reconnaissance d'ordonnance
-      const mockPrescription: PrescriptionData = {
-        doctor_name: "Dr. Martin Dubois",
-        patient_name: "Jean Dupont",
-        prescription_date: new Date().toISOString().split('T')[0],
-        medications: [
-          {
-            name: "Paracétamol",
-            dosage: "500mg",
-            frequency: "3 fois par jour",
-            duration: "7 jours",
-            quantity: 21,
-            found_in_inventory: inventory.some(item => 
-              item.name.toLowerCase().includes('paracétamol')
-            ),
-            inventory_id: inventory.find(item => 
-              item.name.toLowerCase().includes('paracétamol')
-            )?.id
-          },
-          {
-            name: "Amoxicilline",
-            dosage: "250mg",
-            frequency: "2 fois par jour",
-            duration: "10 jours",
-            quantity: 20,
-            found_in_inventory: inventory.some(item => 
-              item.name.toLowerCase().includes('amoxicilline')
-            ),
-            inventory_id: inventory.find(item => 
-              item.name.toLowerCase().includes('amoxicilline')
-            )?.id
-          }
-        ],
-        notes: "Prendre avec les repas"
+      // Transform result to PrescriptionData format
+      const prescriptionData: PrescriptionData = {
+        doctor_name: result.doctor_name || "Médecin non identifié",
+        patient_name: result.patient_name || "Patient non identifié",
+        prescription_date: result.date || new Date().toISOString().split('T')[0],
+        medications: result.medications.map(med => ({
+          name: med.name,
+          dosage: med.dosage,
+          frequency: "À déterminer",
+          duration: "À déterminer",
+          quantity: 1,
+          found_in_inventory: !!med.inventory_id,
+          inventory_id: med.inventory_id
+        })),
+        notes: "Ordonnance scannée via OCR"
       };
-
-      setPrescriptionData(mockPrescription);
       
-      toast({
-        title: "Succès",
-        description: "Ordonnance analysée avec succès",
-      });
+      setPrescriptionData(prescriptionData);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de l'analyse de l'ordonnance",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
+      console.error('Error processing image:', error);
     }
   };
 
   const processManualText = () => {
-    if (!manualText.trim()) return;
-    
-    setIsProcessing(true);
-    
-    try {
-      // Simulation d'analyse de texte
-      const lines = manualText.split('\n').filter(line => line.trim());
-      const medications: Medication[] = [];
-      
-      // Analyse simple basée sur des mots-clés
-      lines.forEach(line => {
-        const lowerLine = line.toLowerCase();
-        
-        // Recherche de médicaments connus dans l'inventaire
-        const foundMed = inventory.find(item => 
-          lowerLine.includes(item.name.toLowerCase()) ||
-          lowerLine.includes(item.generic_name?.toLowerCase())
-        );
-        
-        if (foundMed) {
-          medications.push({
-            name: foundMed.name,
-            dosage: foundMed.dosage,
-            frequency: "Selon prescription",
-            duration: "Selon prescription",
-            quantity: 1,
-            found_in_inventory: true,
-            inventory_id: foundMed.id
-          });
-        }
-      });
-
-      const mockPrescription: PrescriptionData = {
-        doctor_name: "Médecin prescripteur",
-        patient_name: "Patient",
-        prescription_date: new Date().toISOString().split('T')[0],
-        medications,
-        notes: "Saisie manuelle"
-      };
-
-      setPrescriptionData(mockPrescription);
-      
-      toast({
-        title: "Succès",
-        description: `${medications.length} médicament(s) identifié(s)`,
-      });
-    } catch (error) {
+    if (!manualText.trim()) {
       toast({
         title: "Erreur",
-        description: "Erreur lors de l'analyse du texte",
+        description: "Veuillez entrer le texte de l'ordonnance",
         variant: "destructive",
       });
-    } finally {
-      setIsProcessing(false);
+      return;
+    }
+    
+    try {
+      const result = processManualTextOCR(manualText);
+      
+      // Transform result to PrescriptionData format
+      const prescriptionData: PrescriptionData = {
+        doctor_name: result.doctor_name || "Médecin non identifié",
+        patient_name: result.patient_name || "Patient non identifié",
+        prescription_date: result.date || new Date().toISOString().split('T')[0],
+        medications: result.medications.map(med => ({
+          name: med.name,
+          dosage: med.dosage,
+          frequency: "À déterminer",
+          duration: "À déterminer",
+          quantity: 1,
+          found_in_inventory: !!med.inventory_id,
+          inventory_id: med.inventory_id
+        })),
+        notes: "Saisie manuelle"
+      };
+      
+      setPrescriptionData(prescriptionData);
+    } catch (error) {
+      console.error('Error processing manual text:', error);
     }
   };
 
