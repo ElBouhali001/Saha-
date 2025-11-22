@@ -24,8 +24,7 @@ import {
 import ChatbaseAI from './ChatbaseAI';
 
 const TeleconsultationModule = () => {
-  // Remplacez 'YOUR_CHATBASE_ID' par votre véritable ID de chatbot Chatbase
-  const CHATBASE_CHATBOT_ID = 'YOUR_CHATBASE_ID';
+  const CHATBASE_CHATBOT_ID = 'YNi6SyT6KJVAsKXjIXD8P';
   
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
