@@ -21,8 +21,12 @@ import {
   User,
   FileText
 } from 'lucide-react';
+import ChatbaseAI from './ChatbaseAI';
 
 const TeleconsultationModule = () => {
+  // Remplacez 'YOUR_CHATBASE_ID' par votre véritable ID de chatbot Chatbase
+  const CHATBASE_CHATBOT_ID = 'YOUR_CHATBASE_ID';
+  
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
@@ -164,7 +168,7 @@ const TeleconsultationModule = () => {
         <TabsContent value="consultation" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Zone vidéo */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Consultation Vidéo</CardTitle>
@@ -240,6 +244,12 @@ const TeleconsultationModule = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Assistant IA Chatbase */}
+              <ChatbaseAI 
+                chatbotId={CHATBASE_CHATBOT_ID}
+                className="mt-4"
+              />
             </div>
 
             {/* Chat */}
