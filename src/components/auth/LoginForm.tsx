@@ -6,7 +6,7 @@ import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import appIcon from '@/assets/app-icon-blue.png';
+import appIcon from '@/assets/app-icon.jpeg';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -73,7 +73,7 @@ const LoginForm = () => {
           <img 
             src={appIcon} 
             alt="Medipatient" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover hue-rotate-[200deg] saturate-150"
           />
         </div>
         
