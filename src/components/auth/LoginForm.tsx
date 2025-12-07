@@ -6,7 +6,7 @@ import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import appIcon from '@/assets/app-icon.jpeg';
+import appIcon from '@/assets/app-icon-blue.png';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
