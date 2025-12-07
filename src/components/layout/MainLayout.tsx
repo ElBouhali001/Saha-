@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,7 +12,7 @@ import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
 import DoctorTelemedicine from '@/components/telemedicine/DoctorTelemedicine';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { Menu, Loader2 } from 'lucide-react';
+import { Menu, Loader2, Zap } from 'lucide-react';
 
 const MainLayout = () => {
   const { user } = useSupabaseAuth();
@@ -24,7 +23,6 @@ const MainLayout = () => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Récupérer le rôle depuis la table profiles
   useEffect(() => {
     const fetchUserRole = async () => {
       if (!user?.id) {
@@ -41,13 +39,11 @@ const MainLayout = () => {
 
         if (error) {
           console.error('Error fetching user role:', error);
-          // Fallback to user_metadata
           setUserRole(user.user_metadata?.role || 'patient');
         } else {
           setUserRole(profile?.role || 'patient');
         }
 
-        // Vérification serveur du rôle admin (authoritative)
         const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', { _user_id: user.id });
         if (adminCheckError) {
           console.warn('Admin check failed:', adminCheckError);
@@ -67,10 +63,17 @@ const MainLayout = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement du profil...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow mx-auto animate-glow-pulse">
+              <Zap className="w-8 h-8 text-primary-foreground" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+            <p className="text-muted-foreground font-mono text-sm">Chargement...</p>
+          </div>
         </div>
       </div>
     );
@@ -92,121 +95,108 @@ const MainLayout = () => {
             if (canAccessModule('laboratory-integration')) {
               return <ModuleComponent moduleId="laboratory-integration" componentName="LaboratoryDashboard" />;
             }
-            return <div className="p-6">Module laboratoire non disponible</div>;
+            return <div className="p-6 text-muted-foreground">Module laboratoire non disponible</div>;
           case 'pharmacist':
             if (canAccessModule('pharmacy-integration')) {
               return <ModuleComponent moduleId="pharmacy-integration" componentName="PharmacyDashboard" />;
             }
-            return <div className="p-6">Module pharmacie non disponible</div>;
+            return <div className="p-6 text-muted-foreground">Module pharmacie non disponible</div>;
           default:
-            return <div className="p-6">Page non trouvée</div>;
+            return <div className="p-6 text-muted-foreground">Page non trouvée</div>;
         }
       
-      // Patient Management Module
       case 'patient-interface':
         return canAccessModule('patient-management') ? 
           <ModuleComponent moduleId="patient-management" componentName="PatientApp" /> : 
-          <div className="p-6">Module gestion patients non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module gestion patients non disponible</div>;
       
       case 'prescription-tracker':
         return canAccessModule('patient-management') ? 
           <ModuleComponent moduleId="patient-management" componentName="PrescriptionTrackerPage" /> : 
-          <div className="p-6">Module gestion patients non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module gestion patients non disponible</div>;
       
       case 'patients':
         return canAccessModule('patient-management') ? 
           <ModuleComponent moduleId="patient-management" componentName="PatientManagement" /> : 
-          <div className="p-6">Module gestion patients non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module gestion patients non disponible</div>;
 
-      // Appointment Scheduling Module
       case 'appointments':
       case 'schedule':
         return canAccessModule('appointment-scheduling') ? 
           <ModuleComponent moduleId="appointment-scheduling" componentName="AppointmentScheduling" /> : 
-          <div className="p-6">Module rendez-vous non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module rendez-vous non disponible</div>;
       
       case 'doctor-agenda':
         return canAccessModule('appointment-scheduling') ? 
           <ModuleComponent moduleId="appointment-scheduling" componentName="DoctorAgenda" /> : 
-          <div className="p-6">Module agenda non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module agenda non disponible</div>;
 
-      // Medical Consultation Module
       case 'consultations':
         return canAccessModule('medical-consultation') ? 
           <ModuleComponent moduleId="medical-consultation" componentName="MedicalConsultation" /> : 
-          <div className="p-6">Module consultation non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module consultation non disponible</div>;
 
-      // AI Assistant Module
       case 'ai-assistant':
         return canAccessModule('ai-assistant') ? 
           <ModuleComponent moduleId="ai-assistant" componentName="DocumentsModule" /> : 
-          <div className="p-6">Module assistant IA non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module assistant IA non disponible</div>;
 
-      // Billing Module
       case 'billing':
         return canAccessModule('billing-invoicing') ? 
           <ModuleComponent moduleId="billing-invoicing" componentName="BillingModule" /> : 
-          <div className="p-6">Module facturation non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module facturation non disponible</div>;
 
-      // Inventory Module
       case 'inventory':
         return canAccessModule('inventory-management') ? 
           <ModuleComponent moduleId="inventory-management" componentName="InventoryModule" /> : 
-          <div className="p-6">Module stock non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module stock non disponible</div>;
 
-      // Laboratory Module
       case 'laboratory':
       case 'lab-schedule':
       case 'lab-results':
         return canAccessModule('laboratory-integration') ? 
           <ModuleComponent moduleId="laboratory-integration" componentName="LaboratoryDashboard" /> : 
-          <div className="p-6">Module laboratoire non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module laboratoire non disponible</div>;
 
-      // Pharmacy Module
       case 'pharmacy':
       case 'pharmacy-inventory':
       case 'pharmacy-reports':
         return canAccessModule('pharmacy-integration') ? 
           <ModuleComponent moduleId="pharmacy-integration" componentName="PharmacyDashboard" /> : 
-          <div className="p-6">Module pharmacie non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module pharmacie non disponible</div>;
 
-      // Transmission Module
       case 'transfers':
         return canAccessModule('transmission-referrals') ? 
           <ModuleComponent moduleId="transmission-referrals" componentName="SecureTransmissionModal" /> : 
-          <div className="p-6">Module transmission non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module transmission non disponible</div>;
 
-      // Module Manager (Admin only)
       case 'module-manager':
         return userRole === 'admin' ? 
           <ModuleComponent moduleId="admin" componentName="ModuleManager" /> : 
-          <div className="p-6">Module gestion non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module gestion non disponible</div>;
 
-      // Business Analytics
       case 'business-analytics':
         return ['admin', 'doctor', 'agent'].includes(userRole || '') && canAccessModule('business-analytics') ?
           <ModuleComponent moduleId="business-analytics" componentName="RevenueDistribution" /> :
-          <div className="p-6">Module analytique non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module analytique non disponible</div>;
 
-      // QR Display Settings
       case 'qr-settings':
         return <QRDisplaySettings />;
 
-      // Telemedicine Module
       case 'telemedicine':
         return (userRole === 'doctor' || userRole === 'admin') ? 
           <DoctorTelemedicine /> : 
-          <div className="p-6">Module télémédecine non disponible</div>;
+          <div className="p-6 text-muted-foreground">Module télémédecine non disponible</div>;
 
       default:
         return (
           <div className="p-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Page: {currentPage}
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-display font-bold text-foreground">
+                {currentPage}
               </h2>
-              <p className="text-gray-600">
-                Cette fonctionnalité sera implémentée prochainement.
+              <p className="text-muted-foreground font-mono">
+                // En cours de développement
               </p>
             </div>
           </div>
@@ -215,32 +205,38 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
+      {/* Background effects */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-accent/5 blur-[120px]" />
+      </div>
+
       {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 p-3 md:p-4 flex items-center justify-between mobile-header">
+        <div className="fixed top-0 left-0 right-0 z-50 header-premium p-4 flex items-center justify-between mobile-header">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="touch-target"
+            className="touch-target text-foreground hover:bg-muted/50 rounded-xl"
           >
-            <Menu className="w-5 h-5 md:w-6 md:h-6" />
+            <Menu className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-xs md:text-sm">M+</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow">
+              <Zap className="w-4 h-4 text-primary-foreground" />
             </div>
-            <h1 className="font-bold text-base md:text-lg text-blue-900 truncate">MediPatient</h1>
+            <h1 className="font-display font-bold text-base text-gradient">MediPatient</h1>
           </div>
-          <div className="w-10 flex-shrink-0" /> {/* Spacer for centering */}
+          <div className="w-10" />
         </div>
       )}
 
-      {/* Overlay pour mobile */}
+      {/* Overlay for mobile */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -258,8 +254,8 @@ const MainLayout = () => {
       />
 
       {/* Main Content */}
-      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-14 md:pt-16' : ''} p-3 md:p-6 mobile-safe-area`}>
-        <div className="max-w-full overflow-x-hidden">
+      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-16' : ''} p-4 md:p-6 mobile-safe-area scrollbar-premium relative z-10`}>
+        <div className="max-w-full overflow-x-hidden animate-fade-in">
           {renderPageContent()}
         </div>
       </main>
