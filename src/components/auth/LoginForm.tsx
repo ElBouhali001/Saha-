@@ -66,14 +66,14 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1e3a8a] via-[#3b82f6] to-[#60a5fa] px-6 py-8 safe-area-inset">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#7c5ce0] px-6 py-8 safe-area-inset">
       <div className="w-full max-w-sm flex flex-col items-center space-y-8">
         {/* App Icon */}
         <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg">
           <img 
             src={appIcon} 
             alt="Medipatient" 
-            className="w-full h-full object-cover hue-rotate-[320deg] saturate-125 brightness-110"
+            className="w-full h-full object-cover"
           />
         </div>
         
