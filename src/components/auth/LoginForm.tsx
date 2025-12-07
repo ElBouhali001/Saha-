@@ -177,7 +177,7 @@ const LoginForm = () => {
       {/* Footer */}
       <div className="mt-auto pt-8">
         <p className="text-white/50 text-xs text-center">
-          Made with ❤️ by Medipatient
+          made with ❤️ by Neykin.co
         </p>
       </div>
     </div>
