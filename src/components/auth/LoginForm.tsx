@@ -73,7 +73,7 @@ const LoginForm = () => {
           <img 
             src={appIcon} 
             alt="Medipatient" 
-            className="w-full h-full object-cover hue-rotate-[200deg] saturate-150"
+            className="w-full h-full object-cover hue-rotate-[320deg] saturate-125 brightness-110"
           />
         </div>
         
