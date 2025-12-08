@@ -72,13 +72,13 @@ const ConsultationActions: React.FC<ConsultationActionsProps> = ({
                 <Button
                   key={action.id}
                   variant="outline"
-                  className={`h-auto p-4 flex-col items-center space-y-2 ${action.color}`}
+                  className={`h-auto p-4 flex-col items-center space-y-2 ${action.color} min-w-0 overflow-hidden`}
                   onClick={action.onClick}
                 >
-                  <Icon className="w-6 h-6" />
-                  <div className="text-center">
-                    <div className="font-medium">{action.title}</div>
-                    <div className="text-xs text-muted-foreground">
+                  <Icon className="w-6 h-6 flex-shrink-0" />
+                  <div className="text-center w-full min-w-0">
+                    <div className="font-medium text-sm truncate">{action.title}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-2 leading-tight mt-1">
                       {action.description}
                     </div>
                   </div>
