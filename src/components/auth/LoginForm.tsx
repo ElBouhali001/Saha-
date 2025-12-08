@@ -110,17 +110,14 @@ const LoginForm = () => {
                 <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
                   Email
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="votre@email.com"
-                    disabled={isLoading}
-                    className="w-full h-14 pl-12 pr-4 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  />
-                </div>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  disabled={isLoading}
+                  className="w-full h-14 px-4 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                />
               </div>
               
               <Button 
