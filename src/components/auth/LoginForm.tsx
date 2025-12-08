@@ -65,22 +65,22 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden px-6 py-8 safe-area-inset">
-      {/* Background gradient orbs */}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 relative overflow-hidden px-6 py-8 safe-area-inset">
+      {/* Background gradient orbs - lighter */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-primary/20 blur-[100px] animate-float" />
-        <div className="absolute top-1/4 -right-20 w-60 h-60 rounded-full bg-accent/20 blur-[80px] animate-float" style={{ animationDelay: '-2s' }} />
-        <div className="absolute -bottom-20 left-1/4 w-72 h-72 rounded-full bg-primary/15 blur-[90px] animate-float" style={{ animationDelay: '-4s' }} />
+        <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-primary/10 blur-[100px] animate-float" />
+        <div className="absolute top-1/4 -right-20 w-60 h-60 rounded-full bg-accent/10 blur-[80px] animate-float" style={{ animationDelay: '-2s' }} />
+        <div className="absolute -bottom-20 left-1/4 w-72 h-72 rounded-full bg-primary/8 blur-[90px] animate-float" style={{ animationDelay: '-4s' }} />
       </div>
 
       {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDBNIDAgMjAgTCA0MCAyMCBNIDIwIDAgTCAyMCA0MCBNIDAgMzAgTCA0MCAzMCBNIDMwIDAgTCAzMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDBNIDAgMjAgTCA0MCAyMCBNIDIwIDAgTCAyMCA0MCBNIDAgMzAgTCA0MCAzMCBNIDMwIDAgTCAzMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDEyMCw5MCwxODAsMC4wNSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-60 pointer-events-none" />
 
       <div className="w-full max-w-md flex flex-col items-center space-y-8 relative z-10">
         {/* Logo with glow */}
         <div className="relative">
-          <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full scale-150" />
-          <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-glow ring-2 ring-primary/30 relative">
+          <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
+          <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg ring-2 ring-primary/20 relative bg-card">
             <img 
               src={appIcon} 
               alt="Medipatient" 

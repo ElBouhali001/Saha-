@@ -3,77 +3,96 @@
 @tailwind utilities;
 @import './mobile.css';
 
-/* MediPatient Premium Dark Theme - Design System */
+/* MediPatient Premium Light Theme - Design System */
 
 @layer base {
   :root {
-    /* Premium Dark Violet Theme */
-    --background: 260 25% 8%;
-    --foreground: 270 10% 95%;
+    /* Premium Light Violet Theme */
+    --background: 270 30% 98%;
+    --foreground: 260 30% 15%;
 
-    --card: 260 20% 12%;
-    --card-foreground: 270 10% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 260 30% 15%;
 
-    --popover: 260 22% 10%;
-    --popover-foreground: 270 10% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 30% 15%;
 
-    --primary: 270 70% 65%;
-    --primary-foreground: 260 25% 8%;
+    --primary: 270 65% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 270 15% 18%;
-    --secondary-foreground: 270 10% 95%;
+    --secondary: 270 25% 94%;
+    --secondary-foreground: 260 30% 25%;
 
-    --muted: 260 15% 16%;
-    --muted-foreground: 270 10% 60%;
+    --muted: 270 20% 95%;
+    --muted-foreground: 260 15% 45%;
 
-    --accent: 280 60% 55%;
-    --accent-foreground: 270 10% 95%;
+    --accent: 280 55% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 70% 55%;
-    --destructive-foreground: 270 10% 95%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 160 60% 45%;
-    --success-foreground: 270 10% 95%;
+    --success: 160 60% 40%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 40 80% 55%;
-    --warning-foreground: 260 25% 8%;
+    --warning: 40 85% 50%;
+    --warning-foreground: 260 30% 15%;
 
-    --border: 260 15% 20%;
-    --input: 260 15% 16%;
-    --ring: 270 70% 65%;
+    --border: 270 20% 88%;
+    --input: 270 20% 92%;
+    --ring: 270 65% 55%;
 
     --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 260 25% 6%;
-    --sidebar-foreground: 270 10% 85%;
-    --sidebar-primary: 270 70% 65%;
-    --sidebar-primary-foreground: 260 25% 8%;
-    --sidebar-accent: 260 20% 14%;
-    --sidebar-accent-foreground: 270 10% 95%;
-    --sidebar-border: 260 15% 15%;
-    --sidebar-ring: 270 70% 65%;
+    --sidebar-background: 270 25% 97%;
+    --sidebar-foreground: 260 25% 25%;
+    --sidebar-primary: 270 65% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 30% 93%;
+    --sidebar-accent-foreground: 260 30% 20%;
+    --sidebar-border: 270 20% 90%;
+    --sidebar-ring: 270 65% 55%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(270 70% 65%), hsl(290 60% 55%));
-    --gradient-accent: linear-gradient(135deg, hsl(280 60% 55%), hsl(320 70% 60%));
-    --gradient-dark: linear-gradient(180deg, hsl(260 25% 8%), hsl(260 25% 4%));
-    --gradient-glow: radial-gradient(ellipse at center, hsl(270 70% 65% / 0.15), transparent 70%);
+    --gradient-primary: linear-gradient(135deg, hsl(270 65% 55%), hsl(290 55% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(280 55% 50%), hsl(320 60% 55%));
+    --gradient-light: linear-gradient(180deg, hsl(270 30% 98%), hsl(270 25% 95%));
+    --gradient-glow: radial-gradient(ellipse at center, hsl(270 65% 55% / 0.08), transparent 70%);
 
-    /* Glows & Shadows */
-    --shadow-sm: 0 2px 8px hsl(260 25% 5% / 0.5);
-    --shadow-md: 0 4px 16px hsl(260 25% 5% / 0.6);
-    --shadow-lg: 0 8px 32px hsl(260 25% 5% / 0.7);
-    --shadow-glow: 0 0 24px hsl(270 70% 65% / 0.3);
-    --shadow-glow-accent: 0 0 32px hsl(280 60% 55% / 0.25);
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsl(260 30% 50% / 0.08);
+    --shadow-md: 0 4px 16px hsl(260 30% 50% / 0.1);
+    --shadow-lg: 0 8px 32px hsl(260 30% 50% / 0.12);
+    --shadow-glow: 0 4px 20px hsl(270 65% 55% / 0.2);
+    --shadow-glow-accent: 0 4px 24px hsl(280 55% 50% / 0.15);
 
     /* Glass effects */
-    --glass-bg: hsl(260 25% 12% / 0.8);
-    --glass-border: hsl(270 10% 95% / 0.1);
+    --glass-bg: hsl(0 0% 100% / 0.8);
+    --glass-border: hsl(270 20% 50% / 0.1);
   }
 
   .dark {
-    /* Already dark by default */
+    --background: 260 25% 8%;
+    --foreground: 270 10% 95%;
+    --card: 260 20% 12%;
+    --card-foreground: 270 10% 95%;
+    --popover: 260 22% 10%;
+    --popover-foreground: 270 10% 95%;
+    --primary: 270 70% 65%;
+    --primary-foreground: 260 25% 8%;
+    --secondary: 270 15% 18%;
+    --secondary-foreground: 270 10% 95%;
+    --muted: 260 15% 16%;
+    --muted-foreground: 270 10% 60%;
+    --accent: 280 60% 55%;
+    --accent-foreground: 270 10% 95%;
+    --border: 260 15% 20%;
+    --input: 260 15% 16%;
+    --sidebar-background: 260 25% 6%;
+    --sidebar-foreground: 270 10% 85%;
+    --sidebar-accent: 260 20% 14%;
+    --sidebar-border: 260 15% 15%;
   }
 }
 
@@ -139,7 +158,7 @@
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4;
   }
 
-  /* Premium glass effect */
+  /* Premium glass effect - light version */
   .glass {
     @apply backdrop-blur-xl;
     background: var(--glass-bg);
@@ -148,8 +167,8 @@
 
   .glass-subtle {
     @apply backdrop-blur-md;
-    background: hsl(260 25% 12% / 0.5);
-    border: 1px solid hsl(270 10% 95% / 0.05);
+    background: hsl(0 0% 100% / 0.6);
+    border: 1px solid hsl(270 20% 50% / 0.08);
   }
 
   /* Glow effects */
@@ -265,13 +284,13 @@
     }
   }
 
-  /* Shimmer effect for loading */
+  /* Shimmer effect for loading - light version */
   .shimmer {
     background: linear-gradient(
       90deg,
-      hsl(260 15% 16%) 0%,
-      hsl(260 15% 22%) 50%,
-      hsl(260 15% 16%) 100%
+      hsl(270 20% 95%) 0%,
+      hsl(270 20% 98%) 50%,
+      hsl(270 20% 95%) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
@@ -395,15 +414,15 @@
     box-shadow: var(--shadow-lg);
   }
 
-  /* Sidebar premium */
+  /* Sidebar premium - light version */
   .sidebar-premium {
     @apply bg-sidebar border-r border-sidebar-border;
-    background: linear-gradient(180deg, hsl(260 25% 7%), hsl(260 25% 5%));
+    background: linear-gradient(180deg, hsl(270 25% 98%), hsl(270 25% 96%));
   }
 
-  /* Header premium */
+  /* Header premium - light version */
   .header-premium {
     @apply glass border-b border-border/30;
-    background: hsl(260 25% 8% / 0.9);
+    background: hsl(0 0% 100% / 0.9);
   }
 }

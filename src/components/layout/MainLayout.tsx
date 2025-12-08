@@ -206,7 +206,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      {/* Background effects */}
+      {/* Background effects - lighter */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/5 blur-[120px]" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-accent/5 blur-[120px]" />
