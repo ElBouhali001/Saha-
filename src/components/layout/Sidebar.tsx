@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
   LogOut,
-  User,
-  Zap,
-  Shield,
+  UserCircle2,
+  Sparkles,
+  ShieldCheck,
   Stethoscope,
-  Users,
-  FlaskConical,
-  Pill,
-  UserCheck,
+  UsersRound,
+  Microscope,
+  PillBottle,
+  UserCog,
   HeartPulse
 } from 'lucide-react';
 import ModularNavigation from './ModularNavigation';
@@ -33,21 +33,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = f
     const role = userRole || user?.user_metadata?.role;
     switch (role) {
       case 'admin': 
-        return { color: 'text-primary', bgColor: 'bg-primary/10', icon: Shield, label: 'Admin' };
+        return { color: 'text-primary', bgColor: 'bg-primary/10', icon: ShieldCheck, label: 'Admin' };
       case 'doctor': 
         return { color: 'text-accent', bgColor: 'bg-accent/10', icon: Stethoscope, label: 'Médecin' };
       case 'agent': 
-        return { color: 'text-success', bgColor: 'bg-success/10', icon: Users, label: 'Agent' };
+        return { color: 'text-success', bgColor: 'bg-success/10', icon: UsersRound, label: 'Agent' };
       case 'lab_technician': 
-        return { color: 'text-cyan-400', bgColor: 'bg-cyan-400/10', icon: FlaskConical, label: 'Technicien Labo' };
+        return { color: 'text-cyan-400', bgColor: 'bg-cyan-400/10', icon: Microscope, label: 'Technicien Labo' };
       case 'pharmacist': 
-        return { color: 'text-warning', bgColor: 'bg-warning/10', icon: Pill, label: 'Pharmacien' };
+        return { color: 'text-warning', bgColor: 'bg-warning/10', icon: PillBottle, label: 'Pharmacien' };
       case 'insurance_agent': 
-        return { color: 'text-indigo-400', bgColor: 'bg-indigo-400/10', icon: UserCheck, label: 'Agent Assurance' };
+        return { color: 'text-indigo-400', bgColor: 'bg-indigo-400/10', icon: UserCog, label: 'Agent Assurance' };
       case 'patient': 
         return { color: 'text-pink-400', bgColor: 'bg-pink-400/10', icon: HeartPulse, label: 'Patient' };
       default: 
-        return { color: 'text-muted-foreground', bgColor: 'bg-muted', icon: User, label: 'Utilisateur' };
+        return { color: 'text-muted-foreground', bgColor: 'bg-muted', icon: UserCircle2, label: 'Utilisateur' };
     }
   };
 
@@ -66,7 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen = f
           <div className="flex items-center space-x-3">
             <div className="relative">
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow">
-                <Zap className="w-6 h-6 text-primary-foreground" />
+                <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-sidebar" />
             </div>
