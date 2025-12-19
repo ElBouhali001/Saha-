@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, Pill, Video, Download, Clock, MapPin, User, Activity } from 'lucide-react';
+import { Calendar, FileText, Pill, Video, Download, Clock, MapPin, User, Activity, Shield } from 'lucide-react';
+import PatientInsuranceDashboard from '@/components/insurance/PatientInsuranceDashboard';
 
 interface PatientDashboardProps {
   onNavigate?: (page: string) => void;
@@ -109,6 +110,14 @@ const PatientDashboard = ({ onNavigate }: PatientDashboardProps = {}) => {
             >
               <Activity className="w-6 h-6" />
               <span>Suivi Traitement</span>
+            </Button>
+            <Button 
+              className="h-20 flex-col space-y-2" 
+              variant="outline"
+              onClick={() => onNavigate?.('insurance')}
+            >
+              <Shield className="w-6 h-6" />
+              <span>Ma Mutuelle</span>
             </Button>
           </div>
         </CardContent>

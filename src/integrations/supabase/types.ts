@@ -188,6 +188,89 @@ export type Database = {
           },
         ]
       }
+      care_authorization_requests: {
+        Row: {
+          approved_amount: number | null
+          care_description: string
+          care_type: string
+          created_at: string | null
+          doctor_id: string | null
+          id: string
+          patient_insurance_id: string | null
+          rejection_reason: string | null
+          requested_amount: number
+          requested_at: string | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          updated_at: string | null
+          validity_date: string | null
+        }
+        Insert: {
+          approved_amount?: number | null
+          care_description: string
+          care_type: string
+          created_at?: string | null
+          doctor_id?: string | null
+          id?: string
+          patient_insurance_id?: string | null
+          rejection_reason?: string | null
+          requested_amount: number
+          requested_at?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          updated_at?: string | null
+          validity_date?: string | null
+        }
+        Update: {
+          approved_amount?: number | null
+          care_description?: string
+          care_type?: string
+          created_at?: string | null
+          doctor_id?: string | null
+          id?: string
+          patient_insurance_id?: string | null
+          rejection_reason?: string | null
+          requested_amount?: number
+          requested_at?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          updated_at?: string | null
+          validity_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_authorization_requests_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctor_patients"
+            referencedColumns: ["doctor_id"]
+          },
+          {
+            foreignKeyName: "care_authorization_requests_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_authorization_requests_patient_insurance_id_fkey"
+            columns: ["patient_insurance_id"]
+            isOneToOne: false
+            referencedRelation: "patient_insurances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_authorization_requests_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultations: {
         Row: {
           appointment_id: string | null
@@ -642,6 +725,88 @@ export type Database = {
             columns: ["patient_insurance_id"]
             isOneToOne: false
             referencedRelation: "patient_insurances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insurance_plan_limits: {
+        Row: {
+          annual_limit: number
+          care_type: string
+          coverage_rate: number | null
+          created_at: string | null
+          id: string
+          per_act_limit: number | null
+          plan_id: string | null
+        }
+        Insert: {
+          annual_limit: number
+          care_type: string
+          coverage_rate?: number | null
+          created_at?: string | null
+          id?: string
+          per_act_limit?: number | null
+          plan_id?: string | null
+        }
+        Update: {
+          annual_limit?: number
+          care_type?: string
+          coverage_rate?: number | null
+          created_at?: string | null
+          id?: string
+          per_act_limit?: number | null
+          plan_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_plan_limits_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insurance_plans: {
+        Row: {
+          annual_limit: number | null
+          coverage_rate: number
+          created_at: string | null
+          description: string | null
+          id: string
+          insurance_id: string | null
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          annual_limit?: number | null
+          coverage_rate?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          insurance_id?: string | null
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          annual_limit?: number | null
+          coverage_rate?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          insurance_id?: string | null
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_plans_insurance_id_fkey"
+            columns: ["insurance_id"]
+            isOneToOne: false
+            referencedRelation: "insurances"
             referencedColumns: ["id"]
           },
         ]
@@ -1323,6 +1488,44 @@ export type Database = {
           },
         ]
       }
+      patient_care_consumption: {
+        Row: {
+          care_type: string
+          id: string
+          last_updated_at: string | null
+          patient_insurance_id: string | null
+          total_consumed: number
+          total_covered: number
+          year: number
+        }
+        Insert: {
+          care_type: string
+          id?: string
+          last_updated_at?: string | null
+          patient_insurance_id?: string | null
+          total_consumed?: number
+          total_covered?: number
+          year?: number
+        }
+        Update: {
+          care_type?: string
+          id?: string
+          last_updated_at?: string | null
+          patient_insurance_id?: string | null
+          total_consumed?: number
+          total_covered?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_care_consumption_patient_insurance_id_fkey"
+            columns: ["patient_insurance_id"]
+            isOneToOne: false
+            referencedRelation: "patient_insurances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_guardians: {
         Row: {
           created_at: string | null
@@ -1371,6 +1574,54 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_insurance_plans: {
+        Row: {
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          is_active: boolean | null
+          patient_insurance_id: string | null
+          plan_id: string | null
+          subscription_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          patient_insurance_id?: string | null
+          plan_id?: string | null
+          subscription_date?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          patient_insurance_id?: string | null
+          plan_id?: string | null
+          subscription_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_insurance_plans_patient_insurance_id_fkey"
+            columns: ["patient_insurance_id"]
+            isOneToOne: false
+            referencedRelation: "patient_insurances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_insurance_plans_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_plans"
             referencedColumns: ["id"]
           },
         ]
@@ -3053,6 +3304,15 @@ export type Database = {
       initialize_mvp_demo_data: { Args: never; Returns: undefined }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       set_current_tenant: { Args: { tenant_id: string }; Returns: undefined }
+      update_patient_consumption: {
+        Args: {
+          p_amount: number
+          p_care_type: string
+          p_covered_amount: number
+          p_patient_insurance_id: string
+        }
+        Returns: undefined
+      }
       user_has_role: {
         Args: { _role: string; _user_id: string }
         Returns: boolean
