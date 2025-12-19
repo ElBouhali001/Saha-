@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { 
   Shield, 
   TrendingUp, 
@@ -12,41 +13,40 @@ import {
   XCircle,
   FileText,
   Calendar,
-  Euro
+  CreditCard,
+  Phone,
+  Mail,
+  Building2
 } from 'lucide-react';
-import { usePatientCoverage, useAuthorizationRequests, CARE_TYPES } from '@/hooks/useInsuranceCoverage';
+import { useMockInsuranceData, MOCK_PATIENTS } from '@/hooks/useMockInsuranceData';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
+const CARE_TYPE_LABELS: Record<string, string> = {
+  consultation_generale: 'Consultations générales',
+  consultation_specialisee: 'Consultations spécialisées',
+  actes_medicaux: 'Actes médicaux',
+  pharmacie: 'Pharmacie'
+};
+
 interface PatientInsuranceDashboardProps {
-  patientId: string;
+  patientId?: string;
 }
 
-const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ patientId }) => {
-  const { data: coverage, isLoading } = usePatientCoverage(patientId);
-  const { data: authRequests } = useAuthorizationRequests(coverage?.patientInsuranceId);
+const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ 
+  patientId = 'patient-1' // Patient par défaut pour la démo
+}) => {
+  const { 
+    getPatient, 
+    getPatientCoverageStatus, 
+    getPatientAuthRequests,
+    getPatientInsurance 
+  } = useMockInsuranceData();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-pulse text-muted-foreground">Chargement...</div>
-      </div>
-    );
-  }
-
-  if (!coverage) {
-    return (
-      <Card className="border-yellow-500/50 bg-yellow-500/10">
-        <CardContent className="p-8 text-center">
-          <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-          <h3 className="text-lg font-medium">Aucune assurance active</h3>
-          <p className="text-muted-foreground">
-            Vous n'avez pas d'assurance ou mutuelle active sur votre compte.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const patient = useMemo(() => getPatient(patientId), [patientId, getPatient]);
+  const coverage = useMemo(() => getPatientCoverageStatus(patientId), [patientId, getPatientCoverageStatus]);
+  const authRequests = useMemo(() => getPatientAuthRequests(patientId), [patientId, getPatientAuthRequests]);
+  const insuranceData = useMemo(() => getPatientInsurance(patientId), [patientId, getPatientInsurance]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -66,12 +66,38 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
     }
   };
 
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'pending': return 'outline';
+      case 'approved': return 'default';
+      case 'rejected': return 'destructive';
+      default: return 'secondary';
+    }
+  };
+
+  if (!coverage || !patient) {
+    return (
+      <Card className="border-yellow-500/50 bg-yellow-500/10">
+        <CardContent className="p-8 text-center">
+          <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium">Aucune assurance active</h3>
+          <p className="text-muted-foreground">
+            Vous n'avez pas d'assurance ou mutuelle active sur votre compte.
+          </p>
+          <Button className="mt-4">
+            Souscrire à une mutuelle
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* En-tête avec résumé */}
-      <Card className="bg-gradient-to-r from-primary/10 to-primary/5">
+      <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/20 rounded-full">
                 <Shield className="w-8 h-8 text-primary" />
@@ -79,22 +105,30 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
               <div>
                 <h2 className="text-2xl font-bold">{coverage.insuranceName}</h2>
                 <p className="text-muted-foreground">{coverage.planName}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  N° Police: <span className="font-mono">{coverage.policyNumber}</span>
+                </p>
               </div>
             </div>
-            <Badge className="text-lg px-4 py-2 bg-primary">
-              {coverage.coverageRate}% de couverture
-            </Badge>
+            <div className="flex flex-col items-end gap-2">
+              <Badge className="text-lg px-4 py-2 bg-primary">
+                {coverage.coverageRate}% de couverture
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                Plafond annuel: {coverage.annualLimit.toLocaleString()} FCFA
+              </span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Statistiques en grille */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Euro className="w-5 h-5 text-blue-500" />
+                <CreditCard className="w-5 h-5 text-blue-500" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{coverage.totalCovered.toLocaleString()}</p>
@@ -125,7 +159,7 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
                 <Shield className="w-5 h-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{coverage.annualLimit?.toLocaleString() || '∞'}</p>
+                <p className="text-2xl font-bold">{coverage.annualLimit.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">FCFA plafond annuel</p>
               </div>
             </div>
@@ -139,7 +173,7 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
                 <FileText className="w-5 h-5 text-yellow-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{authRequests?.filter((r: any) => r.status === 'pending').length || 0}</p>
+                <p className="text-2xl font-bold">{authRequests.filter(r => r.status === 'pending').length}</p>
                 <p className="text-xs text-muted-foreground">Demandes en cours</p>
               </div>
             </div>
@@ -147,8 +181,8 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
         </Card>
       </div>
 
-      <Tabs defaultValue="consumption">
-        <TabsList>
+      <Tabs defaultValue="consumption" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="consumption">
             <TrendingUp className="w-4 h-4 mr-2" />
             Ma consommation
@@ -157,12 +191,16 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
             <FileText className="w-4 h-4 mr-2" />
             Mes demandes
           </TabsTrigger>
+          <TabsTrigger value="info">
+            <Building2 className="w-4 h-4 mr-2" />
+            Ma mutuelle
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="consumption" className="mt-4">
+        <TabsContent value="consumption">
           <Card>
             <CardHeader>
-              <CardTitle>Consommation par type de soin</CardTitle>
+              <CardTitle>Consommation par type de soin - Année {new Date().getFullYear()}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {coverage.consumptionByType.map((consumption) => {
@@ -174,7 +212,7 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">
-                          {CARE_TYPES[consumption.care_type as keyof typeof CARE_TYPES]}
+                          {CARE_TYPE_LABELS[consumption.care_type]}
                         </span>
                         {isLimitReached && (
                           <Badge variant="destructive">Plafond atteint</Badge>
@@ -194,8 +232,8 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
                       <Progress 
                         value={Math.min(consumption.percentUsed, 100)} 
                         className={`h-3 ${
-                          isLimitReached ? 'bg-destructive/20' : 
-                          isNearLimit ? 'bg-yellow-500/20' : 'bg-primary/20'
+                          isLimitReached ? '[&>div]:bg-destructive' : 
+                          isNearLimit ? '[&>div]:bg-yellow-500' : ''
                         }`}
                       />
                       <div className="flex justify-between text-xs text-muted-foreground">
@@ -210,69 +248,135 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ p
           </Card>
         </TabsContent>
 
-        <TabsContent value="requests" className="mt-4">
+        <TabsContent value="requests">
           <Card>
             <CardHeader>
               <CardTitle>Historique des demandes d'autorisation</CardTitle>
             </CardHeader>
             <CardContent>
-              {!authRequests || authRequests.length === 0 ? (
+              {authRequests.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>Aucune demande d'autorisation</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {authRequests.map((request: any) => (
+                  {authRequests.map((request) => (
                     <div 
                       key={request.id} 
-                      className="flex items-start justify-between p-4 border rounded-lg"
+                      className="flex flex-col md:flex-row md:items-start justify-between p-4 border rounded-lg gap-4"
                     >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {getStatusIcon(request.status)}
                           <span className="font-medium">
-                            {CARE_TYPES[request.care_type as keyof typeof CARE_TYPES]}
+                            {CARE_TYPE_LABELS[request.careType]}
                           </span>
-                          <Badge variant="outline">
+                          <Badge variant={getStatusBadgeVariant(request.status) as any}>
                             {getStatusLabel(request.status)}
                           </Badge>
                         </div>
                         
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {request.care_description}
+                        <p className="text-sm text-muted-foreground">
+                          {request.careDescription}
                         </p>
                         
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {format(new Date(request.requested_at), 'dd MMM yyyy', { locale: fr })}
+                            {format(new Date(request.requestedAt), 'dd MMM yyyy', { locale: fr })}
                           </span>
-                          {request.validity_date && (
-                            <span>Validité: {format(new Date(request.validity_date), 'dd MMM yyyy', { locale: fr })}</span>
+                          {request.validityDate && (
+                            <span>Validité: {format(new Date(request.validityDate), 'dd MMM yyyy', { locale: fr })}</span>
                           )}
                         </div>
                         
-                        {request.rejection_reason && (
-                          <p className="text-sm text-destructive mt-2">
-                            Motif: {request.rejection_reason}
+                        {request.rejectionReason && (
+                          <p className="text-sm text-destructive mt-2 p-2 bg-destructive/10 rounded">
+                            <strong>Motif:</strong> {request.rejectionReason}
                           </p>
                         )}
                       </div>
                       
                       <div className="text-right">
                         <p className="font-medium">
-                          {request.requested_amount?.toLocaleString()} FCFA
+                          Demandé: {request.requestedAmount.toLocaleString()} FCFA
                         </p>
-                        {request.approved_amount && (
+                        {request.approvedAmount && (
                           <p className="text-sm text-green-600">
-                            Approuvé: {request.approved_amount.toLocaleString()} FCFA
+                            Approuvé: {request.approvedAmount.toLocaleString()} FCFA
                           </p>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="info">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informations de ma mutuelle</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {insuranceData && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        Assureur
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <p><span className="text-muted-foreground">Nom:</span> {insuranceData.insurance.name}</p>
+                        <p><span className="text-muted-foreground">Formule:</span> {insuranceData.plan?.name || 'Standard'}</p>
+                        <p><span className="text-muted-foreground">N° Police:</span> <span className="font-mono">{insuranceData.policyNumber}</span></p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        Couverture
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <p><span className="text-muted-foreground">Taux:</span> {insuranceData.plan?.coverageRate || insuranceData.insurance.coverageRate}%</p>
+                        <p><span className="text-muted-foreground">Plafond annuel:</span> {(insuranceData.plan?.annualLimit || insuranceData.insurance.annualLimit).toLocaleString()} FCFA</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-semibold mb-4">Plafonds par type de soin</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {insuranceData.plan?.limits && Object.entries(insuranceData.plan.limits).map(([type, limit]) => (
+                        <div key={type} className="p-3 bg-muted/50 rounded-lg text-center">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            {CARE_TYPE_LABELS[type]}
+                          </p>
+                          <p className="font-semibold">{(limit as number).toLocaleString()} FCFA</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-semibold mb-4">Contact service client</h4>
+                    <div className="flex flex-wrap gap-4">
+                      <Button variant="outline" size="sm">
+                        <Phone className="w-4 h-4 mr-2" />
+                        Appeler
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Mail className="w-4 h-4 mr-2" />
+                        Envoyer un email
+                      </Button>
+                    </div>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
