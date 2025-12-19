@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Shield, 
   TrendingUp, 
@@ -16,7 +17,11 @@ import {
   CreditCard,
   Phone,
   Mail,
-  Building2
+  Building2,
+  Receipt,
+  Stethoscope,
+  Pill,
+  Activity
 } from 'lucide-react';
 import { useMockInsuranceData, MOCK_PATIENTS } from '@/hooks/useMockInsuranceData';
 import { format } from 'date-fns';
@@ -27,6 +32,13 @@ const CARE_TYPE_LABELS: Record<string, string> = {
   consultation_specialisee: 'Consultations spécialisées',
   actes_medicaux: 'Actes médicaux',
   pharmacie: 'Pharmacie'
+};
+
+const CARE_TYPE_ICONS: Record<string, React.ReactNode> = {
+  consultation_generale: <Stethoscope className="w-4 h-4" />,
+  consultation_specialisee: <Activity className="w-4 h-4" />,
+  actes_medicaux: <FileText className="w-4 h-4" />,
+  pharmacie: <Pill className="w-4 h-4" />
 };
 
 interface PatientInsuranceDashboardProps {
@@ -40,13 +52,15 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({
     getPatient, 
     getPatientCoverageStatus, 
     getPatientAuthRequests,
-    getPatientInsurance 
+    getPatientInsurance,
+    getPatientCareHistory 
   } = useMockInsuranceData();
 
   const patient = useMemo(() => getPatient(patientId), [patientId, getPatient]);
   const coverage = useMemo(() => getPatientCoverageStatus(patientId), [patientId, getPatientCoverageStatus]);
   const authRequests = useMemo(() => getPatientAuthRequests(patientId), [patientId, getPatientAuthRequests]);
   const insuranceData = useMemo(() => getPatientInsurance(patientId), [patientId, getPatientInsurance]);
+  const careHistory = useMemo(() => getPatientCareHistory(patientId), [patientId, getPatientCareHistory]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -182,18 +196,22 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({
       </div>
 
       <Tabs defaultValue="consumption" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="consumption">
             <TrendingUp className="w-4 h-4 mr-2" />
-            Ma consommation
+            Consommation
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            <Receipt className="w-4 h-4 mr-2" />
+            Décomptes
           </TabsTrigger>
           <TabsTrigger value="requests">
             <FileText className="w-4 h-4 mr-2" />
-            Mes demandes
+            Demandes
           </TabsTrigger>
           <TabsTrigger value="info">
             <Building2 className="w-4 h-4 mr-2" />
-            Ma mutuelle
+            Ma formule
           </TabsTrigger>
         </TabsList>
 
@@ -244,6 +262,108 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({
                   </div>
                 );
               })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Receipt className="w-5 h-5" />
+                Décomptes de prise en charge
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {careHistory.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Receipt className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Aucun décompte disponible</p>
+                </div>
+              ) : (
+                <ScrollArea className="h-[400px] pr-4">
+                  <div className="space-y-3">
+                    {careHistory.map((care) => {
+                      const statusColor = care.status === 'paid' ? 'text-green-600 bg-green-50' : 
+                                         care.status === 'processing' ? 'text-blue-600 bg-blue-50' : 
+                                         'text-yellow-600 bg-yellow-50';
+                      const statusLabel = care.status === 'paid' ? 'Remboursé' : 
+                                         care.status === 'processing' ? 'En traitement' : 
+                                         'En attente';
+                      
+                      return (
+                        <div 
+                          key={care.id} 
+                          className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <div className={`p-2 rounded-lg ${
+                            care.careType === 'consultation_generale' ? 'bg-blue-100 text-blue-600' :
+                            care.careType === 'consultation_specialisee' ? 'bg-purple-100 text-purple-600' :
+                            care.careType === 'actes_medicaux' ? 'bg-orange-100 text-orange-600' :
+                            'bg-green-100 text-green-600'
+                          }`}>
+                            {CARE_TYPE_ICONS[care.careType]}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium text-sm">{care.description}</span>
+                              <Badge variant="outline" className={`text-xs ${statusColor}`}>
+                                {statusLabel}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">{care.provider}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {format(new Date(care.date), 'dd MMMM yyyy', { locale: fr })}
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded bg-muted">
+                                {CARE_TYPE_LABELS[care.careType]}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-medium">{care.amount.toLocaleString()} FCFA</p>
+                            <p className="text-xs text-green-600 font-medium">
+                              Pris en charge: {care.coveredAmount.toLocaleString()} FCFA
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Reste à charge: {(care.amount - care.coveredAmount).toLocaleString()} FCFA
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              )}
+              
+              {careHistory.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Total soins</p>
+                      <p className="text-lg font-bold">
+                        {careHistory.reduce((sum, c) => sum + c.amount, 0).toLocaleString()} FCFA
+                      </p>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <p className="text-xs text-green-600">Pris en charge</p>
+                      <p className="text-lg font-bold text-green-600">
+                        {careHistory.reduce((sum, c) => sum + c.coveredAmount, 0).toLocaleString()} FCFA
+                      </p>
+                    </div>
+                    <div className="p-3 bg-orange-50 rounded-lg">
+                      <p className="text-xs text-orange-600">Reste à charge</p>
+                      <p className="text-lg font-bold text-orange-600">
+                        {careHistory.reduce((sum, c) => sum + (c.amount - c.coveredAmount), 0).toLocaleString()} FCFA
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

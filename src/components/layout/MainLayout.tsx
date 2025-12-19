@@ -7,6 +7,7 @@ import AdminDashboard from '../dashboard/AdminDashboard';
 import DoctorDashboard from '../dashboard/DoctorDashboard';
 import AgentDashboard from '../dashboard/AgentDashboard';
 import PatientDashboard from '../dashboard/PatientDashboard';
+import PatientInsuranceDashboard from '../insurance/PatientInsuranceDashboard';
 import { useModuleAccess } from '@/hooks/useModuleAccess';
 import QRDisplaySettings from '@/components/settings/QRDisplaySettings';
 import DoctorTelemedicine from '@/components/telemedicine/DoctorTelemedicine';
@@ -187,6 +188,9 @@ const MainLayout = () => {
         return (userRole === 'doctor' || userRole === 'admin') ? 
           <DoctorTelemedicine /> : 
           <div className="p-6 text-muted-foreground">Module télémédecine non disponible</div>;
+
+      case 'insurance':
+        return <PatientInsuranceDashboard />;
 
       default:
         return (
