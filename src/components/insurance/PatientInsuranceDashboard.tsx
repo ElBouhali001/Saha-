@@ -116,19 +116,19 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* En-tête avec titre et boutons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-2xl font-bold">Ma Mutuelle</h1>
-          <p className="text-muted-foreground">Gérez votre couverture santé et vos demandes de prise en charge</p>
+          <p className="text-muted-foreground text-sm sm:text-base">Gérez votre couverture santé et vos demandes de prise en charge</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowQuoteModal(true)} variant="outline" size="lg" className="gap-2">
-            <FileQuote className="w-5 h-5" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full sm:w-auto sm:flex">
+          <Button onClick={() => setShowQuoteModal(true)} variant="outline" size="default" className="gap-2 w-full sm:w-auto">
+            <FileQuote className="w-4 h-4" />
             Envoyer un devis
           </Button>
-          <Button onClick={() => setShowRequestModal(true)} size="lg" className="gap-2">
-            <PlusCircle className="w-5 h-5" />
-            Demande de prise en charge
+          <Button onClick={() => setShowRequestModal(true)} size="default" className="gap-2 w-full sm:w-auto">
+            <PlusCircle className="w-4 h-4" />
+            Nouvelle demande
           </Button>
         </div>
       </div>
