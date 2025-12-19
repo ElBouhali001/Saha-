@@ -19,6 +19,7 @@ interface PatientInfo {
   address: string;
   coverage: string;
   insuranceId?: string;
+  patientId?: string;
 }
 
 interface ConsultationTicket {
@@ -47,7 +48,8 @@ export const useInvoiceForm = () => {
     email: '',
     address: '',
     coverage: 'autre',
-    insuranceId: undefined
+    insuranceId: undefined,
+    patientId: undefined
   });
 
   const [consultationTicket, setConsultationTicket] = useState<ConsultationTicket>({
@@ -202,7 +204,7 @@ export const useInvoiceForm = () => {
     });
 
     // Réinitialiser le formulaire
-    setPatientInfo({ name: '', phone: '', email: '', address: '', coverage: 'autre', insuranceId: undefined });
+    setPatientInfo({ name: '', phone: '', email: '', address: '', coverage: 'autre', insuranceId: undefined, patientId: undefined });
     setConsultationTicket({ type: 'consultation-generale', basePrice: 15000 });
     setInvoiceItems([{ 
       id: '1', 
