@@ -525,24 +525,39 @@ export function useMockInsuranceData() {
   };
 }
 
+// Fonction utilitaire pour récupérer l'assurance d'un patient (sans hook)
+export function getPatientInsuranceData(patientId: string) {
+  const patient = MOCK_PATIENTS.find(p => p.id === patientId);
+  if (!patient?.insuranceId) return null;
+
+  const insurance = MOCK_INSURANCES.find(i => i.id === patient.insuranceId);
+  if (!insurance) return null;
+
+  const plan = insurance.plans.find(p => p.id === patient.planId);
+
+  return {
+    insurance,
+    plan,
+    policyNumber: patient.policyNumber
+  };
+}
+
 // Hook simplifié pour la liste des patients avec recherche
 export function useMockPatientSearch() {
-  const { patients, getPatientInsurance } = useMockInsuranceData();
-  
-  const searchPatients = (query: string) => {
+  const searchPatients = (query: string): MockPatient[] => {
     if (!query || query.length < 2) return [];
     
     const lowerQuery = query.toLowerCase();
-    return patients.filter(p => 
+    return MOCK_PATIENTS.filter(p => 
       p.firstName.toLowerCase().includes(lowerQuery) ||
       p.lastName.toLowerCase().includes(lowerQuery) ||
       p.phone.includes(query)
-    ).map(p => ({
-      ...p,
-      fullName: `${p.firstName} ${p.lastName}`,
-      insurance: getPatientInsurance(p.id)
-    }));
+    );
   };
 
-  return { patients, searchPatients, getPatientInsurance };
+  const getPatientInsurance = (patientId: string) => {
+    return getPatientInsuranceData(patientId);
+  };
+
+  return { patients: MOCK_PATIENTS, searchPatients, getPatientInsurance };
 }
