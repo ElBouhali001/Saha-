@@ -281,16 +281,53 @@ export const MOCK_PATIENTS: MockPatient[] = [
   }
 ];
 
-// Consommations mock des patients
+// Historique des soins détaillés liés aux consommations
+export interface MockCareHistoryItem {
+  id: string;
+  patientId: string;
+  date: string;
+  careType: 'consultation_generale' | 'consultation_specialisee' | 'actes_medicaux' | 'pharmacie';
+  description: string;
+  provider: string;
+  amount: number;
+  coveredAmount: number;
+  status: 'paid' | 'pending' | 'processing';
+}
+
+export const MOCK_CARE_HISTORY: MockCareHistoryItem[] = [
+  // Patient 1 - Aminata Koné
+  { id: 'care-1', patientId: 'patient-1', date: '2024-12-15', careType: 'consultation_generale', description: 'Consultation suivi hypertension', provider: 'Dr. Kouamé Adjoua', amount: 25000, coveredAmount: 20000, status: 'paid' },
+  { id: 'care-2', patientId: 'patient-1', date: '2024-12-10', careType: 'pharmacie', description: 'Lisinopril 10mg, Metformine 500mg', provider: 'Pharmacie Santé Plus', amount: 18000, coveredAmount: 14400, status: 'paid' },
+  { id: 'care-3', patientId: 'patient-1', date: '2024-11-28', careType: 'actes_medicaux', description: 'Bilan sanguin complet + ECG', provider: 'Laboratoire Bio-Ivoire', amount: 85000, coveredAmount: 68000, status: 'paid' },
+  { id: 'care-4', patientId: 'patient-1', date: '2024-11-15', careType: 'consultation_specialisee', description: 'Consultation cardiologie', provider: 'Dr. Traoré Sekou', amount: 45000, coveredAmount: 36000, status: 'paid' },
+  { id: 'care-5', patientId: 'patient-1', date: '2024-11-01', careType: 'consultation_generale', description: 'Consultation générale - grippe', provider: 'Dr. Kouamé Adjoua', amount: 20000, coveredAmount: 16000, status: 'paid' },
+  { id: 'care-6', patientId: 'patient-1', date: '2024-10-20', careType: 'actes_medicaux', description: 'Échographie abdominale', provider: 'Centre Imagerie Abidjan', amount: 75000, coveredAmount: 60000, status: 'paid' },
+  { id: 'care-7', patientId: 'patient-1', date: '2024-10-05', careType: 'pharmacie', description: 'Paracétamol, Vitamines', provider: 'Pharmacie du Centre', amount: 12000, coveredAmount: 9600, status: 'paid' },
+  { id: 'care-8', patientId: 'patient-1', date: '2024-09-18', careType: 'consultation_generale', description: 'Visite de contrôle', provider: 'Dr. Kouamé Adjoua', amount: 25000, coveredAmount: 20000, status: 'paid' },
+  { id: 'care-9', patientId: 'patient-1', date: '2024-09-02', careType: 'actes_medicaux', description: 'Radiographie thorax', provider: 'Centre Imagerie Abidjan', amount: 45000, coveredAmount: 36000, status: 'paid' },
+  { id: 'care-10', patientId: 'patient-1', date: '2024-08-15', careType: 'consultation_specialisee', description: 'Consultation pneumologie', provider: 'Dr. Bakayoko Ibrahim', amount: 50000, coveredAmount: 40000, status: 'paid' },
+  
+  // Patient 2 - Moussa Diallo
+  { id: 'care-11', patientId: 'patient-2', date: '2024-12-18', careType: 'actes_medicaux', description: 'IRM cérébrale', provider: 'Clinique Internationale', amount: 350000, coveredAmount: 297500, status: 'processing' },
+  { id: 'care-12', patientId: 'patient-2', date: '2024-12-05', careType: 'consultation_specialisee', description: 'Consultation neurologie', provider: 'Dr. Diarra Fatou', amount: 60000, coveredAmount: 51000, status: 'paid' },
+  { id: 'care-13', patientId: 'patient-2', date: '2024-11-20', careType: 'pharmacie', description: 'Traitement migraine', provider: 'Pharmacie Centrale', amount: 45000, coveredAmount: 38250, status: 'paid' },
+  
+  // Patient 3 - Fatou Traoré  
+  { id: 'care-14', patientId: 'patient-3', date: '2024-12-17', careType: 'consultation_generale', description: 'Consultation suivi diabète', provider: 'Dr. Coulibaly Marc', amount: 25000, coveredAmount: 17500, status: 'pending' },
+  { id: 'care-15', patientId: 'patient-3', date: '2024-12-01', careType: 'pharmacie', description: 'Insuline + bandelettes glycémie', provider: 'Pharmacie du Plateau', amount: 125000, coveredAmount: 87500, status: 'paid' },
+  { id: 'care-16', patientId: 'patient-3', date: '2024-11-15', careType: 'consultation_specialisee', description: 'Consultation endocrinologie', provider: 'Dr. Sanogo Aïcha', amount: 55000, coveredAmount: 38500, status: 'paid' },
+];
+
+// Consommations mock des patients (calculées à partir de l'historique)
 export const MOCK_CONSUMPTIONS: MockPatientConsumption[] = [
   {
     patientId: 'patient-1',
     year: 2024,
     consumption: {
-      consultation_generale: { consumed: 120000, covered: 96000 },
-      consultation_specialisee: { consumed: 75000, covered: 60000 },
-      actes_medicaux: { consumed: 250000, covered: 200000 },
-      pharmacie: { consumed: 45000, covered: 36000 }
+      consultation_generale: { consumed: 70000, covered: 56000 },
+      consultation_specialisee: { consumed: 95000, covered: 76000 },
+      actes_medicaux: { consumed: 205000, covered: 164000 },
+      pharmacie: { consumed: 30000, covered: 24000 }
     }
   },
   {
@@ -467,6 +504,13 @@ export function useMockInsuranceData() {
     };
   };
 
+  // Récupérer l'historique des soins d'un patient
+  const getPatientCareHistory = (patientId: string) => {
+    return MOCK_CARE_HISTORY
+      .filter(c => c.patientId === patientId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  };
+
   // Récupérer les demandes d'autorisation d'un patient
   const getPatientAuthRequests = (patientId: string) => {
     return authRequests.filter(r => r.patientId === patientId);
@@ -517,11 +561,13 @@ export function useMockInsuranceData() {
     getPatientInsurance,
     getPatientConsumption,
     getPatientCoverageStatus,
+    getPatientCareHistory,
     getPatientAuthRequests,
     getPendingAuthRequests,
     addAuthRequest,
     respondToAuthRequest,
-    authRequests
+    authRequests,
+    careHistory: MOCK_CARE_HISTORY
   };
 }
 
