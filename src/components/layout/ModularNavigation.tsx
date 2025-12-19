@@ -34,7 +34,8 @@ import {
   ScreenShare,
   FileBarChart,
   ScrollText,
-  Scan
+  Scan,
+  Shield
 } from 'lucide-react';
 
 interface ModularNavigationProps {
@@ -95,6 +96,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
         moduleBasedItems.push({ id: 'medical-history', label: 'Dossier', icon: FileHeart, module: 'medical-consultation' });
         moduleBasedItems.push({ id: 'prescriptions', label: 'Ordonnances', icon: ScrollText, module: 'medical-consultation' });
         moduleBasedItems.push({ id: 'prescription-tracker', label: 'Suivi', icon: Gauge, module: 'patient-management' });
+        moduleBasedItems.push({ id: 'insurance', label: 'Ma Mutuelle', icon: Shield, module: 'patient-management' });
       }
     }
 
@@ -166,6 +168,7 @@ const ModularNavigation: React.FC<ModularNavigationProps> = ({
       item.id === 'qr-settings' ||
       item.id === 'telemedicine' ||
       item.id === 'prescription-tracker' ||
+      item.id === 'insurance' ||
       availableRoutes.includes(`/${item.id}`) || 
       availableRoutes.includes(`/${item.id.replace('-', '')}`)
     );
