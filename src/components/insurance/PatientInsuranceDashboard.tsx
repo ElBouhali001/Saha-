@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -21,11 +21,13 @@ import {
   Receipt,
   Stethoscope,
   Pill,
-  Activity
+  Activity,
+  PlusCircle
 } from 'lucide-react';
 import { useMockInsuranceData, MOCK_PATIENTS } from '@/hooks/useMockInsuranceData';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import PatientCoverageRequestModal from './PatientCoverageRequestModal';
 
 const CARE_TYPE_LABELS: Record<string, string> = {
   consultation_generale: 'Consultations générales',
@@ -48,6 +50,8 @@ interface PatientInsuranceDashboardProps {
 const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({ 
   patientId = 'patient-1' // Patient par défaut pour la démo
 }) => {
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  
   const { 
     getPatient, 
     getPatientCoverageStatus, 
@@ -108,6 +112,26 @@ const PatientInsuranceDashboard: React.FC<PatientInsuranceDashboardProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* En-tête avec titre et bouton de demande */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Ma Mutuelle</h1>
+          <p className="text-muted-foreground">Gérez votre couverture santé et vos demandes de prise en charge</p>
+        </div>
+        <Button onClick={() => setShowRequestModal(true)} size="lg" className="gap-2">
+          <PlusCircle className="w-5 h-5" />
+          Demande de prise en charge
+        </Button>
+      </div>
+
+      {/* Modal de demande de prise en charge */}
+      <PatientCoverageRequestModal
+        open={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        patientName={patient ? `${patient.firstName} ${patient.lastName}` : 'Patient'}
+        insuranceName={coverage.insuranceName}
+      />
+
       {/* En-tête avec résumé */}
       <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
         <CardContent className="p-6">
