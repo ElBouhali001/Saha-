@@ -24,6 +24,7 @@ import { DemoPatient } from '@/hooks/useDemoPatients';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AppointmentBookingModal from '@/components/appointments/AppointmentBookingModal';
 import PatientAppointments from './PatientAppointments';
+import PatientCoveragePanel from '@/components/insurance/PatientCoveragePanel';
 
 interface PatientDetailSheetProps {
   patient: DemoPatient | null;
@@ -296,17 +297,13 @@ const PatientDetailSheet: React.FC<PatientDetailSheetProps> = ({
                           </div>
                         </div>
                       )}
-
-                      {patient.insurance && (
-                        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <Shield className="w-4 h-4 text-gray-600" />
-                            <span className="font-medium">Assurance: {patient.insurance}</span>
-                          </div>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
+                )}
+
+                {/* Couverture Mutuelle - visible pour agent et médecin */}
+                {(isDoctor || isAgent) && (
+                  <PatientCoveragePanel patientId={patient.id} compact />
                 )}
 
                 {/* Rendez-vous du patient */}

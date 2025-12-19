@@ -13,6 +13,7 @@ import PatientInfoDisplay from './PatientInfoDisplay';
 import ConsultationForm from './ConsultationForm';
 import PrescriptionManager from './PrescriptionManager';
 import ClinicalDiagnosticPanel from './ClinicalDiagnosticPanel';
+import PatientCoveragePanel from '@/components/insurance/PatientCoveragePanel';
 
 const MedicalConsultation = () => {
   const { user } = useSupabaseAuth();
@@ -151,7 +152,14 @@ const MedicalConsultation = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <PatientInfoDisplay patient={patient} />
+                <div className="space-y-4">
+                  <PatientInfoDisplay patient={patient} />
+                  <PatientCoveragePanel 
+                    patientId={patient.id} 
+                    specialty={doctorSpecialty}
+                    compact
+                  />
+                </div>
                 
                 <div className="lg:col-span-2 space-y-6">
                   {consultationId && (
@@ -166,7 +174,7 @@ const MedicalConsultation = () => {
                       onSpecialtyDataChange={setSpecialtyData}
                     />
                   )}
-                  
+                   
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-medium">Assistant Diagnostic</h3>

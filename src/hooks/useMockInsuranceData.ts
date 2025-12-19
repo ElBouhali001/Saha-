@@ -60,6 +60,19 @@ export interface MockAuthorizationRequest {
   validityDate?: string;
 }
 
+// Types de soins avec libellés
+export const CARE_TYPES = {
+  consultation_generale: 'Consultation Générale',
+  consultation_specialisee: 'Consultation Spécialisée',
+  actes_medicaux: 'Actes Médicaux',
+  pharmacie: 'Pharmacie',
+  hospitalization: 'Hospitalisation',
+  dental: 'Soins Dentaires',
+  optical: 'Optique',
+  specialist: 'Spécialiste',
+  general: 'Généraliste'
+} as const;
+
 // Données mock des mutuelles/assurances
 export const MOCK_INSURANCES: MockInsurance[] = [
   {
