@@ -25,31 +25,25 @@ const OpenEvidenceIntegration: React.FC<OpenEvidenceIntegrationProps> = ({
   const { toast } = useToast();
 
   const openOpenEvidence = () => {
-    if (!symptoms.trim()) {
-      toast({
-        title: "Symptômes requis",
-        description: "Veuillez saisir les symptômes du patient avant d'ouvrir OpenEvidence",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Construct the search query
-    let searchQuery = symptoms;
-    if (patientAge) {
-      searchQuery += ` patient ${patientAge} ans`;
-    }
-    if (patientGender) {
-      searchQuery += ` ${patientGender === 'M' ? 'homme' : 'femme'}`;
-    }
-
-    // Open OpenEvidence in a popup window
+    // Ouvrir OpenEvidence directement - l'utilisateur peut se connecter avec Google sur leur site
     const width = 1200;
     const height = 800;
     const left = (window.screen.width - width) / 2;
     const top = (window.screen.height - height) / 2;
     
-    const openEvidenceUrl = `https://www.openevidence.com/search?q=${encodeURIComponent(searchQuery)}`;
+    // Construire l'URL avec la recherche si des symptômes sont présents
+    let openEvidenceUrl = 'https://www.openevidence.com';
+    
+    if (symptoms.trim()) {
+      let searchQuery = symptoms;
+      if (patientAge) {
+        searchQuery += ` patient ${patientAge} ans`;
+      }
+      if (patientGender) {
+        searchQuery += ` ${patientGender === 'M' ? 'homme' : 'femme'}`;
+      }
+      openEvidenceUrl = `https://www.openevidence.com/search?q=${encodeURIComponent(searchQuery)}`;
+    }
     
     window.open(
       openEvidenceUrl,
@@ -59,7 +53,7 @@ const OpenEvidenceIntegration: React.FC<OpenEvidenceIntegrationProps> = ({
 
     toast({
       title: "OpenEvidence ouvert",
-      description: "Consultez les résultats et copiez le diagnostic dans le champ ci-dessous",
+      description: "Connectez-vous avec votre compte Google pour accéder aux diagnostics IA",
     });
   };
 
@@ -127,23 +121,24 @@ const OpenEvidenceIntegration: React.FC<OpenEvidenceIntegrationProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
           <Button
             onClick={openOpenEvidence}
-            disabled={!symptoms.trim()}
-            className="flex-1"
+            className="w-full bg-blue-600 hover:bg-blue-700"
           >
             <ExternalLink className="w-4 h-4 mr-2" />
-            Ouvrir dans OpenEvidence
+            Ouvrir OpenEvidence (Connexion Google)
           </Button>
-          <Button
-            onClick={copySymptoms}
-            disabled={!symptoms.trim()}
-            variant="outline"
-          >
-            <Copy className="w-4 h-4 mr-2" />
-            Copier
-          </Button>
+          {symptoms.trim() && (
+            <Button
+              onClick={copySymptoms}
+              variant="outline"
+              className="w-full"
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Copier les symptômes
+            </Button>
+          )}
         </div>
 
         <div className="space-y-2">
