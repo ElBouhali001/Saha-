@@ -29,6 +29,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import OpenEvidenceIntegration from '@/components/ai/OpenEvidenceIntegration';
+import VitalsCameraCapture from './VitalsCameraCapture';
 
 interface VitalsData {
   respiratoryRate: number;
@@ -77,6 +78,7 @@ const DoctorTelemedicine = () => {
   const [autoAnalysis, setAutoAnalysis] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<Array<{timestamp: string, vitals: VitalsData}>>([]);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [cameraVitals, setCameraVitals] = useState<any>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -608,12 +610,38 @@ const DoctorTelemedicine = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="input" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="camera-vitals" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="camera-vitals">📷 Caméra IA</TabsTrigger>
               <TabsTrigger value="input">Symptômes</TabsTrigger>
               <TabsTrigger value="openevidence">OpenEvidence</TabsTrigger>
               <TabsTrigger value="diagnosis">Diagnostic IA</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="camera-vitals" className="space-y-4">
+              <VitalsCameraCapture 
+                onVitalsCapture={(capturedVitals) => {
+                  setCameraVitals(capturedVitals);
+                  // Mettre à jour les vitals affichés si disponibles
+                  if (capturedVitals) {
+                    setVitals({
+                      respiratoryRate: capturedVitals.respiratoryRate || 0,
+                      heartRate: capturedVitals.heartRate || 0,
+                      temperature: 37, // Estimation par défaut
+                      emotionalState: capturedVitals.mood || 'inconnu',
+                      consciousnessLevel: 'alerte',
+                      distressSignals: capturedVitals.alerts || [],
+                      skinColor: capturedVitals.skinColor || 'normal',
+                      facialExpression: capturedVitals.facialExpression || 'neutre',
+                      confidence: (capturedVitals.overallHealthScore || 50) / 100,
+                      alerts: capturedVitals.alerts || []
+                    });
+                  }
+                }}
+                autoCapture={false}
+                captureIntervalSeconds={30}
+              />
+            </TabsContent>
 
             <TabsContent value="input" className="space-y-4">
               <div>
