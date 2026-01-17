@@ -25,6 +25,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface VitalsAnalysis {
+  detectedSkinType: string;
+  skinTypeNote: string;
   heartRate: number;
   heartRateConfidence: number;
   respiratoryRate: number;
@@ -40,6 +42,7 @@ interface VitalsAnalysis {
   skinColorAnalysis: string;
   facialExpression: string;
   eyeCondition: string;
+  mucosalAssessment: string;
   overallHealthScore: number;
   alerts: string[];
   recommendations: string[];
@@ -413,6 +416,18 @@ const VitalsCameraCapture: React.FC<VitalsCameraCaptureProps> = ({
               </div>
             </div>
 
+            {/* Type de peau détecté */}
+            {vitals.detectedSkinType && (
+              <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-lg">🌍</span>
+                  <h4 className="font-medium text-amber-800 dark:text-amber-200">Phototype détecté</h4>
+                </div>
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">{vitals.detectedSkinType}</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">{vitals.skinTypeNote}</p>
+              </div>
+            )}
+
             {/* Analyse détaillée */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-muted rounded-lg">
@@ -437,6 +452,9 @@ const VitalsCameraCapture: React.FC<VitalsCameraCaptureProps> = ({
                 <p className="text-sm"><strong>Teint:</strong> {vitals.skinColor}</p>
                 <p className="text-sm text-muted-foreground">{vitals.skinColorAnalysis}</p>
                 <p className="text-sm"><strong>Yeux:</strong> {vitals.eyeCondition}</p>
+                {vitals.mucosalAssessment && vitals.mucosalAssessment !== 'non visible' && (
+                  <p className="text-sm"><strong>Muqueuses:</strong> {vitals.mucosalAssessment}</p>
+                )}
               </div>
             </div>
 

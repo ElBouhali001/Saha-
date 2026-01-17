@@ -37,37 +37,66 @@ serve(async (req) => {
       });
     }
 
-    const prompt = `Tu es un expert médical spécialisé en analyse de signes vitaux par imagerie.
+    const prompt = `Tu es un expert médical spécialisé en analyse de signes vitaux par imagerie, formé pour analyser TOUS les types de peau et origines ethniques.
+
+IMPORTANT - DIVERSITÉ DES TYPES DE PEAU:
+Tu dois adapter ton analyse selon le phototype du patient. Les signes cliniques se manifestent différemment selon la pigmentation:
+
+1. PEAU CLAIRE (Type I-II - Caucasien, Européen du Nord):
+   - Pâleur: teint blanc/grisâtre
+   - Cyanose: lèvres/ongles bleutés facilement visibles
+   - Rougeur: érythème visible directement
+   - Ictère: jaunissement visible sur la peau et sclérotiques
+
+2. PEAU INTERMÉDIAIRE (Type III-IV - Méditerranéen, Asiatique, Hispanique, Métissé):
+   - Pâleur: perte de la teinte rosée sous-jacente, teint plus terne
+   - Cyanose: vérifier muqueuses buccales, lit unguéal, paumes
+   - Rougeur: peut apparaître comme assombrissement de la peau
+   - Ictère: vérifier sclérotiques et paumes
+
+3. PEAU FONCÉE (Type V-VI - Africain, Afro-Caribéen, Sud-Indien, Aborigène):
+   - Pâleur: aspect grisâtre/cendreux, perte d'éclat, muqueuses pâles
+   - Cyanose: CRITIQUE - vérifier muqueuses (lèvres intérieures, langue), paumes, plantes des pieds, lit unguéal
+   - Rougeur: apparaît comme zones plus sombres/violacées
+   - Ictère: vérifier SCLÉROTIQUES (blanc des yeux), paumes, plantes des pieds
+
+4. PEAU AMÉRINDIENNE/AUTOCHTONE:
+   - Teinte cuivrée naturelle à considérer comme baseline
+   - Évaluer les changements par rapport à la teinte de base du patient
 
 Analyse l'image du visage du patient et RENVOIE UNIQUEMENT un objet JSON avec ce schéma exact:
 
 {
-  "heartRate": <nombre estimé entre 50 et 120 basé sur la coloration de la peau et les micro-variations visibles>,
-  "heartRateConfidence": <nombre entre 20 et 60 - la mesure par caméra est approximative>,
-  "respiratoryRate": <nombre estimé entre 10 et 25 basé sur les mouvements thoraciques/épaules visibles>,
+  "detectedSkinType": "très clair|clair|intermédiaire|mat|foncé|très foncé",
+  "skinTypeNote": "description du phototype détecté et comment cela influence l'analyse",
+  "heartRate": <nombre estimé entre 50 et 120>,
+  "heartRateConfidence": <nombre entre 20 et 60>,
+  "respiratoryRate": <nombre estimé entre 10 et 25>,
   "respiratoryRateConfidence": <nombre entre 20 et 60>,
   "estimatedTemperature": "normale|légèrement élevée|possiblement fébrile",
   "temperatureNote": "Estimation visuelle uniquement - thermomètre requis pour mesure précise",
   "mood": "neutre|calme|anxieux|fatigué|stressé|détendu|triste|positif",
   "moodConfidence": <nombre entre 40 et 80>,
-  "moodIndicators": ["liste des signes observés: tension faciale, sourcils froncés, yeux fatigués, etc."],
+  "moodIndicators": ["liste des signes observés adaptés au type de peau"],
   "physicalCondition": "bonne forme|forme moyenne|fatigue apparente|signes de malaise",
-  "physicalConditionDetails": ["détails observés: cernes, pâleur, sudation visible, etc."],
-  "skinColor": "normal|pâle|rougeâtre|jaunâtre|cyanosé",
-  "skinColorAnalysis": "description de ce que la coloration suggère",
+  "physicalConditionDetails": ["détails observés adaptés au type de peau"],
+  "skinColor": "normal pour ce phototype|pâle/cendreux|rougeâtre/assombri|jaunâtre|cyanosé",
+  "skinColorAnalysis": "description ADAPTÉE au type de peau du patient - ex: pour peau foncée, vérifier muqueuses et paumes",
   "facialExpression": "détendue|tendue|douloureuse|neutre|fatiguée",
-  "eyeCondition": "yeux vifs|yeux fatigués|cernes marquées|conjonctives normales|conjonctives rouges",
-  "overallHealthScore": <nombre entre 0 et 100 basé sur l'ensemble des observations>,
-  "alerts": ["liste d'alertes si signes préoccupants détectés - peut être vide"],
+  "eyeCondition": "yeux vifs|yeux fatigués|cernes marquées|conjonctives normales|conjonctives pâles|conjonctives ictériques|conjonctives rouges",
+  "mucosalAssessment": "muqueuses roses et bien perfusées|muqueuses pâles|muqueuses cyanosées|non visible",
+  "overallHealthScore": <nombre entre 0 et 100>,
+  "alerts": ["liste d'alertes adaptées au type de peau - peut être vide"],
   "recommendations": ["recommandations basées sur l'analyse"]
 }
 
-IMPORTANT:
-- Les mesures de fréquence cardiaque et respiratoire par caméra sont des ESTIMATIONS
-- La confiance ne doit JAMAIS dépasser 60% pour ces mesures car c'est une analyse visuelle
-- La température NE PEUT PAS être mesurée précisément sans caméra thermique
-- Concentre-toi sur les signes VISUELS: expression faciale, coloration de la peau, apparence des yeux, posture
-- Sois CONSERVATEUR dans tes estimations et HONNÊTE sur les limites de cette méthode
+RÈGLES CRITIQUES:
+- IDENTIFIE d'abord le phototype/type de peau avant toute analyse
+- ADAPTE tes critères d'évaluation au type de peau détecté
+- Pour les peaux foncées, privilégie l'examen des MUQUEUSES, SCLÉROTIQUES, PAUMES et LIT UNGUÉAL
+- Ne jamais appliquer des critères de peau claire à une peau foncée (erreur médicale grave)
+- La confiance ne doit JAMAIS dépasser 60% car c'est une analyse visuelle
+- Sois CONSERVATEUR et HONNÊTE sur les limites de cette méthode
 
 Analyse maintenant l'image et renvoie le JSON.`;
 
