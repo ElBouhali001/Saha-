@@ -24,14 +24,7 @@ const OpenEvidenceIntegration: React.FC<OpenEvidenceIntegrationProps> = ({
   const [isImported, setIsImported] = useState(false);
   const { toast } = useToast();
 
-  const openOpenEvidence = () => {
-    // Ouvrir OpenEvidence directement - l'utilisateur peut se connecter avec Google sur leur site
-    const width = 1200;
-    const height = 800;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
-    
-    // Construire l'URL avec la recherche si des symptômes sont présents
+  const getOpenEvidenceUrl = () => {
     let openEvidenceUrl = 'https://www.openevidence.com';
     
     if (symptoms.trim()) {
@@ -45,16 +38,7 @@ const OpenEvidenceIntegration: React.FC<OpenEvidenceIntegrationProps> = ({
       openEvidenceUrl = `https://www.openevidence.com/search?q=${encodeURIComponent(searchQuery)}`;
     }
     
-    window.open(
-      openEvidenceUrl,
-      'OpenEvidence',
-      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-    );
-
-    toast({
-      title: "OpenEvidence ouvert",
-      description: "Connectez-vous avec votre compte Google pour accéder aux diagnostics IA",
-    });
+    return openEvidenceUrl;
   };
 
   const copySymptoms = () => {
@@ -122,13 +106,20 @@ const OpenEvidenceIntegration: React.FC<OpenEvidenceIntegrationProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Button
-            onClick={openOpenEvidence}
-            className="w-full bg-blue-600 hover:bg-blue-700"
+          <a
+            href={getOpenEvidenceUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full"
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Ouvrir OpenEvidence (Connexion Google)
-          </Button>
+            <Button
+              type="button"
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Ouvrir OpenEvidence (Connexion Google)
+            </Button>
+          </a>
           {symptoms.trim() && (
             <Button
               onClick={copySymptoms}
