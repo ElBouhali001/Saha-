@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,13 +18,15 @@ import {
   Calendar,
   Clock,
   User,
-  FileText
+  FileText,
+  Activity
 } from 'lucide-react';
 import ChatbaseAI from './ChatbaseAI';
+import VitalsCameraCapture from '../telemedicine/VitalsCameraCapture';
 
 const TeleconsultationModule = () => {
   const CHATBASE_CHATBOT_ID = 'YNi6SyT6KJVAsKXjIXD8P';
-  
+  const [capturedVitals, setCapturedVitals] = useState<any>(null);
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
@@ -158,9 +159,13 @@ const TeleconsultationModule = () => {
       </Card>
 
       <Tabs defaultValue="consultation" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="consultation">Consultation Active</TabsTrigger>
-          <TabsTrigger value="scheduled">Consultations Programmées</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="consultation">Consultation</TabsTrigger>
+          <TabsTrigger value="vitals" className="flex items-center gap-1">
+            <Activity className="w-3 h-3" />
+            Constantes IA
+          </TabsTrigger>
+          <TabsTrigger value="scheduled">Programmées</TabsTrigger>
           <TabsTrigger value="booking">Réserver</TabsTrigger>
         </TabsList>
 
@@ -304,6 +309,50 @@ const TeleconsultationModule = () => {
               </Card>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="vitals" className="space-y-6">
+          <VitalsCameraCapture 
+            onVitalsCapture={(vitals) => {
+              setCapturedVitals(vitals);
+            }}
+            autoCapture={false}
+            captureIntervalSeconds={30}
+          />
+          
+          {capturedVitals && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Résumé pour le médecin
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted p-4 rounded-lg text-sm space-y-2">
+                  <p><strong>Fréquence cardiaque estimée:</strong> {capturedVitals.heartRate} bpm (confiance: {capturedVitals.heartRateConfidence}%)</p>
+                  <p><strong>Fréquence respiratoire estimée:</strong> {capturedVitals.respiratoryRate}/min (confiance: {capturedVitals.respiratoryRateConfidence}%)</p>
+                  <p><strong>Température:</strong> {capturedVitals.estimatedTemperature} - {capturedVitals.temperatureNote}</p>
+                  <p><strong>Humeur:</strong> {capturedVitals.mood} ({capturedVitals.moodConfidence}% confiance)</p>
+                  <p><strong>État physique:</strong> {capturedVitals.physicalCondition}</p>
+                  <p><strong>Score de santé global:</strong> {capturedVitals.overallHealthScore}/100</p>
+                  {capturedVitals.alerts?.length > 0 && (
+                    <div className="mt-2 p-2 bg-destructive/10 rounded">
+                      <strong className="text-destructive">Alertes:</strong>
+                      <ul className="list-disc list-inside">
+                        {capturedVitals.alerts.map((alert: string, i: number) => (
+                          <li key={i}>{alert}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  ⚠️ Ces données sont des estimations par analyse vidéo et doivent être confirmées par des mesures médicales.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="scheduled" className="space-y-4">

@@ -53,3 +53,9 @@ verify_jwt = false
 
 [functions.analyze-ophthalmology-imaging]
 verify_jwt = false
+
+[functions.analyze-vitals-camera]
+verify_jwt = false
+
+[functions.scan-prescription-ocr]
+verify_jwt = false
