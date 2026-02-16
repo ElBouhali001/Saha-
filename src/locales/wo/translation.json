@@ -1,0 +1,507 @@
+{
+    "common": {
+        "dashboard": "Tablo de bord",
+        "login": {
+            "title": "Dugg ci biir",
+            "subtitle_email": "// Dougalal sa email",
+            "subtitle_password": "// Dougalal sa code",
+            "email_label": "Email",
+            "password_label": "Code bi",
+            "email_placeholder": "sa@email.com",
+            "password_placeholder": "••••••••",
+            "continue": "Wéy",
+            "submit": "Dugg",
+            "modify": "Soppi",
+            "or": "WALA",
+            "google_signin": "Dugg ak Google",
+            "no_account": "Amaguloo compte ?",
+            "register": "Bindu",
+            "welcome": "Dalal jamm ci Medipatient",
+            "success": "Dugg nga ci jamm",
+            "error": "Njuumté",
+            "failed": "Dugg bi dayna",
+            "email_required": "Bindal sa adresse email",
+            "password_required": "Bindal sa code"
+        },
+        "patients": "Faji kat yi",
+        "appointments": "Rendez-vous yi",
+        "settings": "Paramètres yi",
+        "profile": "Sa profil",
+        "logout": "Génn",
+        "search": "Seet...",
+        "notifications": "Yéglé yi",
+        "language": "Lakk",
+        "back": "Dellu"
+    },
+    "roles": {
+        "admin": "Kilifa",
+        "doctor": "Faji kat",
+        "agent": "Ligéey kat",
+        "lab_technician": "Technicien Labo",
+        "pharmacist": "Jaay kat garab",
+        "insurance_agent": "Agent Assurance",
+        "patient": "Faji ku bi",
+        "user": "Nit ki"
+    },
+    "modules": {
+        "dashboard": "Tablo de bord",
+        "patients": "Faji kat yi",
+        "my_space": "Sama Espace",
+        "appointments": "Rendez-vous yi",
+        "planning": "Emploi du temps",
+        "agenda": "Agenda",
+        "my_appointments": "Samay RDV",
+        "consultations": "Seetlu yi",
+        "medical_folder": "Dossier Médical",
+        "prescriptions": "Ordonnances",
+        "follow_up": "Toppu",
+        "insurance": "Sama Mutuelle",
+        "billing": "Fey",
+        "stock": "Stock",
+        "analysis": "Seet yi",
+        "results": "Résultats",
+        "reports": "Rapports",
+        "ai_assistant": "Dimbal kat IA",
+        "transfers": "Joxé",
+        "telemedicine": "Faju ci internet",
+        "modules": "Modules yi",
+        "analytics": "Nataal yi",
+        "qr_code": "QR Code"
+    },
+    "dashboard": {
+        "welcome_user": "Dalal jamm, {{name}}",
+        "welcome_doctor": "Naka nga def {{name}}",
+        "schedule_intro": "Lii mooy sa emploi du temps tey",
+        "stats": {
+            "today_appointments": "RDV Tey",
+            "tracked_patients": "Faji ku bi ñuy toppu",
+            "consultations": "Seetlu yi",
+            "avg_time": "Waxtu",
+            "active_users": "Nit ñi connectés",
+            "active_modules": "Module yi dox",
+            "confirmed_urgent": "{{confirmed}} dëggal, {{urgent}} t紧急",
+            "active_patients": "Faji ku bi ci biir",
+            "this_week": "Ayuro biina",
+            "per_consultation": "Ci seetlu bu nekk"
+        },
+        "planning": {
+            "title": "Emploi du temps Tey",
+            "subtitle": "Say rendez-vous tey",
+            "view_all": "Xool yëpp",
+            "status": {
+                "confirmed": "Dëggal nagn ko",
+                "waiting": "Mu ngi xaar",
+                "urgent": "Mënul xaar",
+                "unknown": "Xamuñu ko"
+            }
+        },
+        "notifications": {
+            "title": "Yëgle",
+            "subtitle": "Li am solo tey"
+        },
+        "actions": {
+            "title": "Doxalin bu gaaw",
+            "subtitle": "Ay yoon yu gëna gaaw",
+            "new_consultation": "Seetlu bu bees",
+            "search_patient": "Seet Faji ku bi",
+            "edit_planning": "Soppi emploi du temps",
+            "telemedicine_ia": "Télémédecine IA",
+            "manage_users": "Gérer Nit ñi",
+            "manage_modules": "Modules yi",
+            "reports": "Rapports yi",
+            "configuration": "Arrangement",
+            "settings": "Paramètres"
+        },
+        "admin": {
+            "title": "Tableau de Bord Kilifa",
+            "tabs": {
+                "overview": "Li fi xew",
+                "modules": "Modules yi",
+                "subscription": "Abonnements yi",
+                "specialties": "Fàbb yu takku",
+                "roles": "Rôles yi",
+                "users": "Nit ñi",
+                "analytics": "Nataal yi"
+            }
+        }
+    },
+    "patients": {
+        "list": {
+            "title": "Limu Faji ku bi",
+            "search_placeholder": "Seet ci tur, email, wala numéros...",
+            "loading": "Mu ngi ëbb...",
+            "results_found": "{{count}} li ñu gis",
+            "results_found_plural": "{{count}} li ñu gis",
+            "for_query": "ci \"{{query}}\"",
+            "patients_count": "{{count}} faji ku bi",
+            "patients_count_plural": "{{count}} faji ku bi",
+            "no_results": "Gisuñu dara",
+            "no_patients": "Amul benn faji ku bi",
+            "try_modify_search": "Soppil li ngay seet \"{{query}}\"",
+            "list_empty": "Lim bi dafa vide",
+            "clear_search": "Dindi seet bi",
+            "view_file": "Xool kayit bi",
+            "last_visit": "Seet gu mujj: {{date}}",
+            "no_visit": "Mësul ñëw",
+            "consultations_count": "{{count}} seetlu"
+        },
+        "detail": {
+            "full_medical_record": "Kayitu faji ku bi yepp",
+            "patient_info": "Xibaar ci faji ku bi",
+            "book_appointment": "Jël RDV",
+            "general_info": "Xibaar yu tey",
+            "age_years": "At {{age}}",
+            "urgency_level": "Niveau urgence",
+            "emergency_contact": "Ku ñuy wo bu jafe-jafe amee",
+            "medical_summary": "Tënk ci wallu wergu yaram",
+            "consultations": "Seetlu yi",
+            "primary_doctor": "Faji kat bi tànn",
+            "insurance": "Assurance",
+            "not_assigned": "Kenn du ko",
+            "none": "Dara",
+            "medical_history": "Jaar-jaaru wergu yaram",
+            "follow_up": "Topp: {{date}}",
+            "by_doctor": "ci {{doctor}}",
+            "diagnosis": "Tàggat",
+            "symptoms": "Mandar yi",
+            "treatment": "Faju",
+            "notes": "Kàddu",
+            "prescriptions": "Garab yi",
+            "follow_up_info": "Xibaaru topp",
+            "total_consultations": "Limu seetlu yepp",
+            "last_visit_label": "Seet gu mujj"
+        },
+        "urgency": {
+            "high": "Urgence bu mag",
+            "medium": "Urgence bu yem",
+            "low": "Urgence bu ndaw",
+            "undefined": "Xamuñu"
+        }
+    },
+    "appointments": {
+        "scheduling": {
+            "title": "Tànn ab Rendez-Vous",
+            "day": "Bés",
+            "week": "Ay-u bés",
+            "month": "Weer",
+            "demo_mode": "🏥 Mode démonstration - Mënuloo tëj créneaux yi fi",
+            "block_hint": "Bësal <kbd>Ctrl</kbd> + clic ngir tëj/tijji créneaux yi",
+            "select_doctor_hint": "Tànnal ab doktoor ngir tëj créneaux yi",
+            "doctor_label": "Doktoor :",
+            "all_doctors": "Doktoor yepp",
+            "new_appointment": "RDV bu bees",
+            "plan_appointment": "Planifier ab Rendez-Vous",
+            "specialty_label": "Wàllu faju",
+            "select_specialty": "Tànnal wàllu faju",
+            "select_doctor": "Tànnal ab doktoor",
+            "doctor_specialties": "Li doktoor bi mën :",
+            "date_label": "Bés",
+            "time_label": "Waxtu",
+            "select_time": "Tànnal waxtu",
+            "confirm_button": "Dëggal RDV bi",
+            "today_appointments": "RDV tey yi",
+            "no_appointments_today": "Amul RDV tey",
+            "type_label": "Xeet:",
+            "undefined_specialty": "Wàllu faju xamuñu ko"
+        },
+        "agenda": {
+            "title": "Agenda Doktoor yi",
+            "today": "Tey",
+            "patient_fallback": "Faji ku bi",
+            "free_slot": "Amul kenn",
+            "summary_title": "Tënk bu tey",
+            "planned_appointments": "RDV yu nekk",
+            "doctors_count": "Doktoor yi",
+            "selected_doctor": "Doktoor bi ñu tànn",
+            "free_slots_count": "Barab yu amul kenn",
+            "date_range": {
+                "day": "Bés - {{date}}",
+                "week": "Ay-u bés - {{start}} ba {{end}}",
+                "month": "Weer - {{date}}"
+            }
+        },
+        "status": {
+            "scheduled": "Programmé",
+            "completed": "Paré na",
+            "cancelled": "Neenal nañu ko",
+            "blocked": "Tëj na",
+            "available": "Mën nga ci dug",
+            "occupied": "Fess na"
+        },
+        "messages": {
+            "select_doctor_to_block": "Tànnal doktoor ngir tëj/tijji créneaux yi.",
+            "slot_blocked": "Créneau bi dafa tëju. Bësal Ctrl + clic ngir tijji ko.",
+            "select_patient": "Tànnal faji ku bi",
+            "default_reason": "Seetlu bu ñu programmé ci planning bi",
+            "success_scheduled": "Rendez-vous programmé nañu ko kii di {{patient}} le {{date}} ci {{time}}",
+            "error_scheduling": "Am na jafe-jafe ci programmé rendez-vous bi",
+            "patient_created": "Faji ku bi bind nañu ko te tànn nañu ko"
+        }
+    },
+    "billing": {
+        "title": "Wàllu Fay-fay",
+        "subtitle": "Saytu factures yi ak payement yi",
+        "access_denied_title": "Duggu bi lank nañu ko",
+        "access_denied_message": "Amoo sañ-sañ ngir duggu ci wàllu fay-fay bi.",
+        "stats": {
+            "today_revenue": "Xaalissu Tey",
+            "pending_amount": "Li ñu wara fay",
+            "this_month": "Weer bii",
+            "recovery_rate": "Taux de Recouvrement",
+            "vs_yesterday": "+12% par rapport à démb",
+            "vs_last_month": "+8% par rapport à weer bi weisu",
+            "excellent_rate": "Payement yi bax na lool",
+            "unpaid_invoices_count": "{{count}} factures yu ñu fayul",
+            "received_payments": "Payement yi ñu jot",
+            "total_revenue": "Lëpp li ñu am",
+            "doctors_share": "Wàllu Doktoor yi",
+            "structure_share": "Wàllu Hopital bi",
+            "total_consultations": "Consultations yepp",
+            "average_per_doctor": "Moyenne: {{avg}} / doktoor",
+            "average_revenue": "Xaaliss bu doktoor bu nekk am",
+            "structure_ratio": "Ratio moyen Hopital bi"
+        },
+        "invoices": {
+            "invoice_number": "Facture #{{number}}",
+            "invoice_date": "Date: {{date}}",
+            "due_date": "Warees na fay ci: {{date}}",
+            "print": "Imprimer",
+            "details": "Détails"
+        },
+        "tabs": {
+            "overview": "Xool bu yaatu",
+            "create": "Facture bu bees",
+            "payments": "Payement yi",
+            "history": "Jaar-jaar",
+            "revenue": "Séddalé Xaaliss",
+            "by_doctor": "Ci Doktoor bu nekk",
+            "summary": "Tënk bu yaatu"
+        },
+        "actions": {
+            "title": "Jëf yu gaaw",
+            "subtitle": "Ligguey yi ñuy faral di def",
+            "new_invoice": "Defar facture bu bees",
+            "record_payment": "Bind payement",
+            "view_history": "Xool jaar-jaar yi",
+            "export_csv": "Géné CSV",
+            "mark_paid": "Bind ni fay nañu",
+            "send_reminder": "Fattali",
+            "preview_print": "Xool té Imprimé",
+            "create_invoice": "Defar facture bi"
+        },
+        "recent_invoices": {
+            "title": "Factures yu mujj",
+            "subtitle": "Factures yi ñu mujj géné"
+        },
+        "invoice_creation": {
+            "title": "Facture bu bees ak Tarifs",
+            "subtitle": "Defar facture té tarifs yi dëggu ci sassi"
+        },
+        "payment_tracking": {
+            "title": "Topoo Payement yi",
+            "subtitle": "Saytu té topoo payement factures yi",
+            "search_placeholder": "Seet ci turu faji ku bi wala facture...",
+            "filter_status": "Tànn ci statut",
+            "status_all": "Statut yepp",
+            "no_payments": "Gissuñu benn payement"
+        },
+        "history": {
+            "title": "Jaar-jaar u Facturation",
+            "subtitle": "Xool factures yi ñu géné yepp",
+            "no_invoices": "Gissuñu benn facture",
+            "total_cfa": "Total CFA",
+            "paid_cfa": "Li ñu fay CFA",
+            "pending_cfa": "Li ñu fayul CFA",
+            "overdue_cfa": "Li yééx CFA"
+        },
+        "revenue": {
+            "title": "Séddalé Xaaliss bi",
+            "subtitle": "Ni ñu séddalé xaaliss bi ci doktoor yi",
+            "primary_doctors": "Doktoor yu mag yi",
+            "primary_desc": "Liggueyu doktoor yu mag yi",
+            "secondary_doctors": "Doktoor yeneen yi",
+            "secondary_desc": "Liggueyu doktoor yi amul wàllu boppam",
+            "global_revenue": "Xaaliss bi yepp",
+            "general_stats": "Statistiques Générales",
+            "active_doctors": "Limu doktoor yi ligguey"
+        },
+        "status": {
+            "paid": "Fay nañu",
+            "pending": "Fayuñu",
+            "overdue": "Yééx na",
+            "cancelled": "Neenal nañu"
+        },
+        "table": {
+            "invoice": "Facture",
+            "patient": "Faji ku bi",
+            "amount": "Xaalis bi",
+            "payment_method": "Ni ñu fayé",
+            "due_date": "Bés bu ñu wara fay",
+            "created_date": "Bés bu ñu ko defar",
+            "status": "Statut",
+            "actions": "Jëf",
+            "doctor": "Doktoor",
+            "role": "Rôle",
+            "consultations": "Consultations"
+        }
+    },
+    "inventory": {
+        "title": "Saytu Stock",
+        "subtitle": "Topato garab yi ak matériel médical",
+        "new_product": "Produit bu bees",
+        "tabs": {
+            "overview": "Xool bu yaa",
+            "products": "Produit yi",
+            "movements": "Mouvements",
+            "alerts": "Alertes",
+            "reports": "Rapports"
+        },
+        "stats": {
+            "total_products": "Produits yepp",
+            "items_in_stock": "Li nekk ci stock bi",
+            "low_stock": "Stock bu tuuti",
+            "to_restock": "Li ñu wara commandé",
+            "out_of_stock": "Stock bu jeex",
+            "items_out_of_stock": "Produits yi jeex",
+            "stock_value": "Njata la stock bi jar"
+        },
+        "alerts": {
+            "title": "Alertes de Stock",
+            "critical_alerts": "Alertes Critiques",
+            "current_stock": "Li ci des: {{count}}",
+            "min_stock": "Min: {{count}}",
+            "missing_quantity": "Li manqué: {{count}}",
+            "status": {
+                "out_of_stock": "Jeex na",
+                "critical": "Critical",
+                "low": "Tuuti",
+                "normal": "Normal",
+                "expiring_soon": "Di na jeex leegi"
+            },
+            "warning_out_of_stock": "⚠️ Moytu: Produit bi jeex na. Commandé ko léégi.",
+            "empty": "Benn alerte amu fi",
+            "all_normal": "Produits yepp baax nañu"
+        },
+        "movements": {
+            "title": "Mouvements de Stock",
+            "recent": "Mouvements yu mujj",
+            "new_movement": "Mouvement bu bees",
+            "entry": "Duggu",
+            "exit": "Génn",
+            "search_placeholder": "Seet produit wala ki ko jël...",
+            "empty": "Gisuloo benn mouvement",
+            "filters": {
+                "all": "Yepp",
+                "entries": "Yi duggu",
+                "exits": "Yi génn",
+                "today": "Tey",
+                "week": "Ayubés bii"
+            },
+            "details": {
+                "reason": "Lu tax:",
+                "user": "Ki ko def:",
+                "date": "Date:"
+            }
+        },
+        "products": {
+            "title": "Limu Produit yi",
+            "search_placeholder": "Seet produit...",
+            "empty": "Gisuloo benn produit",
+            "categories": {
+                "medications": "Garab yi",
+                "medical_equipment": "Matériel médical",
+                "consumables": "Lil ñuy jëfandikoo",
+                "all": "Yepp"
+            },
+            "details": {
+                "category": "Wàll:",
+                "current_stock": "Li ci des:",
+                "min_max": "Stock min/max:",
+                "unit_price": "Njata la jar:",
+                "supplier": "Jaaykat bi:",
+                "expiry": "Kañ lay jeex:",
+                "location": "Fan la nekk:",
+                "value": "Njata la stock bi jar:"
+            },
+            "actions": {
+                "view": "Xool",
+                "edit": "Soppi",
+                "delete": "Dindi"
+            }
+        },
+        "add_product": {
+            "title": "Yokk Produit wu bees",
+            "labels": {
+                "name": "Tur *",
+                "category": "Wàll *",
+                "description": "Mbir yi",
+                "supplier": "Jaaykat",
+                "price": "Njata la jar (FCFA) *",
+                "min_stock": "Min stock",
+                "max_stock": "Max stock",
+                "location": "Fan la nekk",
+                "expiry": "Date expiration",
+                "batch": "Numéro lot"
+            },
+            "placeholders": {
+                "name": "Ex: Paracétamol 500mg",
+                "category": "Tànnal wàll",
+                "description": "Mbir yi...",
+                "supplier": "Tànnal jaaykat",
+                "location": "Ex: A-1-01",
+                "batch": "Ex: LOT-2024-001"
+            },
+            "actions": {
+                "cancel": "Bañ",
+                "save": "Denc"
+            },
+            "validation_error": "Bindal feneen fu nekk (Tur, Wàll, Njata la jar)"
+        },
+        "reports": {
+            "title": "Rapports de Stock",
+            "type_label": "Xeetu rapport",
+            "period_label": "Jamono",
+            "select_type": "Tànnal xeetu rapport",
+            "select_type_error": "Tànnal benn xeetu rapport",
+            "generate": "Générer Rapport",
+            "download": "Télécharger PDF",
+            "types": {
+                "stock_value": "Njata la stock bi jar",
+                "stock_value_desc": "Njata la stock bi jar ci wàll bu nekk",
+                "movements": "Mouvements de Stock",
+                "movements_desc": "Duggu ak génn ci jamono ji",
+                "expiry": "Produits yi jeex",
+                "expiry_desc": "Limu produits yi wara jeex",
+                "consumption": "Consommation par Produit",
+                "consumption_desc": "Ni ñuy jëfandikoo produits yi"
+            },
+            "overview": {
+                "title": "Xool bu yaa",
+                "value": "Njata la stock bi jar",
+                "movements": "Mouvements",
+                "expiration": "Mbeax",
+                "expiring_soon": "Di na jeex leegi:",
+                "expired": "Jeex na:",
+                "next": "Bii di ñëw: {{name}} ci {{days}} fan"
+            },
+            "periods": {
+                "today": "Tey",
+                "week": "Ayubés bii",
+                "month": "Weer bii",
+                "quarter": "Trimestre bii",
+                "year": "At mii"
+            }
+        },
+        "actions": {
+            "order": "Commandé",
+            "quick_actions": "Def léégi",
+            "order_all": "Commandé Yepp",
+            "configure_alerts": "Def Alertes",
+            "stock_report": "Rapport Stocks"
+        }
+    },
+    "languages": {
+        "fr": "Français",
+        "wo": "Wolof"
+    }
+}

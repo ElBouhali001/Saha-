@@ -1,0 +1,581 @@
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, Users, Building2, DollarSign, Activity, Stethoscope } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IS_DEMO } from '@/config/app';
+
+interface RevenueData {
+  doctorName: string;
+  doctorRole: string;
+  totalRevenue: number;
+  doctorShare: number;
+  structureShare: number;
+  revenuePercentage: number;
+  structurePercentage: number;
+  consultationsCount: number;
+  doctorId: string;
+}
+
+// Données démo pour le mode IS_DEMO (bypass RLS)
+const demoDoctorRoles = [
+  {
+    id: 'r1',
+    doctor_id: 'd1',
+    structure_role: 'primary_doctor',
+    revenue_percentage: 100,
+    structure_percentage: 0,
+    is_active: true,
+    doctors: { profiles: { first_name: 'Awa', last_name: 'Koné' } },
+  },
+  {
+    id: 'r2',
+    doctor_id: 'd2',
+    structure_role: 'secondary_doctor',
+    revenue_percentage: 80,
+    structure_percentage: 20,
+    is_active: true,
+    doctors: { profiles: { first_name: 'Moussa', last_name: 'Traoré' } },
+  },
+  {
+    id: 'r3',
+    doctor_id: 'd3',
+    structure_role: 'secondary_doctor',
+    revenue_percentage: 75,
+    structure_percentage: 25,
+    is_active: true,
+    doctors: { profiles: { first_name: 'Aïcha', last_name: 'Diallo' } },
+  },
+];
+
+const demoInvoices = [
+  // rattachées au médecin principal (tout va à la structure)
+  { id: 'i1', amount: 50000, status: 'paid', appointments: { doctor_id: 'd1' } },
+  { id: 'i2', amount: 60000, status: 'paid', appointments: { doctor_id: 'd1' } },
+  // rattachées aux médecins secondaires (80/20 ou 75/25)
+  { id: 'i3', amount: 40000, status: 'paid', appointments: { doctor_id: 'd2' } },
+  { id: 'i4', amount: 70000, status: 'paid', appointments: { doctor_id: 'd2' } },
+  { id: 'i5', amount: 55000, status: 'paid', appointments: { doctor_id: 'd3' } },
+  { id: 'i6', amount: 65000, status: 'paid', appointments: { doctor_id: 'd3' } },
+];
+
+const RevenueDistribution = () => {
+  const { t } = useTranslation();
+  const { data: invoicesRaw } = useQuery({
+    queryKey: ['invoices-revenue'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          appointments(
+            doctor_id,
+            doctors(
+              id,
+              user_id,
+              profiles(first_name, last_name)
+            )
+          )
+        `)
+        .eq('status', 'paid');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !IS_DEMO,
+  });
+
+  const { data: doctorRolesRaw } = useQuery({
+    queryKey: ['doctor-roles-revenue'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('doctor_structure_roles')
+        .select(`
+          *,
+          doctors(
+            id,
+            user_id,
+            profiles(first_name, last_name)
+          )
+        `)
+        .eq('is_active', true);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !IS_DEMO,
+  });
+
+  const invoices = (IS_DEMO ? demoInvoices : (invoicesRaw || [])) as any[];
+  const doctorRoles = (IS_DEMO ? demoDoctorRoles : (doctorRolesRaw || [])) as any[];
+
+  const revenueDistribution = useMemo<RevenueData[]>(() => {
+    if (!invoices || !doctorRoles) return [];
+
+    const distributionMap = new Map<string, RevenueData>();
+
+    invoices.forEach((invoice) => {
+      const doctorId = invoice.appointments?.doctor_id;
+      if (!doctorId) return;
+
+      const role = doctorRoles.find((r) => r.doctor_id === doctorId);
+      if (!role) return;
+
+      const doctorName = `Dr. ${role.doctors?.profiles?.first_name} ${role.doctors?.profiles?.last_name}`;
+      const key = doctorId;
+
+      const doctorShare = (invoice.amount * role.revenue_percentage) / 100;
+      const structureShare = (invoice.amount * role.structure_percentage) / 100;
+
+      if (distributionMap.has(key)) {
+        const existing = distributionMap.get(key)!;
+        distributionMap.set(key, {
+          ...existing,
+          totalRevenue: existing.totalRevenue + invoice.amount,
+          doctorShare: existing.doctorShare + doctorShare,
+          structureShare: existing.structureShare + structureShare,
+          consultationsCount: existing.consultationsCount + 1,
+        });
+      } else {
+        distributionMap.set(key, {
+          doctorId,
+          doctorName,
+          doctorRole: role.structure_role === 'primary_doctor' ? 'Principal' : 'Secondaire',
+          totalRevenue: invoice.amount,
+          doctorShare,
+          structureShare,
+          revenuePercentage: role.revenue_percentage,
+          structurePercentage: role.structure_percentage,
+          consultationsCount: 1,
+        });
+      }
+    });
+
+    return Array.from(distributionMap.values());
+  }, [invoices, doctorRoles]);
+
+  const totalStats = useMemo(() => {
+    const total = revenueDistribution.reduce(
+      (acc, curr) => {
+        // Pour les médecins principaux, leur part va à la structure
+        const doctorShare = curr.doctorRole === 'Principal' ? 0 : curr.doctorShare;
+        const structureShare = curr.doctorRole === 'Principal'
+          ? curr.totalRevenue  // Toute la part du médecin principal va à la structure
+          : curr.structureShare;
+
+        return {
+          revenue: acc.revenue + curr.totalRevenue,
+          doctorShare: acc.doctorShare + doctorShare,
+          structureShare: acc.structureShare + structureShare,
+          consultations: acc.consultations + curr.consultationsCount,
+        };
+      },
+      { revenue: 0, doctorShare: 0, structureShare: 0, consultations: 0 }
+    );
+    return total;
+  }, [revenueDistribution]);
+
+  const roleStats = useMemo(() => {
+    const stats = {
+      primary: { count: 0, consultations: 0, revenue: 0, share: 0, structureShare: 0 },
+      secondary: { count: 0, consultations: 0, revenue: 0, share: 0, structureShare: 0 },
+    };
+
+    revenueDistribution.forEach((data) => {
+      const type = data.doctorRole === 'Principal' ? 'primary' : 'secondary';
+      stats[type].count++;
+      stats[type].consultations += data.consultationsCount;
+      stats[type].revenue += data.totalRevenue;
+
+      if (data.doctorRole === 'Principal') {
+        // Pour les médecins principaux, toute la part va à la structure
+        stats[type].structureShare += data.totalRevenue;
+        stats[type].share += 0;
+      } else {
+        // Pour les médecins secondaires, répartition normale
+        stats[type].share += data.doctorShare;
+        stats[type].structureShare += data.structureShare;
+      }
+    });
+
+    return stats;
+  }, [revenueDistribution]);
+
+  return (
+    <div className="space-y-4 md:space-y-6">
+      <div>
+        <h2 className="text-xl md:text-2xl font-bold break-words">{t('billing.revenue.title')}</h2>
+        <p className="text-sm md:text-base text-muted-foreground break-words">
+          {t('billing.revenue.subtitle')}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('billing.stats.total_revenue')}</CardTitle>
+            <DollarSign className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold text-blue-700">
+              {totalStats.revenue.toLocaleString()} CFA
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {totalStats.consultations} consultations
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-green-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('billing.stats.doctors_share')}</CardTitle>
+            <Users className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold text-green-700">
+              {totalStats.doctorShare.toLocaleString()} CFA
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {totalStats.revenue > 0
+                ? ((totalStats.doctorShare / totalStats.revenue) * 100).toFixed(1)
+                : 0}%
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-purple-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('billing.stats.structure_share')}</CardTitle>
+            <Building2 className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold text-purple-700">
+              {totalStats.structureShare.toLocaleString()} CFA
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {totalStats.revenue > 0
+                ? ((totalStats.structureShare / totalStats.revenue) * 100).toFixed(1)
+                : 0}%
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-orange-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('billing.stats.total_consultations')}</CardTitle>
+            <Activity className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold text-orange-700">
+              {totalStats.consultations}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t('billing.stats.average_per_doctor', {
+                avg: revenueDistribution.length > 0
+                  ? (totalStats.consultations / revenueDistribution.length).toFixed(1)
+                  : 0
+              })}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* KPIs par rôle de médecin */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Stethoscope className="w-5 h-5 text-blue-600" />
+              <span>{t('billing.revenue.primary_doctors')}</span>
+            </CardTitle>
+            <CardDescription>{t('billing.revenue.primary_desc')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="text-xs text-muted-foreground mb-1">Nombre</div>
+                  <div className="text-2xl font-bold">{roleStats.primary.count}</div>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="text-xs text-muted-foreground mb-1">Consultations</div>
+                  <div className="text-2xl font-bold">{roleStats.primary.consultations}</div>
+                </div>
+              </div>
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">CA Global</div>
+                <div className="text-2xl font-bold text-blue-700">
+                  {roleStats.primary.revenue.toLocaleString()} CFA
+                </div>
+              </div>
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">Part Structure (100%)</div>
+                <div className="text-2xl font-bold text-green-700">
+                  {roleStats.primary.structureShare.toLocaleString()} CFA
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Médecins principaux → Structure
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Stethoscope className="w-5 h-5 text-purple-600" />
+              <span>{t('billing.revenue.secondary_doctors')}</span>
+            </CardTitle>
+            <CardDescription>{t('billing.revenue.secondary_desc')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="text-xs text-muted-foreground mb-1">Nombre</div>
+                  <div className="text-2xl font-bold">{roleStats.secondary.count}</div>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="text-xs text-muted-foreground mb-1">Consultations</div>
+                  <div className="text-2xl font-bold">{roleStats.secondary.consultations}</div>
+                </div>
+              </div>
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">CA Global</div>
+                <div className="text-2xl font-bold text-purple-700">
+                  {roleStats.secondary.revenue.toLocaleString()} CFA
+                </div>
+              </div>
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">Part Médecins (moyenne 80%)</div>
+                <div className="text-2xl font-bold text-green-700">
+                  {roleStats.secondary.share.toLocaleString()} CFA
+                </div>
+              </div>
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">Part Structure (moyenne 20%)</div>
+                <div className="text-2xl font-bold text-purple-700">
+                  {roleStats.secondary.structureShare.toLocaleString()} CFA
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="by-doctor" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 gap-1">
+          <TabsTrigger value="by-doctor">{t('billing.tabs.by_doctor')}</TabsTrigger>
+          <TabsTrigger value="summary">{t('billing.tabs.summary')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="by-doctor">
+          <Card>
+            <CardHeader>
+              <CardTitle>Répartition par Médecin</CardTitle>
+              <CardDescription>Détail des revenus et partages par médecin</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('billing.table.doctor')}</TableHead>
+                      <TableHead>{t('billing.table.role')}</TableHead>
+                      <TableHead className="text-right">{t('billing.table.consultations')}</TableHead>
+                      <TableHead className="text-right">{t('billing.revenue.global_revenue')}</TableHead>
+                      <TableHead className="text-right">{t('billing.stats.doctors_share')}</TableHead>
+                      <TableHead className="text-right">{t('billing.stats.structure_share')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {revenueDistribution.map((data, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium break-words">{data.doctorName}</TableCell>
+                        <TableCell>
+                          <Badge variant={data.doctorRole === 'Principal' ? 'default' : 'secondary'}>
+                            {data.doctorRole}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right whitespace-nowrap">
+                          <div className="font-medium">{data.consultationsCount}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {data.totalRevenue > 0
+                              ? Math.round(data.totalRevenue / data.consultationsCount).toLocaleString()
+                              : 0} CFA/consult
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right whitespace-nowrap">
+                          <div className="font-medium text-blue-700">
+                            {data.totalRevenue.toLocaleString()} CFA
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right whitespace-nowrap">
+                          <div className="space-y-1">
+                            {data.doctorRole === 'Principal' ? (
+                              <>
+                                <div className="font-medium text-muted-foreground">
+                                  0 CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  (→ Structure)
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="font-medium text-green-700">
+                                  {data.doctorShare.toLocaleString()} CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  ({data.revenuePercentage}%)
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right whitespace-nowrap">
+                          <div className="space-y-1">
+                            {data.doctorRole === 'Principal' ? (
+                              <>
+                                <div className="font-medium text-purple-700">
+                                  {data.totalRevenue.toLocaleString()} CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  (100%)
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="font-medium text-purple-700">
+                                  {data.structureShare.toLocaleString()} CFA
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  ({data.structurePercentage}%)
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {revenueDistribution.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          Aucune donnée de revenus disponible
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="summary">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="w-5 h-5 text-green-600" />
+                  <span>Performance par Type de Rôle</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {['Principal', 'Secondaire'].map((roleType) => {
+                    const roleData = revenueDistribution.filter((d) => d.doctorRole === roleType);
+                    const roleTotal = roleData.reduce((acc, curr) => acc + curr.totalRevenue, 0);
+                    const roleDoctorShare = roleData.reduce((acc, curr) => {
+                      return acc + (curr.doctorRole === 'Principal' ? 0 : curr.doctorShare);
+                    }, 0);
+                    const roleStructureShare = roleData.reduce((acc, curr) => {
+                      return acc + (curr.doctorRole === 'Principal' ? curr.totalRevenue : curr.structureShare);
+                    }, 0);
+
+                    return (
+                      <div key={roleType} className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant={roleType === 'Principal' ? 'default' : 'secondary'}>
+                            {roleType}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {roleData.length} médecin(s)
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <span className="text-sm">CA Total:</span>
+                            <span className="font-medium">{roleTotal.toLocaleString()} CFA</span>
+                          </div>
+                          {roleType === 'Principal' ? (
+                            <div className="flex justify-between">
+                              <span className="text-sm">Part Structure:</span>
+                              <span className="font-medium text-purple-700">
+                                {roleStructureShare.toLocaleString()} CFA
+                              </span>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-sm">Part Médecins:</span>
+                                <span className="font-medium text-green-700">
+                                  {roleDoctorShare.toLocaleString()} CFA
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm">Part Structure:</span>
+                                <span className="font-medium text-purple-700">
+                                  {roleStructureShare.toLocaleString()} CFA
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('billing.revenue.general_stats')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-1">{t('billing.revenue.active_doctors')}</div>
+                    <div className="text-2xl font-bold">{revenueDistribution.length}</div>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-1">{t('billing.stats.average_revenue')}</div>
+                    <div className="text-2xl font-bold">
+                      {revenueDistribution.length > 0
+                        ? (totalStats.revenue / revenueDistribution.length).toLocaleString()
+                        : 0} CFA
+                    </div>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-1">{t('billing.stats.structure_ratio')}</div>
+                    <div className="text-2xl font-bold">
+                      {totalStats.revenue > 0
+                        ? ((totalStats.structureShare / totalStats.revenue) * 100).toFixed(1)
+                        : 0}%
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default RevenueDistribution;
