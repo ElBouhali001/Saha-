@@ -1,0 +1,507 @@
+{
+    "common": {
+        "dashboard": "Tableau de bord",
+        "login": {
+            "title": "Connexion sécurisée",
+            "subtitle_email": "// Authentification sécurisée",
+            "subtitle_password": "// Entrez votre mot de passe",
+            "email_label": "Email",
+            "password_label": "Mot de passe",
+            "email_placeholder": "votre@email.com",
+            "password_placeholder": "••••••••",
+            "continue": "Continuer",
+            "submit": "Se connecter",
+            "modify": "Modifier",
+            "or": "OU",
+            "google_signin": "Continuer avec Google",
+            "no_account": "Pas encore de compte ?",
+            "register": "S'inscrire",
+            "welcome": "Bienvenue sur Medipatient",
+            "success": "Connexion réussie",
+            "error": "Erreur",
+            "failed": "Connexion échouée",
+            "email_required": "Veuillez saisir votre adresse e-mail",
+            "password_required": "Veuillez saisir votre mot de passe"
+        },
+        "patients": "Patients",
+        "appointments": "Rendez-vous",
+        "settings": "Paramètres",
+        "profile": "Profil",
+        "logout": "Déconnexion",
+        "search": "Rechercher...",
+        "notifications": "Notifications",
+        "language": "Langue",
+        "back": "Retour"
+    },
+    "roles": {
+        "admin": "Admin",
+        "doctor": "Médecin",
+        "agent": "Agent",
+        "lab_technician": "Technicien Labo",
+        "pharmacist": "Pharmacien",
+        "insurance_agent": "Agent Assurance",
+        "patient": "Patient",
+        "user": "Utilisateur"
+    },
+    "modules": {
+        "dashboard": "Tableau de bord",
+        "patients": "Patients",
+        "my_space": "Mon Espace",
+        "appointments": "Rendez-vous",
+        "planning": "Planning",
+        "agenda": "Agenda",
+        "my_appointments": "Mes RDV",
+        "consultations": "Consultations",
+        "medical_folder": "Dossier Médical",
+        "prescriptions": "Ordonnances",
+        "follow_up": "Suivi",
+        "insurance": "Ma Mutuelle",
+        "billing": "Facturation",
+        "stock": "Stock",
+        "analysis": "Analyses",
+        "results": "Résultats",
+        "reports": "Rapports",
+        "ai_assistant": "IA Assistant",
+        "transfers": "Transferts",
+        "telemedicine": "Télémédecine",
+        "modules": "Modules",
+        "analytics": "Analytics",
+        "qr_code": "QR Code"
+    },
+    "dashboard": {
+        "welcome_user": "Bienvenue, {{name}}",
+        "welcome_doctor": "Bonjour {{name}}",
+        "schedule_intro": "Voici votre planning du jour",
+        "stats": {
+            "today_appointments": "RDV Aujourd'hui",
+            "tracked_patients": "Patients Suivis",
+            "consultations": "Consultations",
+            "avg_time": "Temps Moyen",
+            "active_users": "Utilisateurs Actifs",
+            "active_modules": "Modules Actifs",
+            "confirmed_urgent": "{{confirmed}} confirmés, {{urgent}} urgent",
+            "active_patients": "Patients actifs",
+            "this_week": "Cette semaine",
+            "per_consultation": "Par consultation"
+        },
+        "planning": {
+            "title": "Planning du Jour",
+            "subtitle": "Vos rendez-vous d'aujourd'hui",
+            "view_all": "Voir tout",
+            "status": {
+                "confirmed": "Confirmé",
+                "waiting": "En attente",
+                "urgent": "Urgent",
+                "unknown": "Inconnu"
+            }
+        },
+        "notifications": {
+            "title": "Notifications",
+            "subtitle": "Alertes et rappels importants"
+        },
+        "actions": {
+            "title": "Actions Rapides",
+            "subtitle": "Accès direct aux fonctionnalités les plus utilisées",
+            "new_consultation": "Nouvelle Consultation",
+            "search_patient": "Rechercher Patient",
+            "edit_planning": "Modifier Planning",
+            "telemedicine_ia": "Télémédecine IA",
+            "manage_users": "Gérer Utilisateurs",
+            "manage_modules": "Modules",
+            "reports": "Rapports",
+            "configuration": "Configuration",
+            "settings": "Paramètres"
+        },
+        "admin": {
+            "title": "Tableau de Bord Administrateur",
+            "tabs": {
+                "overview": "Vue d'ensemble",
+                "modules": "Modules",
+                "subscription": "Abonnements",
+                "specialties": "Spécialités",
+                "roles": "Rôles Médicaux",
+                "users": "Utilisateurs",
+                "analytics": "Analytiques"
+            }
+        }
+    },
+    "patients": {
+        "list": {
+            "title": "Liste des Patients",
+            "search_placeholder": "Rechercher par nom, email, téléphone...",
+            "loading": "Chargement...",
+            "results_found": "{{count}} résultat trouvé",
+            "results_found_plural": "{{count}} résultats trouvés",
+            "for_query": "pour \"{{query}}\"",
+            "patients_count": "{{count}} patient",
+            "patients_count_plural": "{{count}} patients",
+            "no_results": "Aucun résultat trouvé",
+            "no_patients": "Aucun patient trouvé",
+            "try_modify_search": "Essayez de modifier votre recherche \"{{query}}\"",
+            "list_empty": "La liste des patients est vide",
+            "clear_search": "Effacer la recherche",
+            "view_file": "Voir la fiche",
+            "last_visit": "Dernière visite: {{date}}",
+            "no_visit": "Aucune visite",
+            "consultations_count": "{{count}} consultations"
+        },
+        "detail": {
+            "full_medical_record": "Dossier médical complet",
+            "patient_info": "Informations patient",
+            "book_appointment": "Prendre RDV",
+            "general_info": "Informations Générales",
+            "age_years": "{{age}} ans",
+            "urgency_level": "Niveau de priorité",
+            "emergency_contact": "Contact d'urgence",
+            "medical_summary": "Résumé Médical",
+            "consultations": "Consultations",
+            "primary_doctor": "Médecin traitant",
+            "insurance": "Assurance",
+            "not_assigned": "Non assigné",
+            "none": "Aucune",
+            "medical_history": "Historique Médical",
+            "follow_up": "Suivi: {{date}}",
+            "by_doctor": "par {{doctor}}",
+            "diagnosis": "Diagnostic",
+            "symptoms": "Symptômes",
+            "treatment": "Traitement",
+            "notes": "Notes",
+            "prescriptions": "Prescriptions",
+            "follow_up_info": "Informations de Suivi",
+            "total_consultations": "Total consultations",
+            "last_visit_label": "Dernière visite"
+        },
+        "urgency": {
+            "high": "Priorité haute",
+            "medium": "Priorité moyenne",
+            "low": "Priorité basse",
+            "undefined": "Non défini"
+        }
+    },
+    "appointments": {
+        "scheduling": {
+            "title": "Planning des Rendez-Vous",
+            "day": "Jour",
+            "week": "Semaine",
+            "month": "Mois",
+            "demo_mode": "🏥 Mode démonstration - La fonctionnalité de blocage n'est pas disponible avec les données de test",
+            "block_hint": "Maintenez <kbd>Ctrl</kbd> + clic pour bloquer/débloquer des créneaux",
+            "select_doctor_hint": "Sélectionnez un médecin pour utiliser la fonctionnalité de blocage des créneaux",
+            "doctor_label": "Médecin :",
+            "all_doctors": "Tous les médecins",
+            "new_appointment": "Nouveau RDV",
+            "plan_appointment": "Planifier un Rendez-Vous",
+            "specialty_label": "Spécialité",
+            "select_specialty": "Sélectionner une spécialité",
+            "select_doctor": "Sélectionner un médecin",
+            "doctor_specialties": "Spécialités du médecin :",
+            "date_label": "Date",
+            "time_label": "Heure",
+            "select_time": "Sélectionner l'heure",
+            "confirm_button": "Confirmer le RDV",
+            "today_appointments": "RDV du jour",
+            "no_appointments_today": "Aucun RDV aujourd'hui",
+            "type_label": "Type:",
+            "undefined_specialty": "Spécialité non définie"
+        },
+        "agenda": {
+            "title": "Agenda des Médecins",
+            "today": "Aujourd'hui",
+            "patient_fallback": "Patient",
+            "free_slot": "Libre",
+            "summary_title": "Résumé de la journée",
+            "planned_appointments": "RDV planifiés",
+            "doctors_count": "Médecins",
+            "selected_doctor": "Médecin sélectionné",
+            "free_slots_count": "Créneaux libres",
+            "date_range": {
+                "day": "Jour - {{date}}",
+                "week": "Semaine - {{start}} au {{end}}",
+                "month": "Mois - {{date}}"
+            }
+        },
+        "status": {
+            "scheduled": "Planifié",
+            "completed": "Terminé",
+            "cancelled": "Annulé",
+            "blocked": "Bloqué",
+            "available": "Disponible",
+            "occupied": "Occupé"
+        },
+        "messages": {
+            "select_doctor_to_block": "Veuillez sélectionner un médecin pour bloquer/débloquer des créneaux.",
+            "slot_blocked": "Ce créneau est bloqué. Maintenez Ctrl + clic pour le débloquer.",
+            "select_patient": "Veuillez sélectionner un patient",
+            "default_reason": "Consultation programmée depuis le planning",
+            "success_scheduled": "Rendez-vous programmé pour {{patient}} le {{date}} à {{time}}",
+            "error_scheduling": "Erreur lors de la programmation du rendez-vous",
+            "patient_created": "Patient créé et sélectionné"
+        }
+    },
+    "billing": {
+        "title": "Module de Facturation",
+        "subtitle": "Gestion des factures et suivi des paiements",
+        "access_denied_title": "Accès refusé",
+        "access_denied_message": "Vous n'avez pas les permissions nécessaires pour accéder au module de facturation.",
+        "stats": {
+            "today_revenue": "Recettes Aujourd'hui",
+            "pending_amount": "En Attente",
+            "this_month": "Ce Mois",
+            "recovery_rate": "Taux de Recouvrement",
+            "vs_yesterday": "+12% par rapport à hier",
+            "vs_last_month": "+8% par rapport au mois dernier",
+            "excellent_rate": "Excellent taux de paiement",
+            "unpaid_invoices_count": "{{count}} factures impayées",
+            "received_payments": "Paiements reçus",
+            "total_revenue": "CA Total",
+            "doctors_share": "Part Médecins",
+            "structure_share": "Part Structure",
+            "total_consultations": "Total Consultations",
+            "average_per_doctor": "Moyenne: {{avg}} / médecin",
+            "average_revenue": "CA moyen par médecin",
+            "structure_ratio": "Ratio moyen Structure"
+        },
+        "tabs": {
+            "overview": "Vue d'ensemble",
+            "create": "Nouvelle Facture",
+            "payments": "Paiements",
+            "history": "Historique",
+            "revenue": "Répartition CA",
+            "by_doctor": "Détail par Médecin",
+            "summary": "Résumé Global"
+        },
+        "actions": {
+            "title": "Actions Rapides",
+            "subtitle": "Tâches fréquentes de facturation",
+            "new_invoice": "Créer une nouvelle facture",
+            "record_payment": "Enregistrer un paiement",
+            "view_history": "Consulter l'historique",
+            "export_csv": "Exporter CSV",
+            "mark_paid": "Marquer payé",
+            "send_reminder": "Rappel",
+            "preview_print": "Aperçu et Impression",
+            "create_invoice": "Créer la facture"
+        },
+        "recent_invoices": {
+            "title": "Factures Récentes",
+            "subtitle": "Dernières factures émises"
+        },
+        "invoice_creation": {
+            "title": "Nouvelle Facture avec Tarification",
+            "subtitle": "Créer une facture avec application automatique des tarifs par tranches"
+        },
+        "payment_tracking": {
+            "title": "Suivi des Paiements",
+            "subtitle": "Gérer et suivre les paiements des factures",
+            "search_placeholder": "Rechercher par patient ou facture...",
+            "filter_status": "Filtrer par statut",
+            "status_all": "Tous les statuts",
+            "no_payments": "Aucun paiement trouvé"
+        },
+        "history": {
+            "title": "Historique de Facturation",
+            "subtitle": "Consulter toutes les factures émises",
+            "no_invoices": "Aucune facture trouvée",
+            "total_cfa": "Total CFA",
+            "paid_cfa": "Encaissé CFA",
+            "pending_cfa": "En attente CFA",
+            "overdue_cfa": "En retard CFA"
+        },
+        "revenue": {
+            "title": "Répartition du Chiffre d'Affaires",
+            "subtitle": "Distribution des revenus par rôle médical",
+            "primary_doctors": "Médecins Principaux",
+            "primary_desc": "Performance des médecins avec rôle principal",
+            "secondary_doctors": "Médecins Secondaires",
+            "secondary_desc": "Performance des médecins avec partage de revenus",
+            "global_revenue": "CA Global",
+            "general_stats": "Statistiques Générales",
+            "active_doctors": "Nombre de médecins actifs"
+        },
+        "status": {
+            "paid": "Payée",
+            "pending": "En attente",
+            "overdue": "En retard",
+            "cancelled": "Annulée"
+        },
+        "invoices": {
+            "invoice_number": "Facture #{{number}}",
+            "invoice_date": "Date: {{date}}",
+            "due_date": "Échéance: {{date}}",
+            "print": "Imprimer",
+            "details": "Détails"
+        },
+        "table": {
+            "invoice": "Facture",
+            "patient": "Patient",
+            "amount": "Montant",
+            "payment_method": "Mode de paiement",
+            "due_date": "Échéance",
+            "created_date": "Date création",
+            "status": "Statut",
+            "actions": "Actions",
+            "doctor": "Médecin",
+            "role": "Rôle",
+            "consultations": "Consultations"
+        }
+    },
+    "inventory": {
+        "title": "Gestion de Stock",
+        "subtitle": "Suivi des médicaments et matériel médical",
+        "new_product": "Nouveau Produit",
+        "tabs": {
+            "overview": "Vue d'ensemble",
+            "products": "Produits",
+            "movements": "Mouvements",
+            "alerts": "Alertes",
+            "reports": "Rapports"
+        },
+        "stats": {
+            "total_products": "Total Produits",
+            "items_in_stock": "Références en stock",
+            "low_stock": "Stock Faible",
+            "to_restock": "Produits à réapprovisionner",
+            "out_of_stock": "Rupture Stock",
+            "items_out_of_stock": "Produits en rupture",
+            "stock_value": "Valeur Stock"
+        },
+        "alerts": {
+            "title": "Alertes de Stock",
+            "critical_alerts": "Alertes Critiques",
+            "current_stock": "Stock actuel: {{count}}",
+            "min_stock": "Min: {{count}}",
+            "missing_quantity": "Quantité manquante: {{count}}",
+            "status": {
+                "out_of_stock": "Rupture",
+                "critical": "Critique",
+                "low": "Faible",
+                "normal": "Normal",
+                "expiring_soon": "Expire bientôt"
+            },
+            "warning_out_of_stock": "⚠️ Attention: Ce produit est en rupture de stock. Commandez immédiatement.",
+            "empty": "Aucune alerte de stock",
+            "all_normal": "Tous les produits sont en stock normal"
+        },
+        "movements": {
+            "title": "Mouvements de Stock",
+            "recent": "Mouvements Récents",
+            "new_movement": "Nouveau Mouvement",
+            "entry": "Entrée",
+            "exit": "Sortie",
+            "search_placeholder": "Rechercher un produit ou utilisateur...",
+            "empty": "Aucun mouvement trouvé",
+            "filters": {
+                "all": "Tous",
+                "entries": "Entrées",
+                "exits": "Sorties",
+                "today": "Aujourd'hui",
+                "week": "Cette semaine"
+            },
+            "details": {
+                "reason": "Motif:",
+                "user": "Utilisateur:",
+                "date": "Date:"
+            }
+        },
+        "products": {
+            "title": "Liste des Produits",
+            "search_placeholder": "Rechercher un produit...",
+            "empty": "Aucun produit trouvé",
+            "categories": {
+                "medications": "Médicaments",
+                "medical_equipment": "Matériel médical",
+                "consumables": "Consommables",
+                "all": "Tous"
+            },
+            "details": {
+                "category": "Catégorie:",
+                "current_stock": "Stock actuel:",
+                "min_max": "Stock min/max:",
+                "unit_price": "Prix unitaire:",
+                "supplier": "Fournisseur:",
+                "expiry": "Expiration:",
+                "location": "Emplacement:",
+                "value": "Valeur stock:"
+            },
+            "actions": {
+                "view": "Voir",
+                "edit": "Modifier",
+                "delete": "Supprimer"
+            }
+        },
+        "add_product": {
+            "title": "Ajouter un Nouveau Produit",
+            "labels": {
+                "name": "Nom du produit *",
+                "category": "Catégorie *",
+                "description": "Description",
+                "supplier": "Fournisseur",
+                "price": "Prix unitaire (FCFA) *",
+                "min_stock": "Stock minimum",
+                "max_stock": "Stock maximum",
+                "location": "Emplacement",
+                "expiry": "Date d'expiration",
+                "batch": "Numéro de lot"
+            },
+            "placeholders": {
+                "name": "Ex: Paracétamol 500mg",
+                "category": "Sélectionner une catégorie",
+                "description": "Description détaillée...",
+                "supplier": "Sélectionner un fournisseur",
+                "location": "Ex: A-1-01",
+                "batch": "Ex: LOT-2024-001"
+            },
+            "actions": {
+                "cancel": "Annuler",
+                "save": "Enregistrer"
+            },
+            "validation_error": "Veuillez remplir tous les champs obligatoires (Nom, Catégorie, Prix unitaire)"
+        },
+        "reports": {
+            "title": "Rapports de Stock",
+            "type_label": "Type de rapport",
+            "period_label": "Période",
+            "select_type": "Sélectionner un type de rapport",
+            "select_type_error": "Veuillez sélectionner un type de rapport",
+            "generate": "Générer Rapport",
+            "download": "Télécharger PDF",
+            "types": {
+                "stock_value": "Valorisation du Stock",
+                "stock_value_desc": "Valeur totale du stock par catégorie",
+                "movements": "Mouvements de Stock",
+                "movements_desc": "Entrées et sorties par période",
+                "expiry": "Produits Expirés/Périmés",
+                "expiry_desc": "Liste des produits proches de la péremption",
+                "consumption": "Consommation par Produit",
+                "consumption_desc": "Analyse de la consommation mensuelle"
+            },
+            "overview": {
+                "title": "Aperçu des Données",
+                "value": "Valorisation Stock",
+                "movements": "Mouvements",
+                "expiration": "Expiration",
+                "expiring_soon": "Expire bientôt:",
+                "expired": "Déjà expirés:",
+                "next": "Prochain: {{name}} dans {{days}} jours"
+            },
+            "periods": {
+                "today": "Aujourd'hui",
+                "week": "Cette semaine",
+                "month": "Ce mois",
+                "quarter": "Ce trimestre",
+                "year": "Cette année"
+            }
+        },
+        "actions": {
+            "order": "Commander",
+            "quick_actions": "Actions Rapides",
+            "order_all": "Commander Tout",
+            "configure_alerts": "Configurer Alertes",
+            "stock_report": "Rapport Stocks"
+        }
+    },
+    "languages": {
+        "fr": "Français",
+        "wo": "Wolof"
+    }
+}

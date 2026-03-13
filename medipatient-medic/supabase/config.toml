@@ -1,0 +1,61 @@
+project_id = "bmofuisxcssgfuicvrou"
+
+[functions.analyze-patient-vitals]
+verify_jwt = false
+
+[functions.ai-telemedicine-diagnosis]
+verify_jwt = false
+
+[functions.scan-medication-barcode]
+verify_jwt = false
+
+[functions.analyze-dental-imaging]
+verify_jwt = false
+
+[functions.openevidence-search]
+verify_jwt = true
+
+[functions.multi-ai-diagnosis]
+verify_jwt = false
+
+[functions.create-demo-doctor]
+verify_jwt = false
+
+[functions.secure-data-handler]
+verify_jwt = false
+
+[functions.ai-clinical-diagnosis]
+verify_jwt = false
+
+[functions.generate-medical-document]
+verify_jwt = true
+
+[functions.get-elevenlabs-key]
+verify_jwt = true
+
+[functions.analyze-cardiac-imaging]
+verify_jwt = false
+
+[functions.analyze-dermatology-imaging]
+verify_jwt = false
+
+[functions.analyze-pediatrics-imaging]
+verify_jwt = false
+
+[functions.analyze-gynecology-imaging]
+verify_jwt = false
+
+[functions.analyze-neurology-imaging]
+verify_jwt = false
+
+[functions.analyze-orthopedic-imaging]
+verify_jwt = false
+
+[functions.analyze-ophthalmology-imaging]
+verify_jwt = false
+
+[functions.analyze-vitals-camera]
+verify_jwt = false
+
+[functions.scan-prescription-ocr]
+verify_jwt = false
