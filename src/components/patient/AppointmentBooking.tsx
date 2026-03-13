@@ -2,32 +2,90 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { API_BASE_URL } from '@/config/app'; // Import de votre config
+import { API_BASE_URL, IS_DEMO } from '@/config/app';
 import FilterModeSelector from './appointment/FilterModeSelector';
 import SpecialtySelector from './appointment/SpecialtySelector';
 import DoctorSelector from './appointment/DoctorSelector';
 import AppointmentForm from './appointment/AppointmentForm';
 import UpcomingAppointments from './appointment/UpcomingAppointments';
 
-// --- Interfaces pour le Typage des données Backend ---
+// --- Interfaces ---
 interface Specialty {
     id: string;
     name: string;
 }
 
+// ✅ Updated to include consultationFee and currency
 interface Doctor {
     id: string;
     firstName: string;
     lastName: string;
-    // Adaptation à la structure probable de votre Backend JPA
+    consultationFee?: number;
+    currency?: string;
     doctor_specialties?: Array<{
         specialty: Specialty;
         is_primary: boolean;
     }>;
 }
 
+// ✅ MOCK DATA — served when IS_DEMO = true
+const MOCK_SPECIALTIES: Specialty[] = [
+    { id: 'spec-1', name: 'Médecine Générale' },
+    { id: 'spec-2', name: 'Cardiologie' },
+    { id: 'spec-3', name: 'Pédiatrie' },
+    { id: 'spec-4', name: 'Dermatologie' },
+    { id: 'spec-5', name: 'Gynécologie' },
+];
+
+// ✅ Updated with consultationFee and currency fields
+const MOCK_DOCTORS: Doctor[] = [
+    {
+        id: '18',
+        firstName: 'Cheikh',
+        lastName: 'Diop',
+        consultationFee: 10000,
+        currency: 'FCFA',
+        doctor_specialties: [{ specialty: { id: 'spec-1', name: 'Médecine Générale' }, is_primary: true }]
+    },
+    {
+        id: '8',
+        firstName: 'Marie',
+        lastName: 'Dubois',
+        consultationFee: 25000,
+        currency: 'FCFA',
+        doctor_specialties: [{ specialty: { id: 'spec-2', name: 'Cardiologie' }, is_primary: true }]
+    },
+    {
+        id: '10',
+        firstName: 'Sophie',
+        lastName: 'Lemaire',
+        consultationFee: 15000,
+        currency: 'FCFA',
+        doctor_specialties: [{ specialty: { id: 'spec-3', name: 'Pédiatrie' }, is_primary: true }]
+    },
+    {
+        id: '9',
+        firstName: 'Pierre',
+        lastName: 'Moreau',
+        consultationFee: 20000,
+        currency: 'FCFA',
+        doctor_specialties: [{ specialty: { id: 'spec-4', name: 'Dermatologie' }, is_primary: true }]
+    },
+];
+
+const MOCK_APPOINTMENTS = [
+    {
+        id: 'apt-001',
+        doctorName: 'Dr. Cheikh Diop',
+        dateTime: '2026-03-20T10:00:00Z',
+        type: 'Téléconsultation',
+        status: 'Confirmé',
+        location: 'En ligne — MediPatient'
+    }
+];
+
 const AppointmentBooking = () => {
-    // --- États du Formulaire ---
+    // --- Form States ---
     const [selectedDoctor, setSelectedDoctor] = useState('');
     const [selectedSpecialty, setSelectedSpecialty] = useState('');
     const [selectedDate, setSelectedDate] = useState('');
@@ -38,20 +96,30 @@ const AppointmentBooking = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [filterMode, setFilterMode] = useState<'specialty' | 'doctor'>('specialty');
 
-    // --- États des Données API ---
+    // --- Data States ---
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [specialties, setSpecialties] = useState<Specialty[]>([]);
     const [appointments, setAppointments] = useState<any[]>([]);
 
-    // --- États de Chargement ---
+    // --- Loading States ---
     const [loadingData, setLoadingData] = useState(true);
     const [loadingBooking, setLoadingBooking] = useState(false);
 
     const { toast } = useToast();
 
-    // 1. CHARGEMENT DES DONNÉES (Mount)
+    // --- 1. LOAD DATA ON MOUNT ---
     useEffect(() => {
         const fetchData = async () => {
+            // ✅ DEMO MODE — inject mock data, skip all network calls
+            if (IS_DEMO) {
+                setSpecialties(MOCK_SPECIALTIES);
+                setDoctors(MOCK_DOCTORS);
+                setAppointments(MOCK_APPOINTMENTS);
+                setLoadingData(false);
+                return;
+            }
+
+            // LIVE MODE — fetch from Spring Boot backend
             try {
                 const token = localStorage.getItem('medipatient_token');
                 const headers = {
@@ -59,15 +127,12 @@ const AppointmentBooking = () => {
                     'Content-Type': 'application/json'
                 };
 
-                // A. Récupérer les spécialités
                 const specRes = await fetch(`${API_BASE_URL}/api/specialties`, { headers });
                 if (specRes.ok) setSpecialties(await specRes.json());
 
-                // B. Récupérer les médecins
                 const docRes = await fetch(`${API_BASE_URL}/api/doctors`, { headers });
                 if (docRes.ok) setDoctors(await docRes.json());
 
-                // C. Récupérer l'historique des RDV du patient
                 const aptRes = await fetch(`${API_BASE_URL}/api/patient/appointments`, { headers });
                 if (aptRes.ok) setAppointments(await aptRes.json());
 
@@ -86,17 +151,17 @@ const AppointmentBooking = () => {
         fetchData();
     }, [toast]);
 
-    // Helper : Récupérer la spécialité principale d'un médecin
+    // --- HELPERS ---
     const getPrimarySpecialty = (doctor: Doctor) => {
         if (!doctor.doctor_specialties || doctor.doctor_specialties.length === 0) {
             return 'Généraliste';
         }
         const primary = doctor.doctor_specialties.find((ds) => ds.is_primary);
-        // Fallback sur la première spécialité trouvée si pas de primaire définie
-        return primary?.specialty?.name || doctor.doctor_specialties[0]?.specialty?.name || 'Non défini';
+        return primary?.specialty?.name
+            || doctor.doctor_specialties[0]?.specialty?.name
+            || 'Non défini';
     };
 
-    // Filtrage des médecins selon la spécialité sélectionnée
     const filteredDoctors = useMemo(() => {
         if (filterMode === 'specialty' && selectedSpecialty) {
             return doctors.filter(doctor =>
@@ -106,7 +171,6 @@ const AppointmentBooking = () => {
         return doctors;
     }, [doctors, selectedSpecialty, filterMode]);
 
-    // Récupération des spécialités d'un médecin spécifique
     const doctorSpecialties = useMemo(() => {
         if (filterMode === 'doctor' && selectedDoctor) {
             const doctor = doctors.find(d => d.id === selectedDoctor);
@@ -121,9 +185,8 @@ const AppointmentBooking = () => {
         setSelectedSpecialty('');
     };
 
-    // --- 2. ENREGISTREMENT DU RENDEZ-VOUS (POST) ---
+    // --- 2. SUBMIT BOOKING ---
     const handleBooking = async () => {
-        // Validation simple
         if (!selectedDoctor || !selectedDate || !selectedTime || !consultationType) {
             toast({
                 title: "Champs manquants",
@@ -135,21 +198,51 @@ const AppointmentBooking = () => {
 
         setLoadingBooking(true);
 
+        // ✅ DEMO MODE — simulate successful booking without network call
+        if (IS_DEMO) {
+            await new Promise(r => setTimeout(r, 800));
+
+            const doctor = doctors.find(d => d.id === selectedDoctor);
+            const newAppointment = {
+                id: `apt-demo-${Date.now()}`,
+                doctorName: doctor ? `Dr. ${doctor.firstName} ${doctor.lastName}` : 'Dr. Inconnu',
+                dateTime: `${selectedDate}T${selectedTime}:00`,
+                type: consultationType,
+                status: 'Confirmé',
+                location: consultationType === 'teleconsultation' ? 'En ligne — MediPatient' : 'Cabinet'
+            };
+
+            setAppointments(prev => [...prev, newAppointment]);
+
+            toast({
+                title: "Rendez-vous confirmé !",
+                description: "Votre demande a été enregistrée avec succès.",
+            });
+
+            setSelectedDoctor('');
+            setSelectedSpecialty('');
+            setSelectedDate('');
+            setSelectedTime('');
+            setConsultationType('');
+            setReason('');
+            setPaymentMethod('');
+            setPhoneNumber('');
+
+            setLoadingBooking(false);
+            return;
+        }
+
+        // LIVE MODE — POST to Spring Boot backend
         try {
             const token = localStorage.getItem('medipatient_token');
-
-            // Construction du payload attendu par Java
-            // Note: On combine Date et Heure pour faire un LocalDateTime ISO
             const payload = {
                 doctorId: selectedDoctor,
                 dateTime: `${selectedDate}T${selectedTime}:00`,
-                consultationType: consultationType,
-                reason: reason,
-                paymentMethod: paymentMethod,
-                phoneNumber: phoneNumber
+                consultationType,
+                reason,
+                paymentMethod,
+                phoneNumber
             };
-
-            console.log("Envoi réservation:", payload);
 
             const response = await fetch(`${API_BASE_URL}/api/appointments`, {
                 method: 'POST',
@@ -166,16 +259,13 @@ const AppointmentBooking = () => {
                 throw new Error(data.message || "Erreur lors de la réservation");
             }
 
-            // Succès
             toast({
                 title: "Rendez-vous confirmé !",
                 description: "Votre demande a été enregistrée avec succès.",
             });
 
-            // Ajout du nouveau RDV à la liste locale (pour éviter de recharger)
             setAppointments(prev => [...prev, data]);
 
-            // Reset du formulaire
             setSelectedDoctor('');
             setSelectedSpecialty('');
             setSelectedDate('');
@@ -197,7 +287,6 @@ const AppointmentBooking = () => {
         }
     };
 
-    // Affichage du loader pendant le chargement initial
     if (loadingData) {
         return (
             <div className="flex h-64 items-center justify-center">
@@ -223,7 +312,6 @@ const AppointmentBooking = () => {
                     />
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                        {/* Colonne Gauche : Sélection Médecin/Spécialité */}
                         <div className="space-y-4">
                             {filterMode === 'specialty' ? (
                                 <SpecialtySelector
@@ -248,7 +336,6 @@ const AppointmentBooking = () => {
                             )}
                         </div>
 
-                        {/* Colonne Droite : Formulaire Détails */}
                         <AppointmentForm
                             selectedDate={selectedDate}
                             onDateChange={setSelectedDate}
@@ -264,13 +351,12 @@ const AppointmentBooking = () => {
                             onPhoneNumberChange={setPhoneNumber}
                             onBooking={handleBooking}
                             selectedDoctor={selectedDoctor}
-                            isLoading={loadingBooking} // Utilise le state de chargement du POST
+                            isLoading={loadingBooking}
                         />
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Liste des RDV existants (chargée depuis le back) */}
             <UpcomingAppointments appointments={appointments} />
         </div>
     );

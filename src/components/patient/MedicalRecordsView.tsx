@@ -4,34 +4,23 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import {
-    FileText,
-    User,
-    Calendar,
-    Shield,
-    Heart,
-    Activity,
-    Thermometer,
-    Weight,
-    Loader2,
-    AlertTriangle,
-    Pill,
-    Droplet,
-    Phone
+    FileText, User, Calendar, Shield, Heart, Activity,
+    Thermometer, Weight, Loader2, AlertTriangle, Pill, Droplet, Phone
 } from 'lucide-react';
-import { API_BASE_URL } from '@/config/app';
+import { API_BASE_URL, IS_DEMO } from '@/config/app';
 
-// --- Interfaces matching Java DTOs ---
+// --- Interfaces ---
 
 interface Vitals {
-    tension: string;      // e.g. "120/80"
-    heartRate: string;    // e.g. "72 bpm"
-    temperature: string;  // e.g. "36.5°C"
-    weight: string;       // e.g. "75 kg"
+    tension: string;
+    heartRate: string;
+    temperature: string;
+    weight: string;
 }
 
 interface MedicalRecord {
     id: string;
-    date: string;         // ISO Date string
+    date: string;
     doctorName: string;
     consultationType: string;
     diagnosis: string;
@@ -54,6 +43,42 @@ interface HealthSummary {
     emergencyContact: EmergencyContact;
 }
 
+// ✅ MOCK DATA — served when IS_DEMO = true
+const MOCK_MEDICAL_HISTORY: MedicalRecord[] = [
+    {
+        id: 'rec1',
+        date: '2026-01-15T10:00:00Z',
+        doctorName: 'Dr. Cheikh Diop',
+        consultationType: 'Consultation Générale',
+        diagnosis: 'Rhinopharyngite aiguë',
+        symptoms: 'Fièvre, maux de gorge, congestion nasale',
+        treatment: 'Paracétamol 1g 3x/jour, repos 3 jours',
+        vitals: { tension: '120/80', heartRate: '78 bpm', temperature: '38.2°C', weight: '72 kg' }
+    },
+    {
+        id: 'rec2',
+        date: '2025-10-05T09:30:00Z',
+        doctorName: 'Dr. Marie Dubois',
+        consultationType: 'Bilan Annuel',
+        diagnosis: 'Bonne santé générale',
+        symptoms: 'Aucun symptôme particulier',
+        treatment: 'Aucun traitement requis',
+        vitals: { tension: '118/76', heartRate: '72 bpm', temperature: '36.8°C', weight: '71 kg' }
+    }
+];
+
+const MOCK_HEALTH_SUMMARY: HealthSummary = {
+    allergies: ['Pénicilline'],
+    chronicConditions: [],
+    currentMedications: ['Paracétamol 1g (en cours)'],
+    bloodType: 'O+',
+    emergencyContact: {
+        name: 'Fatou Fall',
+        phone: '+221 77 000 0000',
+        relationship: 'Épouse'
+    }
+};
+
 const MedicalRecordsView = () => {
     const [medicalHistory, setMedicalHistory] = useState<MedicalRecord[]>([]);
     const [healthSummary, setHealthSummary] = useState<HealthSummary | null>(null);
@@ -62,6 +87,15 @@ const MedicalRecordsView = () => {
 
     useEffect(() => {
         const fetchMedicalData = async () => {
+            // ✅ DEMO MODE — inject mock data, skip network entirely
+            if (IS_DEMO) {
+                setMedicalHistory(MOCK_MEDICAL_HISTORY);
+                setHealthSummary(MOCK_HEALTH_SUMMARY);
+                setLoading(false);
+                return;
+            }
+
+            // LIVE MODE — fetch from Spring Boot backend
             try {
                 const token = localStorage.getItem('medipatient_token');
                 const headers = {
@@ -69,13 +103,11 @@ const MedicalRecordsView = () => {
                     'Content-Type': 'application/json'
                 };
 
-                // 1. Fetch Medical History
                 const historyRes = await fetch(`${API_BASE_URL}/api/patient/medical-history`, { headers });
                 if (historyRes.ok) {
                     setMedicalHistory(await historyRes.json());
                 }
 
-                // 2. Fetch Health Summary
                 const summaryRes = await fetch(`${API_BASE_URL}/api/patient/health-summary`, { headers });
                 if (summaryRes.ok) {
                     setHealthSummary(await summaryRes.json());
@@ -107,7 +139,6 @@ const MedicalRecordsView = () => {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            {/* Header Card */}
             <Card className="bg-gradient-to-r from-blue-50 to-white border-blue-100">
                 <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-blue-900">
@@ -139,11 +170,8 @@ const MedicalRecordsView = () => {
                                 <div className="space-y-6">
                                     {medicalHistory.map((record) => (
                                         <div key={record.id} className="relative pl-6 border-l-2 border-blue-200 hover:border-blue-500 transition-colors">
-                                            {/* Timeline dot */}
                                             <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-500" />
-
                                             <div className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition-shadow">
-                                                {/* Header of the record */}
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-dashed">
                                                     <div className="flex items-center gap-3">
                                                         <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
@@ -156,8 +184,6 @@ const MedicalRecordsView = () => {
                                                         {record.doctorName}
                                                     </div>
                                                 </div>
-
-                                                {/* Content Grid */}
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <div className="space-y-3">
                                                         <div>
@@ -169,14 +195,11 @@ const MedicalRecordsView = () => {
                                                             <p className="text-sm text-gray-700">{record.symptoms}</p>
                                                         </div>
                                                     </div>
-
                                                     <div className="space-y-3">
                                                         <div>
                                                             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Traitement</h4>
                                                             <p className="text-sm text-gray-700">{record.treatment}</p>
                                                         </div>
-
-                                                        {/* Vitals Mini-Grid */}
                                                         <div className="bg-gray-50 rounded p-2 grid grid-cols-2 gap-2 text-xs">
                                                             <div className="flex items-center gap-1" title="Tension">
                                                                 <Activity className="w-3 h-3 text-red-500" /> {record.vitals?.tension || 'N/A'}
@@ -210,7 +233,6 @@ const MedicalRecordsView = () => {
                 {/* TAB 2: HEALTH SUMMARY */}
                 <TabsContent value="summary" className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Allergies */}
                         <Card className="border-red-100 bg-red-50/30">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-lg text-red-700 flex items-center gap-2">
@@ -221,9 +243,7 @@ const MedicalRecordsView = () => {
                                 {healthSummary?.allergies && healthSummary.allergies.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {healthSummary.allergies.map((allergy, index) => (
-                                            <Badge key={index} variant="destructive" className="px-3 py-1">
-                                                {allergy}
-                                            </Badge>
+                                            <Badge key={index} variant="destructive" className="px-3 py-1">{allergy}</Badge>
                                         ))}
                                     </div>
                                 ) : (
@@ -232,7 +252,6 @@ const MedicalRecordsView = () => {
                             </CardContent>
                         </Card>
 
-                        {/* Conditions */}
                         <Card className="border-orange-100 bg-orange-50/30">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-lg text-orange-700 flex items-center gap-2">
@@ -252,7 +271,6 @@ const MedicalRecordsView = () => {
                             </CardContent>
                         </Card>
 
-                        {/* Medications */}
                         <Card className="border-blue-100 bg-blue-50/30">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-lg text-blue-700 flex items-center gap-2">
@@ -275,7 +293,6 @@ const MedicalRecordsView = () => {
                             </CardContent>
                         </Card>
 
-                        {/* General Info */}
                         <Card className="border-green-100 bg-green-50/30">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-lg text-green-700 flex items-center gap-2">
@@ -284,18 +301,17 @@ const MedicalRecordsView = () => {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center justify-between bg-white p-3 rounded border border-green-100">
-                  <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Droplet className="w-4 h-4 text-red-500" /> Groupe Sanguin
-                  </span>
+                                    <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                        <Droplet className="w-4 h-4 text-red-500" /> Groupe Sanguin
+                                    </span>
                                     <Badge variant="outline" className="text-lg font-bold border-red-200 text-red-700">
                                         {healthSummary?.bloodType || 'N/A'}
                                     </Badge>
                                 </div>
-
                                 <div className="bg-white p-3 rounded border border-green-100">
-                  <span className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
-                    <Phone className="w-4 h-4 text-green-600" /> Contact d'urgence
-                  </span>
+                                    <span className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                                        <Phone className="w-4 h-4 text-green-600" /> Contact d'urgence
+                                    </span>
                                     {healthSummary?.emergencyContact ? (
                                         <div className="text-sm ml-6">
                                             <p className="font-semibold">{healthSummary.emergencyContact.name}</p>
@@ -311,7 +327,7 @@ const MedicalRecordsView = () => {
                     </div>
                 </TabsContent>
 
-                {/* TAB 3: VITALS (Graphs placeholder) */}
+                {/* TAB 3: VITALS */}
                 <TabsContent value="vitals" className="space-y-4">
                     <Card>
                         <CardHeader>
@@ -320,7 +336,6 @@ const MedicalRecordsView = () => {
                         <CardContent>
                             {medicalHistory.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Tension Chart Placeholder */}
                                     <div className="p-4 border rounded-lg bg-white">
                                         <h3 className="font-medium mb-4 flex items-center space-x-2 text-red-700">
                                             <Activity className="w-4 h-4" />
@@ -335,8 +350,6 @@ const MedicalRecordsView = () => {
                                             ))}
                                         </div>
                                     </div>
-
-                                    {/* Weight Chart Placeholder */}
                                     <div className="p-4 border rounded-lg bg-white">
                                         <h3 className="font-medium mb-4 flex items-center space-x-2 text-green-700">
                                             <Weight className="w-4 h-4" />

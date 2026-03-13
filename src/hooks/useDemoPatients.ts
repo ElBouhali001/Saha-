@@ -270,6 +270,28 @@ const generateDemoPatients = (): DemoPatient[] => [
     ],
     createdAt: '2023-09-10T11:00:00.000Z',
     updatedAt: '2024-01-25T09:15:00.000Z'
+  },
+  {
+    id: '6',
+    firstName: 'Amadou',
+    lastName: 'Fall',
+    dateOfBirth: '1998-06-15',
+    phone: '+221 77 123 45 67',
+    address: 'Dakar, Sénégal',
+    email: 'amadou.qa-test@email.com',
+    emergencyContact: {
+      name: 'Khady Fall',
+      phone: '+221 77 987 65 43',
+      relationship: 'sœur'
+    },
+    consultations: 0,
+    lastVisit: '2024-03-10',
+    primaryDoctor: 'Dr. Diop',
+    insurance: 'Aucune',
+    urgencyLevel: 'medium',
+    medicalHistory: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ];
 

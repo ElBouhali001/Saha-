@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { IS_DEMO } from '@/config/app';
 import Sidebar from './Sidebar';
 import ModuleComponent from '@/modules/ModuleLoader';
 import AdminDashboard from '../dashboard/AdminDashboard';
@@ -16,9 +17,7 @@ import DoctorTelemedicine from '@/components/telemedicine/DoctorTelemedicine';
 import PrescriptionHistory from "@/components/patient/PrescriptionHistory.tsx";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-// Ajout de FileQuestion et ArrowLeft pour le message d'erreur
 import { Menu, Loader2, Zap, FileQuestion, ArrowLeft } from 'lucide-react';
-
 import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 
 const MainLayout = () => {
@@ -38,6 +37,16 @@ const MainLayout = () => {
                 return;
             }
 
+            // ✅ DEMO MODE: Read role directly from user_metadata
+            // No Supabase network call needed — avoids ERR_NAME_NOT_RESOLVED
+            if (IS_DEMO) {
+                const role = user.user_metadata?.role || 'patient';
+                setUserRole(role);
+                setLoading(false);
+                return;
+            }
+
+            // LIVE MODE: Fetch role from Supabase
             try {
                 const { data: profile, error } = await supabase
                     .from('profiles')
@@ -52,7 +61,9 @@ const MainLayout = () => {
                     setUserRole(profile?.role || 'patient');
                 }
 
-                const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', { _user_id: user.id });
+                const { data: isAdmin, error: adminCheckError } = await supabase
+                    .rpc('is_admin', { _user_id: user.id });
+
                 if (adminCheckError) {
                     console.warn('Admin check failed:', adminCheckError);
                 } else if (isAdmin === true) {
@@ -99,12 +110,10 @@ const MainLayout = () => {
                         return <AgentDashboard />;
                     case 'patient':
                         return <PatientDashboard onNavigate={setCurrentPage} />;
-                    // ... autres rôles
                     default:
                         return <PatientDashboard onNavigate={setCurrentPage} />;
                 }
 
-            // --- Vos cases de modules existants ---
             case 'patient-interface':
                 return canAccessModule('patient-management') ?
                     <ModuleComponent moduleId="patient-management" componentName="PatientApp" /> :
@@ -128,7 +137,6 @@ const MainLayout = () => {
             case 'qr-settings':
                 return <QRDisplaySettings />;
 
-            // --- LE BLOC DEFAULT CORRIGÉ (EMPTY STATE) ---
             default:
                 return (
                     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fade-in p-6">
@@ -158,13 +166,11 @@ const MainLayout = () => {
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
-            {/* Background effects */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/5 blur-[120px]" />
                 <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-accent/5 blur-[120px]" />
             </div>
 
-            {/* Mobile Header */}
             {isMobile && (
                 <div className="fixed top-0 left-0 right-0 z-50 header-premium p-4 flex items-center justify-between mobile-header">
                     <Button
@@ -185,7 +191,6 @@ const MainLayout = () => {
                 </div>
             )}
 
-            {/* Sidebar */}
             <Sidebar
                 currentPage={currentPage}
                 onPageChange={(page) => {
@@ -197,7 +202,6 @@ const MainLayout = () => {
                 userRole={userRole}
             />
 
-            {/* Main Content */}
             <main className={`flex-1 overflow-auto ${isMobile ? 'pt-16' : ''} p-4 md:p-6 mobile-safe-area scrollbar-premium relative z-10`}>
                 <div className="max-w-full overflow-x-hidden animate-fade-in">
                     {renderPageContent()}

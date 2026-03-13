@@ -1,7 +1,9 @@
 import { API_CONFIG } from './config';
 import { tokenStorage } from './tokenStorage';
+import { IS_DEMO } from '@/config/app';
 
-// Types pour les réponses API
+// --- TYPES ---
+
 export interface ApiResponse<T> {
   data: T;
   status: number;
@@ -14,7 +16,6 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
-// Classe pour les erreurs API
 export class ApiException extends Error {
   status: number;
   errors?: Record<string, string[]>;
@@ -27,7 +28,8 @@ export class ApiException extends Error {
   }
 }
 
-// Client API avec gestion automatique du token JWT
+// --- MOCK DATA ENGINE ---
+
 class ApiClient {
   private baseUrl: string;
   private timeout: number;
@@ -37,24 +39,56 @@ class ApiClient {
     this.timeout = API_CONFIG.TIMEOUT;
   }
 
-  // Construire les headers avec le token JWT
-  private getHeaders(): HeadersInit {
-    const headers: HeadersInit = {
-      ...API_CONFIG.HEADERS,
-    };
+  private getMockData(endpoint: string): any {
+    if (endpoint.includes('/doctors') || endpoint.includes('/medecins')) {
+      return [
+        { id: '18', firstName: 'Cheikh',  lastName: 'Diop',   speciality: 'Médecine Générale', consultationFee: 10000, currency: 'FCFA', availability: 'Disponible' },
+        { id: '21', firstName: 'Marie',   lastName: 'Dubois', speciality: 'Cardiologie',        consultationFee: 25000, currency: 'FCFA', availability: 'Sur RDV' },
+      ];
+    }
+    if (endpoint.includes('/appointments') || endpoint.includes('/rendez-vous')) {
+      return [
+        { id: '101', doctorName: 'Dr. Cheikh Diop', date: '2026-03-20', time: '10:00', type: 'Téléconsultation', status: 'Confirmé' },
+      ];
+    }
+    if (endpoint.includes('/notifications')) {
+      return [
+        { id: 'n1', title: 'Rappel RDV',   message: 'Votre consultation avec Dr. Diop est demain à 10h.', read: false },
+        { id: 'n2', title: 'Médicament',   message: 'Il est temps de prendre votre Paracétamol.',          read: false },
+      ];
+    }
+    if (endpoint.includes('/prescriptions')) {
+      return [
+        { id: 'p1', medicationName: 'Paracétamol', dosage: '1g', frequency: '3x/jour', duration: '5 jours', doctorName: 'Dr. Diop', adherence: '95%' },
+      ];
+    }
+    if (endpoint.includes('/analyses') || endpoint.includes('/medical-records') || endpoint.includes('/lab-tests')) {
+      return { bloodType: 'O+', allergies: ['Pénicilline'], status: 'Dossier Complet' };
+    }
+    if (endpoint.includes('/specialities')) {
+      return ['Médecine Générale', 'Cardiologie', 'Pédiatrie', 'Dermatologie'];
+    }
+    if (endpoint.includes('/profile')) {
+      return { id: '17', firstName: 'Amadou', lastName: 'Fall', email: 'amadou.qa-test@email.com', role: 'patient' };
+    }
+    if (endpoint.includes('/payments')) {
+      return { status: 'success', amount: 10000, currency: 'FCFA', method: 'Mobile Money' };
+    }
+    // Safe default — return empty array rather than undefined
+    return [];
+  }
 
+  private getHeaders(): HeadersInit {
+    const headers: HeadersInit = { ...API_CONFIG.HEADERS };
     const token = tokenStorage.getToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-
     return headers;
   }
 
-  // Gérer les erreurs de réponse
   private async handleResponse<T>(response: Response): Promise<T> {
     if (response.status === 401) {
-      // Token expiré ou invalide - déconnecter l'utilisateur
       tokenStorage.clearAuth();
       window.location.href = '/login';
       throw new ApiException('Session expirée, veuillez vous reconnecter', 401);
@@ -63,45 +97,33 @@ class ApiClient {
     if (!response.ok) {
       let errorMessage = 'Une erreur est survenue';
       let errors: Record<string, string[]> | undefined;
-
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
         errors = errorData.errors;
-      } catch {
-        // Ignorer les erreurs de parsing JSON
-      }
-
+      } catch { }
       throw new ApiException(errorMessage, response.status, errors);
     }
 
-    // Si la réponse est vide (204 No Content)
-    if (response.status === 204) {
-      return {} as T;
-    }
+    if (response.status === 204) return {} as T;
 
     return response.json();
   }
 
-  // Requête GET
+  // --- GET ---
   async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+    if (IS_DEMO) return Promise.resolve(this.getMockData(endpoint) as T);
+
     let url = `${this.baseUrl}${endpoint}`;
-    
     if (params) {
-      const searchParams = new URLSearchParams(params);
-      url += `?${searchParams.toString()}`;
+      url += `?${new URLSearchParams(params).toString()}`;
     }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: this.getHeaders(),
-        signal: controller.signal,
-      });
-
+      const response = await fetch(url, { method: 'GET', headers: this.getHeaders(), signal: controller.signal });
       clearTimeout(timeoutId);
       return this.handleResponse<T>(response);
     } catch (error) {
@@ -111,8 +133,10 @@ class ApiClient {
     }
   }
 
-  // Requête POST
+  // --- POST ---
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
+    if (IS_DEMO) return Promise.resolve({ success: true } as unknown as T);
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -123,7 +147,6 @@ class ApiClient {
         body: data ? JSON.stringify(data) : undefined,
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
       return this.handleResponse<T>(response);
     } catch (error) {
@@ -133,8 +156,10 @@ class ApiClient {
     }
   }
 
-  // Requête PUT
+  // --- PUT ---
   async put<T>(endpoint: string, data?: unknown): Promise<T> {
+    if (IS_DEMO) return Promise.resolve({ success: true } as unknown as T);
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -145,7 +170,6 @@ class ApiClient {
         body: data ? JSON.stringify(data) : undefined,
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
       return this.handleResponse<T>(response);
     } catch (error) {
@@ -155,8 +179,10 @@ class ApiClient {
     }
   }
 
-  // Requête DELETE
+  // --- DELETE ---
   async delete<T>(endpoint: string): Promise<T> {
+    if (IS_DEMO) return Promise.resolve({ success: true } as unknown as T);
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -166,7 +192,6 @@ class ApiClient {
         headers: this.getHeaders(),
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
       return this.handleResponse<T>(response);
     } catch (error) {
@@ -176,8 +201,10 @@ class ApiClient {
     }
   }
 
-  // Requête PATCH
+  // --- PATCH ---
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
+    if (IS_DEMO) return Promise.resolve({ success: true } as unknown as T);
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -188,7 +215,6 @@ class ApiClient {
         body: data ? JSON.stringify(data) : undefined,
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
       return this.handleResponse<T>(response);
     } catch (error) {
@@ -199,5 +225,4 @@ class ApiClient {
   }
 }
 
-// Instance unique du client API
 export const apiClient = new ApiClient();

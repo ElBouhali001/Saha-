@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { User, Loader2 } from 'lucide-react';
@@ -20,12 +19,35 @@ const DoctorSelector: React.FC<DoctorSelectorProps> = ({
   getPrimarySpecialty,
   doctorSpecialties
 }) => {
+
+  // ✅ Handles both data shapes:
+  // - Live backend: doctor.profile.first_name / doctor.profile.last_name
+  // - Mock data:    doctor.firstName / doctor.lastName
+  const getDoctorName = (doctor: any): string => {
+    const firstName = doctor.profile?.first_name || doctor.firstName || '';
+    const lastName  = doctor.profile?.last_name  || doctor.lastName  || '';
+    return `Dr. ${firstName} ${lastName}`.trim();
+  };
+
+  // ✅ Safe fee display — won't crash if consultation_fee is undefined
+  const getConsultationFee = (doctor: any): string => {
+    const fee = doctor.consultation_fee ?? doctor.consultationFee;
+    if (fee === undefined || fee === null) return 'Tarif sur place';
+    return `${fee.toLocaleString()} ${doctor.currency || 'FCFA'}`;
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-lg">Choisir un médecin</h3>
+
       {loadingDoctors ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin" />
+        </div>
+      ) : doctors.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <User className="w-10 h-10 mx-auto text-gray-300 mb-2" />
+          <p>Aucun médecin disponible.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -45,18 +67,14 @@ const DoctorSelector: React.FC<DoctorSelectorProps> = ({
                     <User className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium">
-                      Dr. {doctor.profile?.first_name} {doctor.profile?.last_name}
-                    </h4>
+                    <h4 className="font-medium">{getDoctorName(doctor)}</h4>
                     <p className="text-sm text-gray-600">{getPrimarySpecialty(doctor)}</p>
                     <p className="text-sm font-medium text-green-600">
-                      {doctor.consultation_fee.toLocaleString()} FCFA
+                      {getConsultationFee(doctor)}
                     </p>
                   </div>
                 </div>
-                <Badge variant="default">
-                  Disponible
-                </Badge>
+                <Badge variant="default">Disponible</Badge>
               </div>
             </div>
           ))}

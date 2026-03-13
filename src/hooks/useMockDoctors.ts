@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 export interface MockDoctor {
@@ -123,6 +122,26 @@ export const useMockDoctors = () => {
           specialty: {
             id: '5',
             name: 'Dermatologie'
+          }
+        }
+      ]
+    },
+    {
+      id: '6',
+      profile: {
+        first_name: 'Cheikh',
+        last_name: 'Diop'
+      },
+      consultation_fee: 10000,
+      availability_status: 'available',
+      doctor_specialties: [
+        {
+          id: '6',
+          is_primary: true,
+          specialty_id: '1',
+          specialty: {
+            id: '1',
+            name: 'Médecine Générale'
           }
         }
       ]
